@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Mail, Lock } from "lucide-react";
-import { Header } from "./Header";
+import { Header } from "../components/Header";
+import { Navigate, useNavigate } from "react-router-dom";
 
 export function SignUp() {
+  const navigate = useNavigate();
   function handleChange(event) {
     const { name, value } = event.target;
     setAccount((prevLogin) => ({
@@ -17,6 +19,10 @@ export function SignUp() {
     FirstName: "",
     LastName: "",
   });
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    navigate("/SignIn");
+  };
   return (
     <>
       <Header />
@@ -89,7 +95,10 @@ export function SignUp() {
               ></input>
             </div>
           </label>
-          <button className="rounded-full p-2 m-auto mt-8 pl-16 pr-16 bg-green-800 cursor-pointer drop-shadow-2xl text-white font-semibold text-2xl">
+          <button
+            className="rounded-full p-2 m-auto mt-8 pl-16 pr-16 bg-green-800 cursor-pointer drop-shadow-2xl text-white font-semibold text-2xl"
+            onClick={handleSubmit}
+          >
             Create Account
           </button>
         </form>

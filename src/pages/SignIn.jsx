@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { Mail, Lock } from "lucide-react";
-import { Header } from "./Header";
+import { Header } from "../components/Header";
+import { useNavigate } from "react-router-dom";
 
 export function SignIn() {
+  const navigate = useNavigate();
   function handleChange(event) {
     const { name, value } = event.target;
     setLogin((prevLogin) => ({
@@ -14,6 +16,10 @@ export function SignIn() {
     Email: "",
     Password: "",
   });
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    navigate("/Workpage/Board");
+  };
   return (
     <>
       <Header />
@@ -49,7 +55,10 @@ export function SignIn() {
                 type="password"
               ></input>
             </div>
-            <button className="rounded-full p-2 m-auto mt-8 pl-16 pr-16 bg-green-800 cursor-pointer drop-shadow-2xl text-white">
+            <button
+              className="rounded-full p-2 m-auto mt-8 pl-16 pr-16 bg-green-800 cursor-pointer drop-shadow-2xl text-white"
+              onClick={handleSubmit}
+            >
               Login
             </button>
           </label>
