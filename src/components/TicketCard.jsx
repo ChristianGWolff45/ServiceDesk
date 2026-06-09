@@ -35,7 +35,7 @@ export function TicketCard({
   }
 
   return (
-    <div className="bg-white rounded-sm p-2">
+    <div className="bg-white rounded-sm p-2 w-full">
       <p className="pl-2 text-xs">{id}</p>
       <p className="pl-2 font-semibold">{title}</p>
       <p className="pl-2 text-sm">{description}</p>
