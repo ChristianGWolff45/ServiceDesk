@@ -105,7 +105,7 @@ export function TicketFilter({
           <p>
             Category: <span className="font-semibold">{category}</span>
           </p>
-          {!statusDropdown ? <ChevronDown /> : <ChevronUp />}
+          {!categoryDropdown ? <ChevronDown /> : <ChevronUp />}
         </button>
         {categoryDropdown && (
           <div className="flex flex-col items-start absolute mt-16 w-full  rounded-md text-2xl gap-2 bg-sky-600 p-2 text-white">

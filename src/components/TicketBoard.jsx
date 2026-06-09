@@ -1,8 +1,13 @@
 import { TicketCard } from "./TicketCard";
 import { useTickets } from "../hooks/useTickets";
 import { TicketFilter } from "./TicketFilter";
+import { TicketKanban } from "./TicketKanban";
+import { List, Kanban } from "lucide-react";
+import { useState } from "react";
+import { TicketList } from "./TicketList";
 
 export function TicketBoard() {
+  const [isKanban, setIsKanban] = useState(false);
   const {
     tickets,
     status,
@@ -19,6 +24,24 @@ export function TicketBoard() {
 
   return (
     <div>
+      <div className="flex justify-between items-center text-6xl mt-16">
+        <h1 className=" ml-16  text-emerald-900 font-bold">Ticket Board</h1>
+        <div className="border flex items-center   mr-16 rounded-md">
+          <button
+            className={`cursor-pointer p-2 m-1 rounded-md ${!isKanban ? "bg-emerald-900 text-white" : "hover:bg-green-50"}`}
+            onClick={() => setIsKanban(false)}
+          >
+            <List className="w-12 h-auto " />
+          </button>
+          <button
+            onClick={() => setIsKanban(true)}
+            className={`cursor-pointer p-2 m-1 rounded-md ${isKanban ? "bg-emerald-900 text-white" : "hover:bg-green-50"}`}
+          >
+            <Kanban className="w-12 h-auto" />
+          </button>
+        </div>
+      </div>
+
       <TicketFilter
         status={status}
         setStatus={setStatus}
@@ -31,83 +54,11 @@ export function TicketBoard() {
         search={search}
         setSearch={setSearch}
       />
-      <div className="bg-linear-to-b from-emerald-900 to-green-700 grid m-16 p-8 rounded-2xl gap-4 grid-cols-[1fr_1fr_1fr_1fr_1fr] overflow-x-scroll">
-        <div className="bg-green-100 p-4 flex flex-col gap-4 h-fit mt-16 rounded-xl w-full">
-          <div className="flex justify-between items-center ">
-            <h1>Open</h1>
-            <span className="bg-white  rounded-full w-6 h-6 text-center">
-              {tickets.filter((ticket) => ticket.status === "OPEN").length}
-            </span>
-          </div>
-          {tickets
-            .filter((ticket) => ticket.status === "OPEN")
-            .map((ticket) => (
-              <TicketCard key={ticket.id} {...ticket} />
-            ))}
-        </div>
-
-        <div className="bg-green-100 p-4 flex flex-col gap-4 h-fit mt-16 rounded-xl w-full">
-          <div className="flex justify-between items-center ">
-            <h1>In Progress</h1>
-            <span className="bg-white  rounded-full w-6 h-6 text-center">
-              {
-                tickets.filter((ticket) => ticket.status === "IN_PROGRESS")
-                  .length
-              }
-            </span>
-          </div>
-          {tickets
-            .filter((ticket) => ticket.status === "IN_PROGRESS")
-            .map((ticket) => (
-              <TicketCard key={ticket.id} {...ticket} />
-            ))}
-        </div>
-
-        <div className="bg-green-100 p-4 flex flex-col gap-4 h-fit mt-16 rounded-xl w-full">
-          <div className="flex justify-between items-center ">
-            <h1>Waiting on User</h1>
-            <span className="bg-white  rounded-full w-6 h-6 text-center">
-              {
-                tickets.filter((ticket) => ticket.status === "WAITING_ON_USER")
-                  .length
-              }
-            </span>
-          </div>
-          {tickets
-            .filter((ticket) => ticket.status === "WAITING_ON_USER")
-            .map((ticket) => (
-              <TicketCard key={ticket.id} {...ticket} />
-            ))}
-        </div>
-
-        <div className="bg-green-100 p-4 flex flex-col gap-4 h-fit mt-16 rounded-xl w-full">
-          <div className="flex justify-between items-center ">
-            <h1>Resolved</h1>
-            <span className="bg-white  rounded-full w-6 h-6 text-center">
-              {tickets.filter((ticket) => ticket.status === "RESOLVED").length}
-            </span>
-          </div>
-          {tickets
-            .filter((ticket) => ticket.status === "RESOLVED")
-            .map((ticket) => (
-              <TicketCard key={ticket.id} {...ticket} />
-            ))}
-        </div>
-
-        <div className="bg-green-100 p-4 flex flex-col gap-4 h-fit mt-16 rounded-xl w-full">
-          <div className="flex justify-between items-center ">
-            <h1>Closed</h1>
-            <span className="bg-white  rounded-full w-6 h-6 text-center">
-              {tickets.filter((ticket) => ticket.status === "CLOSED").length}
-            </span>
-          </div>
-          {tickets
-            .filter((ticket) => ticket.status === "CLOSED")
-            .map((ticket) => (
-              <TicketCard key={ticket.id} {...ticket} />
-            ))}
-        </div>
-      </div>
+      {isKanban ? (
+        <TicketKanban tickets={tickets} />
+      ) : (
+        <TicketList tickets={tickets} />
+      )}
     </div>
   );
 }
