@@ -4,13 +4,14 @@ import { WorkspaceNavigation } from "../components/WorkspaceNavigation";
 import { Header } from "../components/Header";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { useState } from "react";
+import { Ticket } from "./Ticket";
 export function WorkPage() {
   const [navOpen, setNavOpen] = useState(true);
   return (
-    <div className="max-w-screen">
+    <div className="max-w-screen ">
       <Header />
       <div
-        className={`grid grid-cols-[1fr_5fr] gap-2  ${navOpen ? "grid-cols-[1fr_5fr]" : "grid-cols-[1fr_160fr]"}`}
+        className={`grid grid-cols-[1fr_5fr]  ${navOpen ? "grid-cols-[1fr_5fr]" : "grid-cols-[1fr_160fr]"}`}
       >
         <div
           className="bg-linear-to-b
@@ -21,7 +22,7 @@ export function WorkPage() {
               <WorkspaceNavigation />
               <button
                 onClick={() => setNavOpen(false)}
-                className="absolute left-1/8 cursor-pointer rounded-full opacity-0 hover:opacity-100 h-full"
+                className="absolute left-1/6 -translate-x-32 cursor-pointer rounded-full opacity-0 hover:opacity-100 h-full"
               >
                 <ChevronLeft className="text-white  w-32 h-auto" />
               </button>
@@ -37,6 +38,7 @@ export function WorkPage() {
         </div>
         <Routes>
           <Route path="Board" element={<TicketBoard />} />
+          <Route path="Board/tickets/:ticketId" element={<Ticket />} />
         </Routes>
       </div>
     </div>
