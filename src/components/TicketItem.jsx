@@ -1,0 +1,13 @@
+export function TicketItem({ key, ticket }) {
+  console.log(ticket);
+  return (
+    <div className="grid-cols-[1fr_2fr_1fr_1fr_1fr_1fr] grid bg-green-50 p-4 border-t rounded-b-lg border-emerald-900">
+      <p className="font-semibold ">{ticket.id}</p>
+      <p className="font-semibold ">{ticket.title}</p>
+      <p className="font-semibold ">{ticket.status}</p>
+      <p className="font-semibold ">{ticket.priority}</p>
+      <p className="font-semibold ">{ticket.assigneeId}</p>
+      <p className="font-semibold ">N/A</p>
+    </div>
+  );
+}

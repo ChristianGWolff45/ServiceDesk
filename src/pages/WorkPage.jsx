@@ -17,21 +17,21 @@ export function WorkPage() {
                 from-emerald-900 bg-green-700 min-h-screen rounded-r-md border-green-200 border"
         >
           {navOpen ? (
-            <>
+            <div className="flex">
               <WorkspaceNavigation />
               <button
                 onClick={() => setNavOpen(false)}
-                className="absolute left-1/8 top-1/2 cursor-pointer  rounded-full opacity-0 hover:opacity-100"
+                className="absolute left-1/8 cursor-pointer rounded-full opacity-0 hover:opacity-100 h-full"
               >
-                <ChevronLeft className="hover:text-white p-4 hover:block w-32 h-auto" />
+                <ChevronLeft className="text-white  w-32 h-auto" />
               </button>
-            </>
+            </div>
           ) : (
             <button
               onClick={() => setNavOpen(true)}
-              className="absolute left-0 top-1/2 cursor-pointer rounded-full opacity-0 hover:opacity-100"
+              className="absolute left-0 cursor-pointer rounded-full opacity-0 hover:opacity-100 h-full"
             >
-              <ChevronRight className="hover:text-emerald-900 hover:block w-24 h-auto" />
+              <ChevronRight className="text-emerald-900 w-24 h-auto" />
             </button>
           )}
         </div>

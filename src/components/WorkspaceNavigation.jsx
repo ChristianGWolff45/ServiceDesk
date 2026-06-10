@@ -14,7 +14,7 @@ export function WorkspaceNavigation() {
   };
   return (
     <div className="h-full">
-      <div className="flex flex-col justify-start items-start h-full p-4 bg-gradient-to-b from-emerald-950 to-green-700 h-screen text-white text-2xl">
+      <div className="flex flex-col justify-start items-start  p-4  text-white text-2xl">
         <p className="p-1">Tickets</p>
         <div>
           <button
