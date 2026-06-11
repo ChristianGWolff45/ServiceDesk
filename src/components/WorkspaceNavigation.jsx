@@ -6,8 +6,10 @@ import {
   ChevronLeft,
 } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export function WorkspaceNavigation() {
+  const navigate = useNavigate();
   const [select, setSelected] = useState("All Tickets");
   const handleSelectedChange = (selected) => {
     setSelected(selected);
@@ -18,16 +20,19 @@ export function WorkspaceNavigation() {
         <p className="p-1">Tickets</p>
         <div>
           <button
-            className={`flex gap-2 p-1 rounded-sm cursor-pointer items-center ${select === "ALL_TICKETS" ? "bg-sky-600" : "hover:bg-sky-500"}`}
-            onClick={() => handleSelectedChange("ALL_TICKETS")}
+            className={`flex gap-2 p-1 rounded-sm cursor-pointer items-center `}
+            onClick={() => {
+              handleSelectedChange("ALL_TICKETS");
+              navigate("/Workpage/Board");
+            }}
           >
             <FolderKanban />
             All Tickets
           </button>
         </div>
-        <div>
+        {/* <div>
           <button
-            className={`flex gap-2 p-1 rounded-sm cursor-pointer items-center ${select === "MY_TICKETS" ? "bg-sky-600" : "hover:bg-sky-500"}`}
+            className={`flex gap-2 p-1 rounded-sm cursor-pointer items-center}
             onClick={() => handleSelectedChange("MY_TICKETS")}
           >
             <TicketCheck />
@@ -36,13 +41,13 @@ export function WorkspaceNavigation() {
         </div>
         <div>
           <button
-            className={`flex gap-2 p-1 rounded-sm cursor-pointer items-center  ${select === "UNASSIGNED_TICKETS" ? "bg-sky-600" : "hover:bg-sky-500"}`}
+            className={`flex gap-2 p-1 rounded-sm cursor-pointer items-center }
             onClick={() => handleSelectedChange("UNASSIGNED_TICKETS")}
           >
             <TicketX />
             Unassigned Tickets
           </button>
-        </div>
+        </div> */}
       </div>
     </div>
   );

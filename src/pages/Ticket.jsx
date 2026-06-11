@@ -1,5 +1,7 @@
 import { useParams } from "react-router-dom";
 import { useTickets } from "../hooks/useTickets";
+import { useState } from "react";
+
 import {
   Tag,
   TriangleAlert,
@@ -7,6 +9,12 @@ import {
   UserPlus,
   ChevronDown,
   ChevronUp,
+  CheckCircle,
+  XCircle,
+  Mail,
+  Activity,
+  Calendar,
+  User,
 } from "lucide-react";
 
 export function Ticket() {
@@ -15,11 +23,16 @@ export function Ticket() {
   const { tickets } = useTickets();
   const ticket = tickets.find((ticket) => ticket.id === ticketId);
 
+  const [statusDropdown, setStatusDropdown] = useState(false);
+  const [status, setStatus] = useState(ticket.status);
+  const [priorityDropdown, setPriorityDropdown] = useState(false);
+  const [priority, setPriority] = useState(ticket.priority);
+
   return (
     <div className="bg-lime-50">
-      <div className="grid grid-cols-[2fr_1fr]  justify-self-center w-500">
+      <div className="grid grid-cols-[2fr_1fr] gap-12 justify-self-center w-full">
         <div>
-          <div className="m-20 p-6 border bg-white border-emerald-900 rounded-2xl  flex-col flex gap-2">
+          <div className="ml-20 mt-20 p-6 border bg-white border-emerald-900 rounded-2xl  flex-col flex gap-2">
             <p className="flex gap-4 ml-2 text-xl items-center">
               <span className="p-2 pl-4 pr-4 border-emerald-900 bg-green-100 rounded-md border">
                 {ticket.id}
@@ -54,24 +67,117 @@ export function Ticket() {
             </div>
           </div>
         </div>
-        <div>
-          <div className="border bg-white border-emerald-900 m-20 rounded-2xl flex flex-col text-lg p-8">
-            <p>Actions</p>
-            <p>manage this ticket</p>
+        <div className="flex flex-col gap-12 mr-20 mt-20">
+          <div className="border bg-white border-emerald-900 rounded-2xl flex flex-col text-lg p-6 gap-6">
+            <div>
+              <p className="text-xl font-bold">Actions</p>
+              <p>manage this ticket</p>
+            </div>
 
-            <button className="flex gap-2">
-              <UserPlus /> Assign to me
+            <button className="flex gap-2 w-full bg-green-700 text-white font-semibold rounded-xl cursor-pointer justify-center p-4 text-2xl items-center">
+              <UserPlus />
+              <p>Assign to me</p>
             </button>
             <label>
-              <p className="text-xl font-semibold">Status</p>
-              <button className="w-full   bg-green-700 text-white rounded-lg p-2">
+              <p className="text-xl font-semibold mb-2">Status</p>
+              <button
+                onClick={() => setStatusDropdown(!statusDropdown)}
+                className="flex items-center bg-green-100 border border-emerald-900 rounded-lg w-full justify-between p-4 cursor-pointer text-2xl font-semibold text-emerald-900 "
+              >
                 {ticket.status}
+                {statusDropdown ? <ChevronUp /> : <ChevronDown />}
               </button>
             </label>
-            <label>
-              Priority
-              <button>{ticket.priority}</button>
+            <label className="">
+              <p className="text-xl font-semibold mb-2">Priority </p>
+              <button
+                onClick={() => setPriorityDropdown(!priorityDropdown)}
+                className="flex items-center bg-green-100 border border-emerald-900 rounded-lg w-full justify-between p-4 cursor-pointer text-2xl font-semibold text-emerald-900 "
+              >
+                {ticket.priority}
+                {priorityDropdown ? <ChevronUp /> : <ChevronDown />}
+              </button>
             </label>
+            <div className="flex gap-4 w-full justify-between">
+              <button className="flex items-center gap-2 text-2xl font-semibold w-full bg-green-100 border-emerald-900 pt-4 pb-4 justify-center rounded-xl border text-emerald-900 cursor-pointer hover:bg-green-200">
+                <CheckCircle />
+                Resolve
+              </button>
+              <button className="flex items-center gap-2 text-2xl font-semibold w-full bg-orange-100 border-amber-900 border rounded-xl pt-4 pb-4 justify-center text-amber-900 cursor-pointer hover:bg-orange-200">
+                <XCircle />
+                Close
+              </button>
+            </div>
+          </div>
+          <div className="bg-white border flex flex-col text-lg  gap-4 rounded-xl border-emerald-900 w-full p-6">
+            <h1 className="font-bold">Ticket Details</h1>
+            <div className="flex justify-between">
+              <div className="flex gap-2 items-center font-semibold">
+                <User />
+                <p>Requester</p>
+              </div>
+              <p className="font-bold">REQUESTER_NAME</p>
+            </div>
+
+            <div className="flex justify-between">
+              <div className="flex gap-2 items-center font-semibold">
+                <Mail />
+                <p>Email</p>
+              </div>
+              <p className="font-bold"> REQUESTER_EMAIL</p>
+            </div>
+
+            <div className="flex justify-between">
+              <div className="flex gap-2 items-center font-semibold">
+                <User />
+                <p>Assignee</p>
+              </div>
+              <p className="font-bold">ASSIGNEE_NAME</p>
+            </div>
+
+            <div className="flex justify-between">
+              <div className="flex gap-2 items-center font-semibold">
+                <Activity />
+                <p>Status</p>
+              </div>
+              <p className="font-bold">{ticket.status}</p>
+            </div>
+
+            <div className="flex justify-between">
+              <div className="flex gap-2 items-center font-semibold">
+                <TriangleAlert />
+                <p>Priority</p>
+              </div>
+              <p className="font-bold">{ticket.priority}</p>
+            </div>
+
+            <div className="flex justify-between">
+              <div className="flex gap-2 items-center font-semibold">
+                <Tag />
+                <p>Category</p>
+              </div>
+              <p className="font-bold">{ticket.category}</p>
+            </div>
+
+            <div className="flex justify-between">
+              <div className="flex gap-2 items-center font-semibold">
+                <Calendar />
+                <p>Created</p>
+              </div>
+              <p className="font-bold">
+                {new Date(ticket.createdAt).toLocaleDateString()}
+              </p>
+            </div>
+
+            <div className="flex justify-between">
+              <div className="flex gap-2 items-center font-semibold">
+                <Calendar />
+                <p>Updated</p>
+              </div>
+              <p className="font-bold">
+                {new Date(ticket.updatedAt).toLocaleDateString()}
+              </p>
+            </div>
           </div>
         </div>
       </div>

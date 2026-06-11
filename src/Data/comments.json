@@ -1,0 +1,29 @@
+[
+  {
+    "id": "c1",
+    "ticketId": "t1",
+    "authorId": "u1",
+    "body": "I am still having this issue. The WiFi disconnects every few minutes.",
+    "isInternal": false,
+    "createdAt": "2026-06-10T14:45:00Z",
+    "updatedAt": "2026-06-10T14:45:00Z"
+  },
+  {
+    "id": "c2",
+    "ticketId": "t1",
+    "authorId": "u4",
+    "body": "I checked the router logs. Looks like this may be isolated to the second floor access point.",
+    "isInternal": true,
+    "createdAt": "2026-06-10T15:02:00Z",
+    "updatedAt": "2026-06-10T15:02:00Z"
+  },
+  {
+    "id": "c3",
+    "ticketId": "t1",
+    "authorId": "u4",
+    "body": "Thanks for the update. I am looking into the access point now.",
+    "isInternal": false,
+    "createdAt": "2026-06-10T15:05:00Z",
+    "updatedAt": "2026-06-10T15:05:00Z"
+  }
+]

@@ -1,0 +1,66 @@
+[
+  {
+    "id": "u1",
+    "email": "alex.morgan@example.com",
+    "phoneNumber": "803-555-0142",
+    "role": "REQUESTER",
+    "firstName": "Alex",
+    "lastName": "Morgan"
+  },
+  {
+    "id": "u2",
+    "email": "jamie.lee@example.com",
+    "phoneNumber": "803-555-0188",
+    "role": "REQUESTER",
+    "firstName": "Jamie",
+    "lastName": "Lee"
+  },
+  {
+    "id": "u3",
+    "email": "taylor.brooks@example.com",
+    "phoneNumber": "803-555-0119",
+    "role": "REQUESTER",
+    "firstName": "Taylor",
+    "lastName": "Brooks"
+  },
+  {
+    "id": "u4",
+    "email": "morgan.rivera@example.com",
+    "phoneNumber": "803-555-0163",
+    "role": "AGENT",
+    "firstName": "Morgan",
+    "lastName": "Rivera"
+  },
+  {
+    "id": "u5",
+    "email": "casey.nguyen@example.com",
+    "phoneNumber": "803-555-0127",
+    "role": "AGENT",
+    "firstName": "Casey",
+    "lastName": "Nguyen"
+  },
+  {
+    "id": "u6",
+    "email": "jordan.patel@example.com",
+    "phoneNumber": "803-555-0194",
+    "role": "AGENT",
+    "firstName": "Jordan",
+    "lastName": "Patel"
+  },
+  {
+    "id": "u7",
+    "email": "riley.carter@example.com",
+    "phoneNumber": "803-555-0156",
+    "role": "ADMIN",
+    "firstName": "Riley",
+    "lastName": "Carter"
+  },
+  {
+    "id": "u8",
+    "email": "sam.wilson@example.com",
+    "phoneNumber": "803-555-0173",
+    "role": "ADMIN",
+    "firstName": "Sam",
+    "lastName": "Wilson"
+  }
+]
