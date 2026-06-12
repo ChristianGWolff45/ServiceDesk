@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
+const crypto = require("crypto");
 
-const users = require("../data/users.js");
+let users = require("../data/users.js");
 router.get("/", (req, res) => {
   res.json(users);
 });
@@ -14,20 +15,29 @@ router.get("/:id", (req, res) => {
   res.json(user);
 });
 
-router.put("/", (req, res) => {
+router.post("/", (req, res) => {
   if (
-    req.firstName === undefined ||
-    req.lastName === undefined ||
-    req.email === undefined ||
-    req.role === undefined ||
-    req.department === undefined
+    req.body.firstName === undefined ||
+    req.body.lastName === undefined ||
+    req.body.email === undefined ||
+    req.body.role === undefined ||
+    req.body.department === undefined
   ) {
-    return res
-      .status(400)
-      .json({
-        message: "firstname, lastname, email, role, or department is missing",
-      });
+    return res.status(400).json({
+      message: "firstname, lastname, email, role, or department is missing",
+    });
   }
+  const user = {
+    id: "USER-" + crypto.randomUUID(),
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    email: req.body.email,
+    role: req.body.role,
+    department: req.body.department,
+    createdAt: new Date().toISOString(),
+  };
+  users.push(user);
+  res.json({ message: "user created succefully" });
 });
 
 router.patch("/:id", (req, res) => {
@@ -46,6 +56,15 @@ router.patch("/:id", (req, res) => {
   }
 
   res.json(user);
+});
+
+router.delete("/:id", (req, res) => {
+  const exists = users.some((user) => user.id === req.params.id);
+  if (!exists) {
+    return res.status(404).json({ message: "user does not exist" });
+  }
+  users = users.filter((user) => user.id !== req.params.id);
+  res.json({ message: "succefully deleted user" });
 });
 
 module.exports = router;

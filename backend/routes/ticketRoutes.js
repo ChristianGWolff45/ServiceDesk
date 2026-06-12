@@ -72,11 +72,11 @@ router.patch("/:id", (req, res) => {
 });
 
 router.delete("/:id", (req, res) => {
-  const exists = tickets.some((ticket) => ticketId === req.params.id);
+  const exists = tickets.some((ticket) => ticket.id === req.params.id);
   if (!exists) {
     return res.status(404).json({ message: "ticket not found" });
   }
-  tickets = tickets.filter((ticket) => ticketId !== req.params.id);
+  tickets = tickets.filter((ticket) => ticket.id !== req.params.id);
 
   res.json({ message: "ticket deleted succefully" });
 });

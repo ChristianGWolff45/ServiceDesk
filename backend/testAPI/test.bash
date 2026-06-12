@@ -33,8 +33,7 @@ curl -X POST http://localhost:5000/api/users \
     "lastName" : "Wolff",
     "email":"cgwolff@srcare.org",
     "role": "ADMIN",
-    department: "IT"
-
+    "department": "IT"
 }'
 
 
@@ -46,3 +45,5 @@ curl -X PATCH http://localhost:5000/api/users/u1 \
 -d '{
   "role": "AGENT"
 }'
+
+curl -X DELETE http://localhost:5000/api/users/u1
