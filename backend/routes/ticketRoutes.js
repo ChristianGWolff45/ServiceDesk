@@ -1,84 +1,29 @@
 const express = require("express");
 
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 
 let tickets = require("../data/tickets");
 
-router.get("/", (req, res) => {
-  res.json(tickets);
-});
+const {
+  getAllTickets,
+  getTicketById,
+  createTicket,
+  updateTicket,
+  updateTicketStatus,
+  updateTicketPriority,
+  assignTicket,
+  deleteTicket,
+} = require("../controller/ticketController");
 
-router.get("/:id", (req, res) => {
-  const ticket = tickets.find((ticket) => {
-    return ticket.id === req.params.id;
-  });
+const ticketValidation = require("../middleware/ticketValidation");
 
-  if (!ticket) {
-    return res.status(404).json({ message: "Ticket not found" });
-  }
-  res.json(ticket);
-});
-
-router.post("/", (req, res) => {
-  const { title, description, priority, category, requesterId } = req.body;
-
-  if (!title || !description || !priority || !category || !requesterId) {
-    return res.status(400).json({
-      message:
-        "title, description, priority, category, or requesterId is missing",
-    });
-  }
-
-  const newTicket = {
-    id: "TCK-" + crypto.randomUUID(),
-    title,
-    description,
-    status: "OPEN",
-    priority,
-    category,
-    requesterId,
-    assigneeId: null,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-
-  tickets.push(newTicket);
-
-  res.status(201).json(newTicket);
-});
-
-router.patch("/:id", (req, res) => {
-  const ticket = tickets.find((ticket) => ticket.id === req.params.id);
-  if (!ticket) {
-    return res.status(404).json({ message: "no ticket with this id found" });
-  }
-  const keys = [
-    "title",
-    "description",
-    "status",
-    "priority",
-    "category",
-    "assigneeId",
-  ];
-  for (const key of keys) {
-    if (req.body[key] !== undefined) {
-      ticket[key] = req.body[key];
-    }
-  }
-
-  ticket.updatedAt = new Date().toISOString();
-
-  res.json(ticket);
-});
-
-router.delete("/:id", (req, res) => {
-  const exists = tickets.some((ticket) => ticket.id === req.params.id);
-  if (!exists) {
-    return res.status(404).json({ message: "ticket not found" });
-  }
-  tickets = tickets.filter((ticket) => ticket.id !== req.params.id);
-
-  res.json({ message: "ticket deleted succefully" });
-});
+router.get("/", getAllTickets);
+router.get("/:ticketId", ticketValidation, getTicketById);
+router.post("/", createTicket);
+router.patch("/:ticketId", ticketValidation, updateTicket);
+router.patch("/:ticketId/priority", ticketValidation, updateTicketPriority);
+router.patch("/:ticketId/status", ticketValidation, updateTicketStatus);
+router.patch("/:ticketId/assignee", ticketValidation, assignTicket);
+router.delete("/:ticketId", ticketValidation, deleteTicket);
 
 module.exports = router;

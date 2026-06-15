@@ -1,70 +1,28 @@
 const express = require("express");
-const router = express.Router();
+const router = express.Router({ mergeParams: true });
 const crypto = require("crypto");
+const userValidation = require("../middleware/userValidation.js");
+
+const {
+  getAllUsers,
+  getUserById,
+  createUser,
+  updateUser,
+  updateUserRole,
+  deleteUser,
+} = require("../controller/userController");
 
 let users = require("../data/users.js");
-router.get("/", (req, res) => {
-  res.json(users);
-});
+router.get("/", getAllUsers);
 
-router.get("/:id", (req, res) => {
-  const user = users.find((user) => user.id === req.params.id);
-  if (!user) {
-    return res.status(404).json({ message: "could not find user" });
-  }
-  res.json(user);
-});
+router.get("/:userId", userValidation, getUserById);
 
-router.post("/", (req, res) => {
-  if (
-    req.body.firstName === undefined ||
-    req.body.lastName === undefined ||
-    req.body.email === undefined ||
-    req.body.role === undefined ||
-    req.body.department === undefined
-  ) {
-    return res.status(400).json({
-      message: "firstname, lastname, email, role, or department is missing",
-    });
-  }
-  const user = {
-    id: "USER-" + crypto.randomUUID(),
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    email: req.body.email,
-    role: req.body.role,
-    department: req.body.department,
-    createdAt: new Date().toISOString(),
-  };
-  users.push(user);
-  res.json({ message: "user created succefully" });
-});
+router.post("/", createUser);
 
-router.patch("/:id", (req, res) => {
-  const user = users.find((user) => {
-    return user.id == req.params.id;
-  });
-  if (!user) {
-    return res.status(404).json({ message: "user not found" });
-  }
+router.patch("/:userId", userValidation, updateUser);
 
-  const keys = ["firstName", "lastName", "email", "role", "department"];
-  for (const key of keys) {
-    if (req.body[key] !== undefined) {
-      user[key] = req.body[key];
-    }
-  }
+router.patch("/:userId/userRole", userValidation, updateUserRole);
 
-  res.json(user);
-});
-
-router.delete("/:id", (req, res) => {
-  const exists = users.some((user) => user.id === req.params.id);
-  if (!exists) {
-    return res.status(404).json({ message: "user does not exist" });
-  }
-  users = users.filter((user) => user.id !== req.params.id);
-  res.json({ message: "succefully deleted user" });
-});
+router.delete("/:userId", userValidation, deleteUser);
 
 module.exports = router;
