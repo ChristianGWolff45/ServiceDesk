@@ -1,4 +1,4 @@
-const comments = require("../data/comments");
+let comments = require("../data/comments");
 
 function getCommentsByTicketId(req, res) {
   let ticketComments = comments.filter(
@@ -8,6 +8,7 @@ function getCommentsByTicketId(req, res) {
 }
 
 function getCommentById(req, res) {
+  console.log("comment id ", req.params.commentId);
   res.json(
     comments.find((comment) => {
       comment.id === req.params.commentId;
@@ -25,6 +26,7 @@ function createComment(req, res) {
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };
+  res.json(newTicket);
 }
 
 function updateComment(req, res) {
@@ -33,7 +35,7 @@ function updateComment(req, res) {
   );
   comment.body = req.body.body;
   comment.updatedAt = new Date().toISOString();
-  res.josn(comment);
+  res.json(comment);
 }
 
 function deleteComment(req, res) {

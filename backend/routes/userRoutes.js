@@ -1,7 +1,10 @@
 const express = require("express");
 const router = express.Router({ mergeParams: true });
 const crypto = require("crypto");
-const userValidation = require("../middleware/userValidation.js");
+const {
+  userValidation,
+  userParamValidation,
+} = require("../middleware/userValidation.js");
 
 const {
   getAllUsers,
@@ -15,14 +18,14 @@ const {
 let users = require("../data/users.js");
 router.get("/", getAllUsers);
 
-router.get("/:userId", userValidation, getUserById);
+router.get("/:userId", userParamValidation, getUserById);
 
 router.post("/", createUser);
 
-router.patch("/:userId", userValidation, updateUser);
+router.patch("/:userId", userParamValidation, updateUser);
 
-router.patch("/:userId/userRole", userValidation, updateUserRole);
+router.patch("/:userId/userRole", userParamValidation, updateUserRole);
 
-router.delete("/:userId", userValidation, deleteUser);
+router.delete("/:userId", userParamValidation, deleteUser);
 
 module.exports = router;

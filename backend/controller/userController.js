@@ -1,11 +1,11 @@
-const users = require("../data/users");
+let users = require("../data/users");
 
 function getAllUsers(req, res) {
   res.json(users);
 }
 
 function getUserById(req, res) {
-  res.json(users.find(users.id === req.params.userId));
+  res.json(users.find((user) => user.id === req.params.userId));
 }
 
 function createUser(req, res) {
@@ -14,12 +14,10 @@ function createUser(req, res) {
     req.body.lastName === undefined ||
     req.body.phoneNumber === undefined ||
     req.body.email === undefined ||
-    req.body.role === undefined ||
-    req.body.department === undefined
+    req.body.role === undefined
   ) {
     return res.status(400).json({
-      message:
-        "firstname, lastname, phonenumber, email, role, or department is missing",
+      message: "firstname, lastname, phonenumber, email, or role is missing",
     });
   }
   const user = {
@@ -28,7 +26,6 @@ function createUser(req, res) {
     lastName: req.body.lastName,
     email: req.body.email,
     role: req.body.role,
-    department: req.body.department,
     createdAt: new Date().toISOString(),
   };
   users.push(user);
@@ -54,8 +51,8 @@ function updateUserRole(req, res) {
 }
 
 function deleteUser(req, res) {
-  users = users.filter((user) => user.id !== req.params.id);
-  res.json({ message: "user succefully deleted" });
+  users = users.filter((user) => user.id !== req.params.userId);
+  res.sendStatus(204);
 }
 
 module.exports = {
@@ -66,9 +63,3 @@ module.exports = {
   updateUserRole,
   deleteUser,
 };
-
-// getCommentsByTicketId
-// getCommentById
-// createComment
-// updateComment
-// deleteComment

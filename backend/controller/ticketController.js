@@ -1,20 +1,24 @@
-const tickets = require("../data/tickets");
+const { Construction } = require("lucide-react");
+let tickets = require("../data/tickets");
 
 function getAllTickets(req, res) {
-  return res.json(tickets);
+  res.json(tickets);
 }
 
 function getTicketById(req, res) {
-  res.json(tickets.find((ticket) => ticket.id === req.params.Id));
+  res.json(
+    tickets.find((ticket) => {
+      return ticket.id === req.params.ticketId;
+    }),
+  );
 }
 
-function createTicket(res, req) {
+function createTicket(req, res) {
   const { title, description, category, requesterId } = req.body;
 
   if (!title || !description || !category || !requesterId) {
     return res.status(400).json({
-      message:
-        "title, description, priority, category, or requesterId is missing",
+      message: "title, description, category, or requesterId is missing",
     });
   }
 
@@ -37,6 +41,7 @@ function createTicket(res, req) {
 }
 
 function updateTicket(req, res) {
+  const ticket = tickets.find((ticket) => (ticket.id = req.params.ticketId));
   const keys = ["title", "description", "category"];
   for (const key of keys) {
     if (req.body[key] !== undefined) {
@@ -67,7 +72,7 @@ function assignTicket(req, res) {
 
 function deleteTicket(req, res) {
   tickets = tickets.filter((ticket) => ticket.id !== req.params.ticketId);
-  res.status(201).json({ message: "ticket deleted succefully" });
+  res.status(204).json({ message: "ticket deleted succefully" });
 }
 
 module.exports = {

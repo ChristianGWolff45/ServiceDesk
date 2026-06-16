@@ -16,14 +16,24 @@ const {
 } = require("../controller/ticketController");
 
 const ticketValidation = require("../middleware/ticketValidation");
+const {
+  userValidation,
+  requesterValidation,
+  assigneeValidation,
+} = require("../middleware/userValidation");
 
 router.get("/", getAllTickets);
 router.get("/:ticketId", ticketValidation, getTicketById);
-router.post("/", createTicket);
+router.post("/", requesterValidation, createTicket);
 router.patch("/:ticketId", ticketValidation, updateTicket);
 router.patch("/:ticketId/priority", ticketValidation, updateTicketPriority);
 router.patch("/:ticketId/status", ticketValidation, updateTicketStatus);
-router.patch("/:ticketId/assignee", ticketValidation, assignTicket);
+router.patch(
+  "/:ticketId/assignee",
+  ticketValidation,
+  assigneeValidation,
+  assignTicket,
+);
 router.delete("/:ticketId", ticketValidation, deleteTicket);
 
 module.exports = router;
