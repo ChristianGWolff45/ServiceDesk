@@ -12,7 +12,7 @@ const comments = require("../data/comments");
 const tickets = require("../data/tickets");
 const TicketValidation = require("../middleware/ticketValidation");
 const commentValidation = require("../middleware/commentValidation");
-const { authorValidation } = require("../middleware/userValidation");
+const { userBodyValidation } = require("../middleware/userValidation");
 const {
   getCommentsByTicketId,
   getCommentById,
@@ -25,7 +25,12 @@ router.get("/", TicketValidation, getCommentsByTicketId);
 
 router.get("/:commentId", commentValidation, getCommentById);
 
-router.post("/", TicketValidation, authorValidation, createComment);
+router.post(
+  "/",
+  TicketValidation,
+  userBodyValidation("AuthorId"),
+  createComment,
+);
 
 router.patch("/:commentId", commentValidation, updateComment);
 

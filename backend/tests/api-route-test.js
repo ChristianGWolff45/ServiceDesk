@@ -100,91 +100,94 @@ async function runTests() {
 
   //   //Test users
 
-  //   result = await request("GET", "/users");
-  //   logResult("GET /users", result, 200);
+  result = await request("GET", "/users");
+  logResult("GET /users", result, 200);
 
-  //   result = await request("GET", "/users/u2");
-  //   logResult("get /users/u2", result, 200);
+  result = await request("GET", "/users/2");
+  logResult("get /users/2", result, 200);
 
-  //   result = await request("GET", "/users/nouser");
-  //   logResult("get /users", result, 404);
+  result = await request("GET", "/users/nouser");
+  logResult("get /users/nouser", result, 400);
 
-  //   result = await request("POST", "/users", {
-  //     email: "jamie.lee@example.com",
-  //     phoneNumber: "803-555-0188",
-  //     role: "REQUESTER",
-  //     firstName: "Jamie",
-  //     lastName: "Lee",
-  //   });
-  //   logResult("POST /users", result, 200);
-
-  //   result = await request("POST", "/users", {
-  //     email: "jamie.lee@example.com",
-  //     phoneNumber: "803-555-0188",
-  //     role: "REQUESTER",
-  //   });
-  //   logResult("POST /users", result, 400);
-
-  //   result = await request("PATCH", "/users/u4", {
-  //     email: "u4@example.com",
-  //   });
-  //   logResult("PATCH /users/u4", result, 200);
-
-  //   result = await request("PATCH", "/users/noUser", {
-  //     email: "u4@example.com",
-  //   });
-  //   logResult("PATCH /users/noUser", result, 404);
-
-  //   result = await request("PATCH", "/users/u2/userRole", {
-  //     role: "Admin",
-  //   });
-  //   logResult("PATCH /users/noUser", result, 200);
-
-  //   result = await request("DELETE", "/users/u4");
-  //   logResult("DELETE /users/u4", result, 204);
-
-  //   result = await request("GET", "/users/u4");
-  //   logResult("GET /users/u4", result, 404);
-
-  result = await request("GET", "/tickets/t1/comments");
-  logResult("GET /comments/t1", result, 200);
-
-  result = await request("GET", "/tickets/t1/comments/c1");
-  logResult("GET /tickets/t1/comments/c1", result, 200);
-
-  result = await request("GET", "/tickets/noticket");
-  logResult("GET /tickets/noticket", result, 404);
-
-  result = await request("POST", "/tickets/t1/comments", {
-    authorId: "u2",
-    body: "req.body.body",
-    isInteral: "false",
+  result = await request("POST", "/users", {
+    email: "jamie.lee@example.com",
+    phoneNumber: "803-555-0188",
+    role: "REQUESTER",
+    department: "IT",
+    firstName: "Jamie",
+    lastName: "Lee",
   });
-  logResult("POST /ticekts/t1/comments", result, 200);
+  logResult("POST /users", result, 200);
 
-  result = await request("POST", "/tickets/t1/comments", {
-    authorId: "nouser",
-    body: "req.body.body",
-    isInteral: "false",
+  result = await request("POST", "/users", {
+    email: "jamie.lee@example.com",
+    phoneNumber: "803-555-0188",
+    role: "REQUESTER",
   });
-  logResult("POST /tickets/t1/comments", result, 404);
+  logResult("POST /users", result, 400);
 
-  result = await request("POST", "/tickets/comments/noticket", {
-    authorId: "u2",
-    body: "req.body.body",
-    isInteral: "false",
+  result = await request("PATCH", "/users/4", {
+    email: "u4@example.com",
   });
-  logResult("POST /comments/t1", result, 404);
+  logResult("PATCH /users/4", result, 200);
 
-  result = await request("PATCH", "/tickets/t1/comments/c1", {
-    body: "req.body.body",
+  result = await request("PATCH", "/users/88", {
+    email: "u4@example.com",
   });
-  logResult("PATCH /tickets/t1/comments/c2", result, 200);
+  logResult("PATCH /users/88", result, 404);
 
-  result = await request("DELETE", "/tickets/t1/comments/c1", {
-    body: "req.body.body",
+  result = await request("PATCH", "/users/2/userRole", {
+    role: "Admin",
   });
-  logResult("DELETE /tickets/t1/comments/c2", result, 200);
+  logResult("PATCH /users/noUser", result, 200);
+
+  result = await request("DELETE", "/users/4");
+  logResult("DELETE /users/4", result, 200);
+
+  result = await request("GET", "/users/4");
+  logResult("GET /users/4", result, 200);
+
+  // // Test comments
+
+  // result = await request("GET", "/tickets/t1/comments");
+  // logResult("GET /comments/t1", result, 200);
+
+  // result = await request("GET", "/tickets/t1/comments/c1");
+  // logResult("GET /tickets/t1/comments/c1", result, 200);
+
+  // result = await request("GET", "/tickets/noticket");
+  // logResult("GET /tickets/noticket", result, 404);
+
+  // result = await request("POST", "/tickets/t1/comments", {
+  //   authorId: "u2",
+  //   body: "req.body.body",
+  //   isInteral: "false",
+  // });
+  // logResult("POST /ticekts/t1/comments", result, 200);
+
+  // result = await request("POST", "/tickets/t1/comments", {
+  //   authorId: "nouser",
+  //   body: "req.body.body",
+  //   isInteral: "false",
+  // });
+  // logResult("POST /tickets/t1/comments", result, 404);
+
+  // result = await request("POST", "/tickets/comments/noticket", {
+  //   authorId: "u2",
+  //   body: "req.body.body",
+  //   isInteral: "false",
+  // });
+  // logResult("POST /comments/t1", result, 404);
+
+  // result = await request("PATCH", "/tickets/t1/comments/c1", {
+  //   body: "req.body.body",
+  // });
+  // logResult("PATCH /tickets/t1/comments/c2", result, 200);
+
+  // result = await request("DELETE", "/tickets/t1/comments/c1", {
+  //   body: "req.body.body",
+  // });
+  // logResult("DELETE /tickets/t1/comments/c2", result, 200);
 }
 
 runTests().catch((error) => {

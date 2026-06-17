@@ -1,48 +1,60 @@
-const users = require("../data/users");
+const pool = require("../db");
 
-function userParamValidation(req, res, next) {
-  const userFound = users.some((user) => user.id === req.params.userId);
-  if (!userFound) {
-    return res.status(404).json({ message: "user not found" });
+async function userParamValidation(req, res, next) {
+  const id = Number(req.params.userId);
+  if (!Number.isInteger(id) || id <= 0) {
+    return res
+      .status(400)
+      .json({ message: "userId must be a positive integer" });
+  }
+  try {
+    const user = await pool.query(
+      `
+        SELECT *
+        FROM users
+        WHERE id = $1
+      `,
+      [id],
+    );
+    if (user.rows.length == 0) {
+      return res.status(404).json({ message: "could not find user" });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "user could not be validated" });
   }
   next();
 }
 
-function userValidation(req, res, next) {
-  const userFound = users.some((user) => user.id === req.body.userId);
-  if (!userFound) {
-    return res.status(404).json({ message: "user not found" });
-  }
-  next();
+function userBodyValidation(name) {
+  return async function (req, res, next) {
+    const id = Number(req.body[name]);
+    if (!Number.isInteger(id) || id <= 0) {
+      return res
+        .status(400)
+        .json({ message: "userId must be a positive integer" });
+    }
+    try {
+      const user = await pool.query(
+        `
+        SELECT *
+        FROM users
+        WHERE id = $1
+      `,
+        [id],
+      );
+      if (user.rows.length == 0) {
+        return res.status(404).json({ message: "could not find user" });
+      }
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ message: "user could not be validated" });
+    }
+    next();
+  };
 }
 
-function requesterValidation(req, res, next) {
-  const userFound = users.some((user) => user.id === req.body.requesterId);
-  if (!userFound) {
-    return res.status(404).json({ message: "user not found" });
-  }
-  next();
-}
-
-function authorValidation(req, res, next) {
-  const userFound = users.some((user) => user.id === req.body.authorId);
-  if (!userFound) {
-    return res.status(404).json({ message: "user not found" });
-  }
-  next();
-}
-
-function assigneeValidation(req, res, next) {
-  const userFound = users.some((user) => user.id === req.body.assigneeId);
-  if (!userFound) {
-    return res.status(404).json({ message: "user not found" });
-  }
-  next();
-}
 module.exports = {
-  userValidation,
-  assigneeValidation,
-  authorValidation,
-  requesterValidation,
+  userBodyValidation,
   userParamValidation,
 };
