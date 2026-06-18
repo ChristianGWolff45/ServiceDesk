@@ -1,41 +1,62 @@
 import { useState, useEffect } from "react";
-import allTickets from "../Data/tickets.json";
+const API_URL = "http://localhost:5000/api";
 
 export function useTickets() {
-  let tickets;
+  const [tickets, setTickets] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [status, setStatus] = useState("ALL_TICKETS");
   const [priority, setPriority] = useState("ALL_PRIORITY");
   const [category, setCategory] = useState("All Categories");
   const [assigneeId, setAssigneeId] = useState("All Assignee");
   const [search, setSearch] = useState("");
-  tickets =
-    status === "ALL_TICKETS"
-      ? allTickets
-      : allTickets.filter((ticket) => ticket.status === status);
-  tickets =
-    priority === "ALL_PRIORITY"
-      ? tickets
-      : tickets.filter((ticket) => ticket.priority === priority);
+  async function getTickets() {
+    try {
+      const response = await fetch(`${API_URL}/tickets`);
+      if (!response.ok) {
+        throw new Error("failed to fetch tickets");
+      }
+      const data = await response.json();
+      setTickets(data);
+    } catch (error) {
+    } finally {
+      setLoading(false);
+    }
+  }
 
-  tickets =
-    assigneeId === "All Assignee"
-      ? tickets
-      : tickets.filter((ticket) => ticket.assigneeId === assigneeId);
+  useEffect(() => {
+    getTickets();
+  }, []);
+  // tickets =
+  //   status === "ALL_TICKETS"
+  //     ? allTickets
+  //     : allTickets.filter((ticket) => ticket.status === status);
+  // tickets =
+  //   priority === "ALL_PRIORITY"
+  //     ? tickets
+  //     : tickets.filter((ticket) => ticket.priority === priority);
 
-  tickets =
-    category === "All Categories"
-      ? tickets
-      : tickets.filter((ticket) => ticket.category === category);
+  // tickets =
+  //   assigneeId === "All Assignee"
+  //     ? tickets
+  //     : tickets.filter((ticket) => ticket.assigneeId === assigneeId);
 
-  tickets = !search
-    ? tickets
-    : tickets.filter((ticket) =>
-        Object.values(ticket).some((value) =>
-          !value ? false : value.toLowerCase().includes(search.toLowerCase()),
-        ),
-      );
+  // tickets =
+  //   category === "All Categories"
+  //     ? tickets
+  //     : tickets.filter((ticket) => ticket.category === category);
+
+  // tickets = !search
+  //   ? tickets
+  //   : tickets.filter((ticket) =>
+  //       Object.values(ticket).some((value) =>
+  //         !value ? false : value.toLowerCase().includes(search.toLowerCase()),
+  //       ),
+  //     );
   return {
     tickets,
+    loading,
+    error,
     status,
     setStatus,
     priority,

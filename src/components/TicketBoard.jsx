@@ -10,6 +10,8 @@ export function TicketBoard() {
   const [isKanban, setIsKanban] = useState(false);
   const {
     tickets,
+    loading,
+    error,
     status,
     setStatus,
     priority,
@@ -21,7 +23,9 @@ export function TicketBoard() {
     search,
     setSearch,
   } = useTickets();
-
+  console.log("tickets", tickets);
+  if (loading) return <p>Loading</p>;
+  if (error) return <p>Error {` ${error}`}</p>;
   return (
     <div>
       <div className="flex justify-between items-center text-6xl mt-16">
