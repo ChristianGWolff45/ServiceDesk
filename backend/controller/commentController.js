@@ -1,46 +1,97 @@
-let comments = require("../data/comments");
+const pool = require("../db");
 
-function getCommentsByTicketId(req, res) {
-  let ticketComments = comments.filter(
-    (comment) => comment.ticketId === req.params.ticketId,
-  );
-  res.json(ticketComments);
+async function getCommentsByTicketId(req, res) {
+  const ticketId = req.params.ticketId;
+  try {
+    const results = await pool.query(
+      `
+    SELECT *
+    FROM Comments
+    WHERE ticket_id = $1    
+    `,
+      [ticketId],
+    );
+    res.json(results);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "could not get comments" });
+  }
 }
 
-function getCommentById(req, res) {
-  console.log("comment id ", req.params.commentId);
-  res.json(
-    comments.find((comment) => {
-      comment.id === req.params.commentId;
-    }),
-  );
+async function getCommentById(req, res) {
+  const commentId = req.params.commentId;
+  try {
+    const results = await pool.query(
+      `
+      SELECT * FROM comments WHERE id = $1
+    `,
+      [commentId],
+    );
+    res.json(results);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "could not get comment" });
+  }
 }
 
-function createComment(req, res) {
-  const newTicket = {
-    id: "cmnt-" + crypto.randomUUID(),
-    ticketId: req.params.ticketId,
-    authorId: req.body.authorId,
-    body: req.body.body,
-    isInteral: req.body.isInteral,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
-  res.json(newTicket);
+async function createComment(req, res) {
+  const { authorId, body, isInteral } = req.body;
+  const ticketId = req.params.ticketId;
+  try {
+    const results = await pool.query(
+      `
+      INSERT INTO 
+      comments(ticket_id, author_id, body, is_internal)
+      VALUES($1,$2,$3,$4)
+      RETURNING *
+      `,
+      [ticketId, authorId, body, isInteral],
+    );
+    res.json(results);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "could not create comment" });
+  }
 }
 
-function updateComment(req, res) {
-  const comment = comments.find(
-    (comment) => comment.id === req.params.commentId,
-  );
-  comment.body = req.body.body;
-  comment.updatedAt = new Date().toISOString();
+async function updateComment(req, res) {
+  const commentId = req.params.commentId;
+  const updatedAt = new Date().toISOString();
+  try {
+    const result = await pool.query(
+      `
+        UPDATE comments
+        SET
+          body = COALESCE($1, body)
+          updatedAt = $2
+        WHERE
+          id = $3
+      `,
+      [req.body.body, updatedAt, commentId],
+    );
+    res.json(result);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "could not update comment" });
+  }
   res.json(comment);
 }
 
-function deleteComment(req, res) {
-  comments = comments.filter((comment) => comment.id !== comment);
-  res.json({ message: "comment succefully deleted" });
+async function deleteComment(req, res) {
+  const commentId = req.params.commentId;
+  try {
+    const result = await pool.query(
+      `
+        DELETE FROM comments
+        WHERE id = $1
+      `,
+      [commentId],
+    );
+    res.json(result);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "could not delete comment" });
+  }
 }
 
 module.exports = {

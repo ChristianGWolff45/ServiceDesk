@@ -157,45 +157,45 @@ async function runCommentTests() {
   console.log(`Testing API at: ${BASE_URL}`);
   console.log("==============================");
 
-  result = await request("GET", "/tickets/t1/comments");
-  logResult("GET /comments/t1", result, 200);
+  result = await request("GET", "/tickets/2/comments");
+  logResult("GET /comments/1", result, 200);
 
-  result = await request("GET", "/tickets/t1/comments/c1");
-  logResult("GET /tickets/t1/comments/c1", result, 200);
+  result = await request("GET", "/tickets/1/comments/1");
+  logResult("GET /tickets/1/comments/1", result, 404);
 
   result = await request("GET", "/tickets/noticket");
-  logResult("GET /tickets/noticket", result, 404);
+  logResult("GET /tickets/noticket", result, 400);
 
-  result = await request("POST", "/tickets/t1/comments", {
-    authorId: "u2",
+  result = await request("POST", "/tickets/2/comments", {
+    authorId: 2,
     body: "req.body.body",
     isInteral: "false",
   });
-  logResult("POST /ticekts/t1/comments", result, 200);
+  logResult("POST /tickets/2/comments", result, 200);
 
-  result = await request("POST", "/tickets/t1/comments", {
+  result = await request("POST", "/tickets/1/comments", {
     authorId: "nouser",
     body: "req.body.body",
     isInteral: "false",
   });
-  logResult("POST /tickets/t1/comments", result, 404);
+  logResult("POST /tickets/1/comments", result, 400);
 
-  result = await request("POST", "/tickets/comments/noticket", {
+  result = await request("POST", "/tickets/1/comments", {
     authorId: "u2",
     body: "req.body.body",
     isInteral: "false",
   });
-  logResult("POST /comments/t1", result, 404);
+  logResult("POST /tickets/1/comments/noticket", result, 400);
 
-  result = await request("PATCH", "/tickets/t1/comments/c1", {
+  result = await request("PATCH", "/tickets/2/comments/2", {
     body: "req.body.body",
   });
-  logResult("PATCH /tickets/t1/comments/c2", result, 200);
+  logResult("PATCH /tickets/2/comments/2", result, 200);
 
-  result = await request("DELETE", "/tickets/t1/comments/c1", {
+  result = await request("DELETE", "/tickets/2/comments/2", {
     body: "req.body.body",
   });
-  logResult("DELETE /tickets/t1/comments/c2", result, 200);
+  logResult("DELETE /tickets/2/comments/2", result, 200);
 }
 
 runCommentTests().catch((error) => {

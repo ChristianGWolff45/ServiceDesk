@@ -1,10 +1,20 @@
-const comments = require("../data/comments");
+const pool = require("../db");
 
-function commentValidation(req, res, next) {
-  console.log(req.params.commentId);
-  const found = comments.some((comment) => comment.id === req.params.commentId);
-  if (!found) {
-    return res.status(404).json({ message: "comment not found" });
+async function commentValidation(req, res, next) {
+  const commentId = Number(req.params.commentId);
+  if (!Number.isInteger(commentId) || commentId < 1) {
+    return res.status(400).json({ message: "please enter a valid comment id" });
+  }
+  try {
+    const results = await pool.query("SELECT * FROM comments WHERE id = $1", [
+      commentId,
+    ]);
+    if (results.rows.length === 0) {
+      return res.status(404).json({ message: "could not find comment" });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "could not validate comment" });
   }
   next();
 }

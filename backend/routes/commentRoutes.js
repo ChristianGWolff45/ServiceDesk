@@ -8,8 +8,6 @@
 
 const express = require("express");
 const router = express.Router({ mergeParams: true });
-const comments = require("../data/comments");
-const tickets = require("../data/tickets");
 const TicketValidation = require("../middleware/ticketValidation");
 const commentValidation = require("../middleware/commentValidation");
 const { userBodyValidation } = require("../middleware/userValidation");
@@ -28,7 +26,7 @@ router.get("/:commentId", commentValidation, getCommentById);
 router.post(
   "/",
   TicketValidation,
-  userBodyValidation("AuthorId"),
+  userBodyValidation("authorId"),
   createComment,
 );
 

@@ -2,8 +2,6 @@ const express = require("express");
 
 const router = express.Router({ mergeParams: true });
 
-let tickets = require("../data/tickets");
-
 const {
   getAllTickets,
   getTicketById,
