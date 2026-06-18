@@ -1,19 +1,31 @@
-const { Construction } = require("lucide-react");
-let tickets = require("../data/tickets");
+const pool = require("../db");
 
-function getAllTickets(req, res) {
-  res.json(tickets);
+async function getAllTickets(req, res) {
+  try {
+    const result = await pool.query("SELECT * FROM tickets");
+    res.json(result.rows);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "could not retrieve tickets" });
+  }
 }
 
-function getTicketById(req, res) {
-  res.json(
-    tickets.find((ticket) => {
-      return ticket.id === req.params.ticketId;
-    }),
-  );
+async function getTicketById(req, res) {
+  try {
+    const ticket = await pool.query("SELECT * FROM tickets WHERE id = $1", [
+      req.params.ticketId,
+    ]);
+    if (ticket.rows.length === 0) {
+      return res.status(404).json;
+    }
+    res.json(ticket.rows[0]);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "could not find ticket" });
+  }
 }
 
-function createTicket(req, res) {
+async function createTicket(req, res) {
   const { title, description, category, requesterId } = req.body;
 
   if (!title || !description || !category || !requesterId) {
@@ -22,57 +34,139 @@ function createTicket(req, res) {
     });
   }
 
-  const newTicket = {
-    id: "TCK-" + crypto.randomUUID(),
-    title,
-    description,
-    status: "OPEN",
-    priority: "LOW",
-    category,
-    requesterId,
-    assigneeId: null,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-  };
+  try {
+    const result = await pool.query(
+      `
+    INSERT INTO 
+    tickets(title, description, category, requester_id)
+    VALUES($1, $2, $3, $4)
+    RETURNING *
+    `,
+      [title, description, category, requesterId],
+    );
 
-  tickets.push(newTicket);
-
-  res.status(201).json(newTicket);
-}
-
-function updateTicket(req, res) {
-  const ticket = tickets.find((ticket) => (ticket.id = req.params.ticketId));
-  const keys = ["title", "description", "category"];
-  for (const key of keys) {
-    if (req.body[key] !== undefined) {
-      ticket[key] = req.body[key];
-    }
+    res.status(201).json(result);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "could not create ticket" });
   }
-  ticket.updatedAt = new Date().toISOString();
-  res.json(ticket);
 }
 
-function updateTicketStatus(req, res) {
-  const ticket = tickets.find((ticket) => ticket.id === req.params.ticketId);
-  ticket.status = req.body.status;
-  res.status(200).json({ message: "ticket updated succefully" });
+async function updateTicket(req, res) {
+  const ticketId = req.params.ticketId;
+  const { title, description, category } = req.body;
+  const updateTime = new Date().toISOString();
+  try {
+    const result = await pool.query(
+      `
+      UPDATE tickets
+      SET
+        title = COALESCE($1, title),
+        description = COALESCE($2, description),
+        category = COALESCE($3, category),
+        updated_at = $4
+      WHERE id = $5
+      RETURNING *
+      `,
+      [title, description, category, updateTime, ticketId],
+    );
+    res.json(result);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "could not update ticket" });
+  }
 }
 
-function updateTicketPriority(req, res) {
-  const ticket = tickets.find((ticket) => ticket.id === req.params.ticketId);
-  ticket.status = req.body.priority;
-  res.status(200).json({ message: "ticket updated succefully" });
+async function updateTicketStatus(req, res) {
+  const ticketId = req.params.ticketId;
+  const status = req.body.status;
+  const updateTime = new Date().toISOString();
+  try {
+    const result = await pool.query(
+      `
+      UPDATE tickets
+      SET
+        status = COALESCE($1, status)
+        updated_at = $2
+      WHERE
+        id = $3
+      RETURNING *
+      `,
+      [status, updateTime, ticketId],
+    );
+    res.json(result);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "could not update ticket status" });
+  }
 }
 
-function assignTicket(req, res) {
-  const ticket = tickets.find((ticket) => ticket.id === req.params.ticketId);
-  ticket.assigneeId = req.body.assigneeId;
-  res.status(200).json({ message: "ticket updated succefully" });
+async function updateTicketPriority(req, res) {
+  const ticketId = req.params.ticketId;
+  const priority = req.body.priority;
+
+  try {
+    const result = await pool.query(
+      `
+      UPDATE tickets
+      SET
+        priority = COALESCE($1, priority)
+      WHERE
+        id = $2
+      RETURNING *
+      `,
+      [priority, ticketId],
+    );
+    res.json(result);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "could not update ticket status" });
+  }
 }
 
-function deleteTicket(req, res) {
-  tickets = tickets.filter((ticket) => ticket.id !== req.params.ticketId);
-  res.status(204).json({ message: "ticket deleted succefully" });
+async function assignTicket(req, res) {
+  const assignee = req.body.assigneeId;
+  const ticketId = req.params.ticketId;
+
+  try {
+    const result = await pool.query(
+      `
+      UPDATE tickets
+      SET
+        assignee_id = COALESCE($1, assignee_id)
+      WHERE
+        id = $2
+      RETURNING *
+      `,
+      [assignee, ticketId],
+    );
+    res.json(result);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "could not assign ticket" });
+  }
+}
+
+async function deleteTicket(req, res) {
+  const ticketId = req.params.ticketId;
+
+  try {
+    const result = await pool.query(
+      `
+      UPDATE tickets
+      SET
+        is_active = false
+      WHERE
+        id = $1
+      RETURNING *
+      `,
+      [ticketId],
+    );
+    res.json(result);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "could not delete ticket" });
+  }
 }
 
 module.exports = {

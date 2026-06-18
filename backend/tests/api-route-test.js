@@ -37,66 +37,70 @@ function logResult(testName, result, expectedStatus) {
 
   console.log("----------------------");
 }
-
-async function runTests() {
+async function runTicketTests() {
   console.log(`Testing API at: ${BASE_URL}`);
   console.log("==============================");
 
   //   //test tickets
-  //   let result = await request("GET", "/tickets");
-  //   logResult("GET /tickets", result, 200);
+  let result = await request("GET", "/tickets");
+  logResult("GET /tickets", result, 200);
 
-  //   result = await request("GET", "/tickets/t1");
-  //   logResult("GET /tickets/:id", result, 200);
+  result = await request("GET", "/tickets/1");
+  logResult("GET /tickets/1", result, 200);
 
-  //   result = await request("GET", "/tickets/doesntExist");
-  //   logResult("GET /tickets/t1", result, 404);
+  result = await request("GET", "/tickets/8000");
+  logResult("GET /tickets/8000", result, 404);
 
-  //   result = await request("POST", "/tickets", {
-  //     title: "broken internet",
-  //     description: "internet is not working on laptop",
-  //     category: "INTERNET",
-  //     requesterId: "u2",
-  //   });
-  //   logResult("POST /tickets", result, 201);
+  result = await request("POST", "/tickets", {
+    title: "broken internet",
+    description: "internet is not working on laptop",
+    category: "INTERNET",
+    requesterId: "2",
+  });
+  logResult("POST /tickets", result, 201);
 
-  //   result = await request("POST", "/tickets", {
-  //     title: "broken internet",
-  //     description: "internet is not working on laptop",
-  //     category: "INTERNET",
-  //     requesterId: "notAUser",
-  //   });
-  //   logResult("POST /tickets", result, 404);
+  result = await request("POST", "/tickets", {
+    title: "broken internet",
+    description: "internet is not working on laptop",
+    category: "INTERNET",
+    requesterId: "8000",
+  });
+  logResult("POST /tickets", result, 404);
 
-  //   result = await request("POST", "/tickets", {
-  //     title: "broken internet",
-  //     description: "internet is not working on laptop",
-  //     requesterId: "u2",
-  //   });
-  //   logResult("POST /tickets", result, 400);
+  result = await request("POST", "/tickets", {
+    title: "broken internet",
+    description: "internet is not working on laptop",
+    category: "wifi",
+    requesterId: "2",
+  });
+  logResult("POST /tickets", result, 201);
 
-  //   result = await request("PATCH", "/tickets/t1", {
-  //     description: "test",
-  //   });
-  //   logResult("PATCH /tickets", result, 200);
+  result = await request("PATCH", "/tickets/1", {
+    description: "test",
+  });
+  logResult("PATCH /tickets/1", result, 200);
 
-  //   result = await request("PATCH", "/tickets/t1/priority", {
-  //     priority: "HIGH",
-  //   });
-  //   logResult("PATCH /tickets", result, 200);
+  result = await request("PATCH", "/tickets/1/priority", {
+    priority: "HIGH",
+  });
+  logResult("PATCH /tickets", result, 200);
 
-  //   result = await request("PATCH", "/tickets/t1/assignee", {
-  //     assigneeId: "u2",
-  //   });
-  //   logResult("PATCH /tickets", result, 200);
+  result = await request("PATCH", "/tickets/1/assignee", {
+    assigneeId: "2",
+  });
+  logResult("PATCH /tickets/1/assignee", result, 200);
 
-  //   result = await request("PATCH", "/tickets/t1/assigneeId", {
-  //     assigneeId: "noUser",
-  //   });
-  //   logResult("PATCH /tickets", result, 404);
+  result = await request("PATCH", "/tickets/1/assignee", {
+    assigneeId: "8000",
+  });
+  logResult("PATCH /tickets/1/assigneeId", result, 404);
 
-  //   result = await request("DELETE", "/tickets/t2");
-  //   logResult("DELETE /tickets", result, 204);
+  result = await request("DELETE", "/tickets/2");
+  logResult("DELETE /tickets/2", result, 200);
+}
+async function runUserTests() {
+  console.log(`Testing API at: ${BASE_URL}`);
+  console.log("==============================");
 
   //   //Test users
 
@@ -148,51 +152,53 @@ async function runTests() {
   logResult("GET /users/4", result, 200);
 
   // // Test comments
+}
+async function runCommentTests() {
+  console.log(`Testing API at: ${BASE_URL}`);
+  console.log("==============================");
 
-  // result = await request("GET", "/tickets/t1/comments");
-  // logResult("GET /comments/t1", result, 200);
+  result = await request("GET", "/tickets/t1/comments");
+  logResult("GET /comments/t1", result, 200);
 
-  // result = await request("GET", "/tickets/t1/comments/c1");
-  // logResult("GET /tickets/t1/comments/c1", result, 200);
+  result = await request("GET", "/tickets/t1/comments/c1");
+  logResult("GET /tickets/t1/comments/c1", result, 200);
 
-  // result = await request("GET", "/tickets/noticket");
-  // logResult("GET /tickets/noticket", result, 404);
+  result = await request("GET", "/tickets/noticket");
+  logResult("GET /tickets/noticket", result, 404);
 
-  // result = await request("POST", "/tickets/t1/comments", {
-  //   authorId: "u2",
-  //   body: "req.body.body",
-  //   isInteral: "false",
-  // });
-  // logResult("POST /ticekts/t1/comments", result, 200);
+  result = await request("POST", "/tickets/t1/comments", {
+    authorId: "u2",
+    body: "req.body.body",
+    isInteral: "false",
+  });
+  logResult("POST /ticekts/t1/comments", result, 200);
 
-  // result = await request("POST", "/tickets/t1/comments", {
-  //   authorId: "nouser",
-  //   body: "req.body.body",
-  //   isInteral: "false",
-  // });
-  // logResult("POST /tickets/t1/comments", result, 404);
+  result = await request("POST", "/tickets/t1/comments", {
+    authorId: "nouser",
+    body: "req.body.body",
+    isInteral: "false",
+  });
+  logResult("POST /tickets/t1/comments", result, 404);
 
-  // result = await request("POST", "/tickets/comments/noticket", {
-  //   authorId: "u2",
-  //   body: "req.body.body",
-  //   isInteral: "false",
-  // });
-  // logResult("POST /comments/t1", result, 404);
+  result = await request("POST", "/tickets/comments/noticket", {
+    authorId: "u2",
+    body: "req.body.body",
+    isInteral: "false",
+  });
+  logResult("POST /comments/t1", result, 404);
 
-  // result = await request("PATCH", "/tickets/t1/comments/c1", {
-  //   body: "req.body.body",
-  // });
-  // logResult("PATCH /tickets/t1/comments/c2", result, 200);
+  result = await request("PATCH", "/tickets/t1/comments/c1", {
+    body: "req.body.body",
+  });
+  logResult("PATCH /tickets/t1/comments/c2", result, 200);
 
-  // result = await request("DELETE", "/tickets/t1/comments/c1", {
-  //   body: "req.body.body",
-  // });
-  // logResult("DELETE /tickets/t1/comments/c2", result, 200);
+  result = await request("DELETE", "/tickets/t1/comments/c1", {
+    body: "req.body.body",
+  });
+  logResult("DELETE /tickets/t1/comments/c2", result, 200);
 }
 
-runTests().catch((error) => {
+runCommentTests().catch((error) => {
   console.error("Test runner crashed:");
   console.error(error);
 });
-
-// Notes for later: middleware and controllers create there own arrays of data so checking for user/comment/ticket after deletion is not caught by middleware

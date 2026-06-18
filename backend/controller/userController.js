@@ -6,7 +6,7 @@ async function getAllUsers(req, res) {
     res.json(result.rows);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Failed to get users" });
+    return res.status(500).json({ message: "Failed to get users" });
   }
 }
 
@@ -21,7 +21,7 @@ async function getUserById(req, res) {
     res.json(result.rows[0]);
   } catch (error) {
     console.log(error);
-    json.status(500).json({ message: "Failed to find user" });
+    return res.status(500).json({ message: "Failed to find user" });
   }
 }
 
@@ -36,7 +36,7 @@ async function createUser(req, res) {
     !department ||
     !role
   ) {
-    res.status(400).json({
+    return res.status(400).json({
       message:
         "missing firstName, lastName, email, phoneNumber, department, or role",
     });
@@ -60,7 +60,7 @@ async function createUser(req, res) {
     res.json(result);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "failed to create user" });
+    return res.status(500).json({ message: "failed to create user" });
   }
 }
 
@@ -85,7 +85,7 @@ async function updateUser(req, res) {
     res.json(result);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "faled to update user" });
+    return res.status(500).json({ message: "faled to update user" });
   }
 }
 
@@ -106,7 +106,7 @@ function updateUserRole(req, res) {
     res.json(result);
   } catch (error) {
     console.log(error);
-    json.status(500).json({ message: "could not update user role" });
+    return res.status(500).json({ message: "could not update user role" });
   }
 }
 
@@ -126,7 +126,7 @@ function deleteUser(req, res) {
     res.json(result);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "could not delete user" });
+    return res.status(500).json({ message: "could not delete user" });
   }
 }
 
