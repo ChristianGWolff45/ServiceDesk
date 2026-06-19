@@ -6,12 +6,12 @@ async function getCommentsByTicketId(req, res) {
     const results = await pool.query(
       `
     SELECT *
-    FROM Comments
+    FROM comments
     WHERE ticket_id = $1    
     `,
       [ticketId],
     );
-    res.json(results);
+    res.json(results.rows);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "could not get comments" });
@@ -27,7 +27,7 @@ async function getCommentById(req, res) {
     `,
       [commentId],
     );
-    res.json(results);
+    res.json(results.rows);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "could not get comment" });

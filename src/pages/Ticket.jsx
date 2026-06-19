@@ -1,7 +1,9 @@
 import { useParams } from "react-router-dom";
-import { useTickets } from "../hooks/useTickets";
+import { useTicket } from "../hooks/useTicket";
+import { useUser } from "../hooks/useUser";
+import { useComments } from "../hooks/useComments";
 import { useState } from "react";
-
+import { useEffect } from "react";
 import {
   Tag,
   TriangleAlert,
@@ -15,31 +17,39 @@ import {
   Activity,
   Calendar,
   User,
+  MessageSquare,
+  Lock,
 } from "lucide-react";
+import { Comment } from "../components/Comment";
 
 export function Ticket() {
   const params = useParams();
   const ticketId = params.ticketId;
-  const { tickets } = useTickets();
-  const ticket = tickets.find((ticket) => ticket.id === ticketId);
+  const { ticket, loading } = useTicket(ticketId);
 
   const [statusDropdown, setStatusDropdown] = useState(false);
-  const [status, setStatus] = useState(ticket.status);
   const [priorityDropdown, setPriorityDropdown] = useState(false);
-  const [priority, setPriority] = useState(ticket.priority);
+
+  const { user: userRequester } = useUser(ticket?.requester_id);
+  const { user: userAssigned } = useUser(ticket?.assignee_id);
+
+  const { comments } = useComments(ticketId);
+  if (loading) {
+    return <p>Loading</p>;
+  }
 
   return (
     <div className="bg-lime-50">
-      <div className="grid grid-cols-[2fr_1fr] gap-12 justify-self-center w-full">
-        <div>
-          <div className="ml-20 mt-20 p-6 border bg-white border-emerald-900 rounded-2xl  flex-col flex gap-2">
+      <div className="grid grid-cols-[2fr_1fr] m-20 gap-12 justify-self-center w-8/10">
+        <div className="flex gap-12 flex-col">
+          <div className="p-6 border bg-white border-emerald-900 rounded-2xl  flex-col flex gap-2">
             <p className="flex gap-4 ml-2 text-xl items-center">
               <span className="p-2 pl-4 pr-4 border-emerald-900 bg-green-100 rounded-md border">
                 {ticket.id}
               </span>
               <span>
                 {"Opened "}
-                {new Date(ticket.createdAt).toLocaleString("en-US", {
+                {new Date(ticket.created_at).toLocaleString("en-US", {
                   weekday: "short",
                   month: "short",
                   day: "numeric",
@@ -66,8 +76,57 @@ export function Ticket() {
               </div>
             </div>
           </div>
+          <div className="bg-white rounded-2xl border border-emerald-900 p-8">
+            <div className="flex gap-2 items-center">
+              <MessageSquare className="text-emerald-900" />
+              <h1 className="font-semibold text-2xl text-emerald-900">
+                Conversation
+              </h1>
+              <p></p>
+            </div>
+            {comments
+              .filter((comment) => {
+                return !comment.is_internal;
+              })
+              .map((comment) => {
+                return (
+                  <Comment
+                    key={comment.id}
+                    bg="green-100"
+                    text="emerald-900"
+                    border="emerald-900"
+                    comment={comment}
+                  />
+                );
+              })}
+          </div>
+
+          <div className=" rounded-2xl border bg-amber-100 border-amber-900 p-8">
+            <div className="flex gap-2 items-center">
+              <Lock className="text-amber-900" />
+              <h1 className="font-semibold text-2xl text-amber-900">
+                Internal Notes
+              </h1>
+              <p></p>
+            </div>
+            {comments
+              .filter((comment) => {
+                return comment.is_internal;
+              })
+              .map((comment) => {
+                return (
+                  <Comment
+                    key={comment.id}
+                    bg="orange-100"
+                    text="amber-900"
+                    border="amber-900"
+                    comment={comment}
+                  />
+                );
+              })}
+          </div>
         </div>
-        <div className="flex flex-col gap-12 mr-20 mt-20">
+        <div className="flex flex-col gap-12 ">
           <div className="border bg-white border-emerald-900 rounded-2xl flex flex-col text-lg p-6 gap-6">
             <div>
               <p className="text-xl font-bold">Actions</p>
@@ -116,7 +175,13 @@ export function Ticket() {
                 <User />
                 <p>Requester</p>
               </div>
-              <p className="font-bold">REQUESTER_NAME</p>
+              <p className="font-bold">
+                {`${
+                  userRequester
+                    ? userRequester.first_name + " " + userRequester.last_name
+                    : "failed to load requester"
+                }`}
+              </p>
             </div>
 
             <div className="flex justify-between">
@@ -124,7 +189,14 @@ export function Ticket() {
                 <Mail />
                 <p>Email</p>
               </div>
-              <p className="font-bold"> REQUESTER_EMAIL</p>
+              <p className="font-bold">
+                {" "}
+                {`${
+                  userRequester
+                    ? userRequester.email
+                    : "failed to load requester"
+                }`}
+              </p>
             </div>
 
             <div className="flex justify-between">
@@ -132,7 +204,11 @@ export function Ticket() {
                 <User />
                 <p>Assignee</p>
               </div>
-              <p className="font-bold">ASSIGNEE_NAME</p>
+              <p className="font-bold">{`${
+                userAssigned
+                  ? userAssigned.first_name + " " + userAssigned.last_name
+                  : "UNASSIGNED"
+              }`}</p>
             </div>
 
             <div className="flex justify-between">
@@ -165,17 +241,27 @@ export function Ticket() {
                 <p>Created</p>
               </div>
               <p className="font-bold">
-                {new Date(ticket.createdAt).toLocaleDateString()}
+                {new Date(ticket.created_at).toLocaleDateString([], {
+                  month: "long",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
               </p>
             </div>
 
             <div className="flex justify-between">
               <div className="flex gap-2 items-center font-semibold">
                 <Calendar />
-                <p>Updated</p>
+                <p>Last Updated</p>
               </div>
               <p className="font-bold">
-                {new Date(ticket.updatedAt).toLocaleDateString()}
+                {new Date(ticket.updated_at).toLocaleDateString([], {
+                  month: "long",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
               </p>
             </div>
           </div>
