@@ -19,6 +19,7 @@ import {
   User,
   MessageSquare,
   Lock,
+  Send,
 } from "lucide-react";
 import { Comment } from "../components/Comment";
 
@@ -33,7 +34,26 @@ export function Ticket() {
   const { user: userRequester } = useUser(ticket?.requester_id);
   const { user: userAssigned } = useUser(ticket?.assignee_id);
 
-  const { comments } = useComments(ticketId);
+  const { comments, createComment } = useComments(ticketId);
+
+  const [newPublicComment, setNewPublicComment] = useState("");
+  const [newPrivateComment, setNewPrivateComment] = useState("");
+
+  function postPublicComment() {
+    if (newPublicComment === "") {
+      return alert("Comment body is empty");
+    }
+    createComment(newPublicComment, false);
+    setNewPublicComment("");
+  }
+
+  function postPrivateComment() {
+    if (newPrivateComment === "") {
+      return alert("Comment body is empty");
+    }
+    createComment(newPrivateComment, true);
+    setNewPrivateComment("");
+  }
   if (loading) {
     return <p>Loading</p>;
   }
@@ -84,21 +104,42 @@ export function Ticket() {
               </h1>
               <p></p>
             </div>
-            {comments
-              .filter((comment) => {
-                return !comment.is_internal;
-              })
-              .map((comment) => {
-                return (
-                  <Comment
-                    key={comment.id}
-                    bg="green-100"
-                    text="emerald-900"
-                    border="emerald-900"
-                    comment={comment}
-                  />
-                );
-              })}
+            <div className="border-b pb-8 border-emerald-900">
+              {comments
+                .filter((comment) => {
+                  return !comment.is_internal;
+                })
+                .map((comment) => {
+                  return (
+                    <Comment
+                      key={comment.id}
+                      bg="green-100"
+                      text="emerald-900"
+                      border="emerald-900"
+                      comment={comment}
+                    />
+                  );
+                })}
+            </div>
+            <div className="w-full">
+              <div className="pt-8 ">
+                <h2>Add public comment --- visible to requesters</h2>
+                <textarea
+                  className="border  border-emerald-900 w-full h-28 rounded-md m-2 p-2"
+                  placeholder="Reply to the requester"
+                  value={newPublicComment}
+                  onChange={(e) => setNewPublicComment(e.target.value)}
+                ></textarea>
+              </div>
+
+              <button
+                onClick={postPublicComment}
+                className="bg-green-700 cursor-pointer text-white rounded-xl mt-4 justify-self-end p-4 flex gap-2 text-xl font-semibold items-center"
+              >
+                <Send />
+                Public Reply
+              </button>
+            </div>
           </div>
 
           <div className=" rounded-2xl border bg-amber-100 border-amber-900 p-8">
@@ -124,6 +165,25 @@ export function Ticket() {
                   />
                 );
               })}
+            <div className="w-full">
+              <div className="pt-8 ">
+                <h2>Add internal comment --- visible to requesters</h2>
+                <textarea
+                  className="border bg-white  border-amber-900 w-full h-28 rounded-md m-2 p-2"
+                  placeholder="Reply to the requester"
+                  value={newPrivateComment}
+                  onChange={(e) => setNewPrivateComment(e.target.value)}
+                ></textarea>
+              </div>
+
+              <button
+                onClick={postPrivateComment}
+                className="bg-orange-700 cursor-pointer text-white rounded-xl mt-4 justify-self-end p-4 flex gap-2 text-xl font-semibold items-center"
+              >
+                <Send />
+                Internal Reply
+              </button>
+            </div>
           </div>
         </div>
         <div className="flex flex-col gap-12 ">

@@ -35,7 +35,7 @@ async function getCommentById(req, res) {
 }
 
 async function createComment(req, res) {
-  const { authorId, body, isInteral } = req.body;
+  const { authorId, body, isInternal } = req.body;
   const ticketId = req.params.ticketId;
   try {
     const results = await pool.query(
@@ -45,9 +45,9 @@ async function createComment(req, res) {
       VALUES($1,$2,$3,$4)
       RETURNING *
       `,
-      [ticketId, authorId, body, isInteral],
+      [ticketId, authorId, body, isInternal],
     );
-    res.json(results);
+    res.status(201).json(results.rows[0]);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "could not create comment" });

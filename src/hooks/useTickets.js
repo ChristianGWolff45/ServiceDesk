@@ -53,6 +53,8 @@ export function useTickets() {
   //         !value ? false : value.toLowerCase().includes(search.toLowerCase()),
   //       ),
   //     );
+
+  async function createTicket() {}
   return {
     tickets,
     loading,

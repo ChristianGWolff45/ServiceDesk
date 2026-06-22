@@ -12,14 +12,16 @@ import { WorkPage } from "./pages/WorkPage";
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<LandingPage />} />
-      <Route path="/Issue" element={<Issue />} />
-      <Route path="/SignIn" element={<SignIn />} />
-      <Route path="/SignUp" element={<SignUp />} />
-      <Route path="/Workpage/*" element={<WorkPage />} />
-      <Route path="*" element={<p>404 page not found</p>} />
-    </Routes>
+    <div>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/Issue" element={<Issue />} />
+        <Route path="/SignIn" element={<SignIn />} />
+        <Route path="/SignUp" element={<SignUp />} />
+        <Route path="/Workpage/*" element={<WorkPage />} />
+        <Route path="*" element={<p>404 page not found</p>} />
+      </Routes>
+    </div>
 
     // <SignIn />
     // <Issue />

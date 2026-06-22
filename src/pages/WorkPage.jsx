@@ -5,17 +5,18 @@ import { Header } from "../components/Header";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { useState } from "react";
 import { Ticket } from "./Ticket";
+import { AdminUsers } from "../components/AdminUsers";
 export function WorkPage() {
   const [navOpen, setNavOpen] = useState(true);
   return (
-    <div className="max-w-screen ">
+    <div className="max-w-screen h-full">
       <Header />
       <div
         className={`grid grid-cols-[1fr_5fr]  ${navOpen ? "grid-cols-[1fr_5fr]" : "grid-cols-[1fr_160fr]"}`}
       >
         <div
           className="bg-linear-to-b
-                from-emerald-900 bg-green-700 min-h-screen rounded-r-md border-green-200 border"
+                from-emerald-900 bg-green-700 min-h-screen h-full rounded-r-md border-green-200 border"
         >
           {navOpen ? (
             <div className="flex">
@@ -39,6 +40,7 @@ export function WorkPage() {
         <Routes>
           <Route path="Board" element={<TicketBoard />} />
           <Route path="Board/tickets/:ticketId" element={<Ticket />} />
+          <Route path="/admin/users" element={<AdminUsers />} />
         </Routes>
       </div>
     </div>

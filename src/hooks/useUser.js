@@ -20,5 +20,6 @@ export function useUser(userId) {
   useEffect(() => {
     getUser();
   }, [userId]);
+
   return { user, userLoading };
 }
