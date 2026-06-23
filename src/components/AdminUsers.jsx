@@ -2,9 +2,9 @@ import { UserCog, UserPlus } from "lucide-react";
 import { useUsers } from "../hooks/useUsers";
 import { User } from "./User";
 import { useState, useEffect } from "react";
-import { AddUser } from "./AddUser";
+import { UserForm } from "./UserForm";
 export function AdminUsers() {
-  const { loading, users } = useUsers();
+  const { loading, users, createUser, editUser, setUserStatus } = useUsers();
   const [addingUser, setAddingUser] = useState(false);
 
   return (
@@ -37,7 +37,12 @@ export function AdminUsers() {
           <p>Actions</p>
         </div>
         {users.map((user) => (
-          <User key={user.id} userId={user.id} />
+          <User
+            key={user.id}
+            user={user}
+            editUser={editUser}
+            setUserStatus={setUserStatus}
+          />
         ))}
       </div>
       {addingUser && (
@@ -46,7 +51,11 @@ export function AdminUsers() {
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
         >
           <div onClick={(e) => e.stopPropagation()}>
-            <AddUser />
+            <UserForm
+              action="Create"
+              onClose={setAddingUser}
+              onSubmit={createUser}
+            />
           </div>
         </div>
       )}

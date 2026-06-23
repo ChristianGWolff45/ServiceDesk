@@ -19,5 +19,78 @@ export function useUsers() {
     getUsers();
   }, []);
 
-  return { loading, users };
+  async function createUser({ firstName, lastName, email, phoneNumber, role }) {
+    try {
+      const response = await fetch(`${API_URL}/users`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ firstName, lastName, email, phoneNumber, role }),
+      });
+      if (!response.ok) {
+        throw new Error("failed to create new user");
+      }
+      const data = await response.json();
+      setUsers([...users, data]);
+    } catch (error) {
+    } finally {
+    }
+  }
+
+  async function editUser({
+    firstName,
+    lastName,
+    email,
+    phoneNumber,
+    role,
+    userId,
+  }) {
+    try {
+      const response = await fetch(`${API_URL}/users/${userId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ firstName, lastName, email, phoneNumber, role }),
+      });
+
+      if (!response.ok) {
+        throw new Error("failed to update user");
+      }
+      const data = await response.json();
+      setUsers((prev) =>
+        prev.map((user) => {
+          if (user.id === data.id) {
+            return data;
+          }
+          return user;
+        }),
+      );
+    } catch (error) {}
+  }
+
+  async function setUserStatus(userId, activate) {
+    userId = Number(userId);
+    if (!Number.isInteger(userId) || userId < 0) {
+      throw new Error("invalid user id");
+      return;
+    }
+    try {
+      const response = await fetch(
+        `${API_URL}/users/${userId}/${activate ? "activate" : "deactivate"}`,
+        { method: "PATCH" },
+      );
+      const data = await response.json();
+      setUsers((prev) => {
+        return prev.map((user) => {
+          if (user.id === data.id) {
+            return data;
+          } else {
+            return user;
+          }
+        });
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  return { loading, users, createUser, editUser, setUserStatus };
 }

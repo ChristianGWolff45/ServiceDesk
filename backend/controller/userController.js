@@ -26,19 +26,10 @@ async function getUserById(req, res) {
 }
 
 async function createUser(req, res) {
-  const { firstName, lastName, email, phoneNumber, department, role } =
-    req.body;
-  if (
-    !firstName ||
-    !lastName ||
-    !email ||
-    !phoneNumber ||
-    !department ||
-    !role
-  ) {
+  const { firstName, lastName, email, phoneNumber, role } = req.body;
+  if (!firstName || !lastName || !email || !phoneNumber || !role) {
     return res.status(400).json({
-      message:
-        "missing firstName, lastName, email, phoneNumber, department, or role",
+      message: "missing firstName, lastName, email, phoneNumber, or role",
     });
   }
   try {
@@ -49,15 +40,14 @@ async function createUser(req, res) {
         last_name,
         email,
         phone_number,
-        role,
-        department
+        role
       )
-      VALUES ($1,$2,$3,$4,$5,$6)
+      VALUES ($1,$2,$3,$4,$5)
       RETURNING *  
       `,
-      [firstName, lastName, email, phoneNumber || null, role, department],
+      [firstName, lastName, email, phoneNumber || null, role],
     );
-    res.json(result);
+    res.json(result.rows[0]);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "failed to create user" });
@@ -65,7 +55,7 @@ async function createUser(req, res) {
 }
 
 async function updateUser(req, res) {
-  const { firstName, lastName, email, phoneNumber, department } = req.body;
+  const { firstName, lastName, email, phoneNumber, role } = req.body;
   const id = req.params.userId;
   try {
     const result = await pool.query(
@@ -76,13 +66,13 @@ async function updateUser(req, res) {
         last_name = COALESCE($2, last_name),
         email = COALESCE($3, email),
         phone_number = COALESCE($4, phone_number),
-        department = COALESCE($5, department)
+        role = COALESCE($5, role)
       WHERE id = $6
       RETURNING *
       `,
-      [firstName, lastName, email, phoneNumber, department, id],
+      [firstName, lastName, email, phoneNumber, role, id],
     );
-    res.json(result);
+    res.json(result.rows[0]);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "faled to update user" });
@@ -110,10 +100,10 @@ function updateUserRole(req, res) {
   }
 }
 
-function deleteUser(req, res) {
+async function deactivateUser(req, res) {
   const id = req.params.userId;
   try {
-    const result = pool.query(
+    const result = await pool.query(
       `
       UPDATE users
       SET is_active = false
@@ -123,7 +113,26 @@ function deleteUser(req, res) {
       [id],
     );
 
-    res.json(result);
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "could not delete user" });
+  }
+}
+
+async function activateUser(req, res) {
+  const id = req.params.userId;
+  try {
+    const result = await pool.query(
+      `
+      UPDATE users
+      SET is_active = true
+      WHERE id = $1
+      RETURNING *
+      `,
+      [id],
+    );
+    res.json(result.rows[0]);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "could not delete user" });
@@ -136,5 +145,6 @@ module.exports = {
   createUser,
   updateUser,
   updateUserRole,
-  deleteUser,
+  deactivateUser,
+  activateUser,
 };

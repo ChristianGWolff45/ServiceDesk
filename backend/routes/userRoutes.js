@@ -12,7 +12,8 @@ const {
   createUser,
   updateUser,
   updateUserRole,
-  deleteUser,
+  deactivateUser,
+  activateUser,
 } = require("../controller/userController");
 
 router.get("/", getAllUsers);
@@ -25,6 +26,7 @@ router.patch("/:userId", userParamValidation, updateUser);
 
 router.patch("/:userId/userRole", userParamValidation, updateUserRole);
 
-router.delete("/:userId", userParamValidation, deleteUser);
+router.patch("/:userId/deactivate", userParamValidation, deactivateUser);
 
+router.patch("/:userId/activate", userParamValidation, activateUser);
 module.exports = router;
