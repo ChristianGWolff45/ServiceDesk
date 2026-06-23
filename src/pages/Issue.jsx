@@ -38,7 +38,6 @@ export function Issue() {
   const [categoryDropdown, setCategoryDropdown] = useState(false);
   return (
     <div className="bg-green-50 h-screen pb-4">
-      <Header />
       <div className="m-8 bg-white  flex flex-col items-center rounded-lg ">
         <h1 className="font-bold text-2xl p-4 border-b border-gray-400 w-full text-center">
           Create a Ticket

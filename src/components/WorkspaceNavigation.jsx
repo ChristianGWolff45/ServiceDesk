@@ -5,6 +5,7 @@ import {
   ChevronRight,
   ChevronLeft,
   Users,
+  Tag,
 } from "lucide-react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -43,6 +44,17 @@ export function WorkspaceNavigation() {
             <div className="text-start">
               <h1>User Management</h1>
               <p className="text-sm">Roles, status, and access</p>
+            </div>
+          </button>
+
+          <button
+            className="flex items-start gap-2 pt-2 pb-2 cursor-pointer"
+            onClick={() => navigate("/Workpage/admin/ticketOptions")}
+          >
+            <Tag className="w-8 h-auto" />
+            <div className="text-start">
+              <h1>Ticket Options</h1>
+              <p className="text-sm">Update categories and locations</p>
             </div>
           </button>
         </div>

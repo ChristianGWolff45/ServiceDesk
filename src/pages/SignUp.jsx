@@ -25,7 +25,6 @@ export function SignUp() {
   };
   return (
     <>
-      <Header />
       <div className="bg-emerald-700 min-h-screen items-center flex justify-center">
         <form className="bg-white rounded-lg self-center p-8 w-150 flex flex-col gap-8">
           <h1 className="font-bold text-2xl self-center border-b border-green-800 p-2 pl-16 pr-16">

@@ -6,11 +6,11 @@ import { ChevronRight, ChevronLeft } from "lucide-react";
 import { useState } from "react";
 import { Ticket } from "./Ticket";
 import { AdminUsers } from "../components/AdminUsers";
+import { TicketOptions } from "../components/TicketOptions";
 export function WorkPage() {
   const [navOpen, setNavOpen] = useState(true);
   return (
     <div className="max-w-screen h-full">
-      <Header />
       <div
         className={`grid grid-cols-[1fr_5fr]  ${navOpen ? "grid-cols-[1fr_5fr]" : "grid-cols-[1fr_160fr]"}`}
       >
@@ -41,6 +41,7 @@ export function WorkPage() {
           <Route path="Board" element={<TicketBoard />} />
           <Route path="Board/tickets/:ticketId" element={<Ticket />} />
           <Route path="/admin/users" element={<AdminUsers />} />
+          <Route path="/admin/ticketOptions" element={<TicketOptions />} />
         </Routes>
       </div>
     </div>

@@ -13,6 +13,7 @@ import { WorkPage } from "./pages/WorkPage";
 function App() {
   return (
     <div>
+      <Header />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/Issue" element={<Issue />} />

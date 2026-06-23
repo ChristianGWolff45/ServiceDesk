@@ -8,7 +8,6 @@ export function LandingPage() {
   return (
     <div className="min-h-screen bg-gray-100 text-black">
       <div className="bg-green-800 pb-20 text-white font-semibold">
-        <Header />
         <h1 className="text-4xl font-bold pt-16 pb-6 flex justify-center">
           Hi, how can we help you?
         </h1>
