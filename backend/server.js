@@ -5,7 +5,7 @@ require("dotenv").config();
 const ticketRoutes = require("./routes/ticketRoutes");
 const userRoutes = require("./routes/userRoutes");
 const commentRoutes = require("./routes/commentRoutes");
-// const locationRoutes = require("./routes/locationRoutes");
+const locationRoutes = require("./routes/locationRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
 
 const pool = require("./db");
@@ -36,7 +36,7 @@ app.use("/api/tickets", ticketRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/tickets/:ticketId/comments", commentRoutes);
 app.use("/api/categories", categoryRoutes);
-// app.use("/api/locations", locationRoutes);
+app.use("/api/locations", locationRoutes);
 
 const PORT = process.env.PORT || 5000;
 
