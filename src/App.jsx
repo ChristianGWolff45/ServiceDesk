@@ -12,7 +12,7 @@ import { WorkPage } from "./pages/WorkPage";
 
 function App() {
   return (
-    <div>
+    <div className="flex flex-col">
       <Header />
       <Routes>
         <Route path="/" element={<LandingPage />} />

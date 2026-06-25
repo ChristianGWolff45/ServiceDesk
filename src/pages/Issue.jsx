@@ -1,10 +1,17 @@
 import { Header } from "../components/Header";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
-
+import { UseLocations } from "../hooks/useLocations";
+import { useCategories } from "../hooks/useCategories";
+import { useTickets } from "../hooks/useTickets";
+import { useUsers } from "../hooks/useUsers";
+import { emailRegex, validateTicket } from "../utils/validateUser";
 export function Issue() {
-  const locations = ["...", "Beatty Pointe", "Longwood", "Oakmont"];
-  const categories = ["...", "Password", "Lock out", "Wi-Fi"];
+  const { locations } = UseLocations();
+  const { categories } = useCategories();
+  const { createTicket } = useTickets();
+  const { getUserByEmail, user } = useUsers();
+
   function clearIssue() {
     setFormData({
       Email: "",
@@ -21,35 +28,63 @@ export function Issue() {
       ...prev,
       [name]: value,
     }));
-    console.log(formData);
   }
   const [formData, setFormData] = useState({
-    Email: "",
-    PhoneNumber: "",
-    Subject: "",
-    Location: "",
-    Category: "",
-    ErrorMessage: "",
-    Description: "",
+    email: "",
+    phoneNumber: "",
+    subject: "",
+    location: "",
+    category: "",
+    errorMessage: "",
+    description: "",
   });
+  useEffect(() => {
+    if (emailRegex.test(formData.email)) {
+      getUserByEmail(formData.email);
+    }
+  }, [formData.email]);
+
+  useEffect(() => {
+    if (user) {
+      handleChange("phoneNumber", user.phone_number);
+    }
+  }, [user]);
+  async function handleSubmit(e) {
+    e.preventDefault();
+    const user = await getUserByEmail(formData.email);
+    const errors = validateTicket({ userId: user.id, formData });
+    if (Object.keys(errors).length > 0) {
+      alert(Object.values(errors).map((error) => error + "\n"));
+      return;
+    }
+    createTicket({
+      requesterId: user.id,
+      title: formData.subject,
+      location: formData.location,
+      category: formData.category,
+      errorMessage: formData.errorMessage,
+      description: formData.description,
+    });
+  }
 
   const [locationDropdown, setLocationDropdown] = useState(false);
 
   const [categoryDropdown, setCategoryDropdown] = useState(false);
   return (
-    <div className="bg-green-50 h-screen pb-4">
+    <div className="bg-green-50 h-screen">
       <div className="m-8 bg-white  flex flex-col items-center rounded-lg ">
         <h1 className="font-bold text-2xl p-4 border-b border-gray-400 w-full text-center">
           Create a Ticket
         </h1>
-        <form className="w-9/10">
+        <form className="w-9/10" onSubmit={(e) => handleSubmit(e)}>
           <label className="flex flex-col gap-2 m-4">
             Email:
             <input
+              type="input"
               name="Email"
               placeholder="Email"
-              value={formData.Email}
-              onChange={(e) => handleChange("Email", e.target.value)}
+              value={formData.email}
+              onChange={(e) => handleChange("email", e.target.value)}
               className="border border-gray-700 rounded-sm p-2"
             ></input>
           </label>
@@ -61,8 +96,8 @@ export function Issue() {
             <input
               name="Phone Number"
               placeholder=""
-              value={formData.PhoneNumber}
-              onChange={(e) => handleChange("PhoneNumber", e.target.value)}
+              value={formData.phoneNumber}
+              onChange={(e) => handleChange("phoneNumber", e.target.value)}
               className="border border-gray-700 rounded-sm p-2"
             ></input>
           </label>
@@ -72,8 +107,8 @@ export function Issue() {
             <input
               name="Subject"
               placeholder=""
-              value={formData.Subject}
-              onChange={(e) => handleChange("Subject", e.target.value)}
+              value={formData.subject}
+              onChange={(e) => handleChange("subject", e.target.value)}
               className="border border-gray-700 rounded-sm p-2"
             ></input>
           </label>
@@ -86,7 +121,7 @@ export function Issue() {
                 onClick={() => setLocationDropdown(!locationDropdown)}
               >
                 <span className="ml-4 font-semibold">
-                  {formData.Location != "" ? formData.Location : "..."}
+                  {formData.location != "" ? formData.location : "..."}
                 </span>
                 {locationDropdown ? (
                   <ChevronUp className="w-5" />
@@ -98,11 +133,15 @@ export function Issue() {
                 <div className="flex flex-col self-start h-50 overflow-y-scroll w-full border rounded-md cursor-pointer">
                   {locations.map((location) => (
                     <button
+                      key={location.id}
                       type="button"
-                      onClick={() => handleChange("Location", location)}
-                      className={`cursor-pointer text-left rounded-md p-2 ${location === formData.Location ? "bg-blue-100" : ""}`}
+                      onClick={() => {
+                        handleChange("location", location.location);
+                        setLocationDropdown(false);
+                      }}
+                      className={`cursor-pointer text-left rounded-md p-2 ${location.location === formData.Location ? "bg-blue-200" : "hover:bg-blue-100"}`}
                     >
-                      {location}
+                      {location.location}
                     </button>
                   ))}
                 </div>
@@ -117,7 +156,7 @@ export function Issue() {
                 onClick={() => setCategoryDropdown(!categoryDropdown)}
               >
                 <span className="ml-4 font-semibold">
-                  {formData.Category != "" ? formData.Category : "..."}
+                  {formData.category != "" ? formData.category : "..."}
                 </span>
                 {locationDropdown ? (
                   <ChevronUp className="w-5" />
@@ -129,11 +168,15 @@ export function Issue() {
                 <div className="flex flex-col self-start h-50 overflow-y-scroll w-full border rounded-md cursor-pointer">
                   {categories.map((category) => (
                     <button
+                      key={category.id}
                       type="button"
-                      onClick={() => handleChange("Category", category)}
-                      className={`cursor-pointer text-left rounded-md p-2 ${category === formData.Category ? "bg-blue-100" : ""}`}
+                      onClick={() => {
+                        handleChange("category", category.category);
+                        setCategoryDropdown(false);
+                      }}
+                      className={`cursor-pointer text-left rounded-md p-2 ${category.category === formData.Category ? "bg-blue-200" : "hover:bg-blue-100"}`}
                     >
-                      {category}
+                      {category.category}
                     </button>
                   ))}
                 </div>
@@ -144,8 +187,8 @@ export function Issue() {
             Error Message (if applicable)
             <input
               className="border p-2 rounded-sm"
-              value={formData.ErrorMessage}
-              onChange={(e) => handleChange("ErrorMessage", e.target.value)}
+              value={formData.errorMessage}
+              onChange={(e) => handleChange("errorMessage", e.target.value)}
             ></input>
           </label>
           <label className="m-4 flex flex-col rounded-sm">
@@ -153,18 +196,22 @@ export function Issue() {
             <textarea
               className="h-50 w-full border mt-4 p-2 rounded-sm"
               placeholder="Enter Ticket description Here"
-              value={formData.Description}
-              onChange={(e) => handleChange("Description", e.target.value)}
+              value={formData.description}
+              onChange={(e) => handleChange("description", e.target.value)}
             ></textarea>
           </label>
           <div className="flex justify-self-end gap-4 pb-4">
             <button
+              type="button"
               className="cursor-pointer border rounded-sm font-semibold p-2 pl-4 pr-4"
               onClick={clearIssue}
             >
               Cancel
             </button>
-            <button className="cursor-pointer border rounded-sm font-semibold p-2 pl-4 pr-4 text-white bg-green-800">
+            <button
+              type="submit"
+              className="cursor-pointer border rounded-sm font-semibold p-2 pl-4 pr-4 text-white bg-green-800"
+            >
               Submit
             </button>
           </div>

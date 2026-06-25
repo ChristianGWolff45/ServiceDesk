@@ -14,11 +14,14 @@ const {
   updateUserRole,
   deactivateUser,
   activateUser,
+  getUserByEmail,
 } = require("../controller/userController");
 
 router.get("/", getAllUsers);
 
 router.get("/:userId", userParamValidation, getUserById);
+
+router.get("/byEmail/:email", getUserByEmail);
 
 router.post("/", createUser);
 

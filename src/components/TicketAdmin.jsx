@@ -33,30 +33,32 @@ export function TicketAdmin() {
   return (
     <div className="bg-green-50">
       <div className="flex gap-8">
-        <TicketOptions
-          title="Category"
-          description="Categories help define and assign issues"
-          options={categories}
-          name="category"
-          createOption={createCategory}
-          updateOption={updateCategory}
-          deleteOption={deleteCategory}
-        />
-        <TicketOptions
-          title="Location"
-          description="Locations define what building or area the problem is occuring."
-          options={locations}
-          name="location"
-          createOption={createLocation}
-          updateOption={updateLocation}
-          deleteOption={deleteLocation}
-        />
-      </div>
-      <div>
-        <h1 className="text-center text-4xl font-bold border-b border-emerald-900 p-4 m-8">
-          Preview
-        </h1>
-        <Issue />
+        <div className="w-full">
+          <TicketOptions
+            title="Category"
+            description="Categories help define and assign issues"
+            options={categories}
+            name="category"
+            createOption={createCategory}
+            updateOption={updateCategory}
+            deleteOption={deleteCategory}
+          />
+          <TicketOptions
+            title="Location"
+            description="Locations define what building or area the problem is occuring."
+            options={locations}
+            name="location"
+            createOption={createLocation}
+            updateOption={updateLocation}
+            deleteOption={deleteLocation}
+          />
+        </div>
+        <div className="w-full">
+          <h1 className="text-center text-4xl font-bold border-b border-emerald-900 p-4 m-8">
+            Preview
+          </h1>
+          <Issue />
+        </div>
       </div>
     </div>
   );

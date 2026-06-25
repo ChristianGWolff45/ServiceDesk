@@ -26,11 +26,11 @@ async function getTicketById(req, res) {
 }
 
 async function createTicket(req, res) {
-  const { title, description, category, requesterId } = req.body;
-
-  if (!title || !description || !category || !requesterId) {
+  const { title, description, location, category, requesterId } = req.body;
+  if (!title || !description || !category || !requesterId || !location) {
     return res.status(400).json({
-      message: "title, description, category, or requesterId is missing",
+      message:
+        "title, description, category, location, or requesterId is missing",
     });
   }
 
@@ -38,11 +38,11 @@ async function createTicket(req, res) {
     const result = await pool.query(
       `
     INSERT INTO 
-    tickets(title, description, category, requester_id)
-    VALUES($1, $2, $3, $4)
+    tickets(title, description, category, requester_id, location)
+    VALUES($1, $2, $3, $4, $5)
     RETURNING *
     `,
-      [title, description, category, requesterId],
+      [title, description, category, requesterId, location],
     );
 
     res.status(201).json(result);

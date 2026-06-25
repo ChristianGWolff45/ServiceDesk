@@ -54,7 +54,36 @@ export function useTickets() {
   //       ),
   //     );
 
-  async function createTicket() {}
+  async function createTicket({
+    requesterId,
+    title,
+    location,
+    category,
+    errorMessage,
+    description,
+  }) {
+    try {
+      const response = await fetch(`${API_URL}/tickets`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          requesterId,
+          title,
+          location,
+          category,
+          errorMessage,
+          description,
+        }),
+      });
+      if (!response.ok) {
+        console.log(response);
+      }
+      const data = await response.json();
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
   return {
     tickets,
     loading,
@@ -69,5 +98,6 @@ export function useTickets() {
     setCategory,
     search,
     setSearch,
+    createTicket,
   };
 }

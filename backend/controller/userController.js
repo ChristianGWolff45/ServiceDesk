@@ -139,6 +139,27 @@ async function activateUser(req, res) {
   }
 }
 
+async function getUserByEmail(req, res) {
+  const email = req.params.email;
+  try {
+    const result = await pool.query(
+      `
+        SELECT *
+        FROM users
+        WHERE email = $1
+      `,
+      [email],
+    );
+    if (result.rows.length === 0) {
+      res.status(404).json({ message: "user does not exist" });
+    }
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "could not find user" });
+  }
+}
+
 module.exports = {
   getAllUsers,
   getUserById,
@@ -147,4 +168,5 @@ module.exports = {
   updateUserRole,
   deactivateUser,
   activateUser,
+  getUserByEmail,
 };

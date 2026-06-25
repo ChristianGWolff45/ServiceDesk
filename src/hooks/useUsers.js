@@ -3,6 +3,7 @@ import { useState, useEffect } from "react";
 export function useUsers() {
   const [loading, setLoading] = useState();
   const [users, setUsers] = useState([]);
+  const [user, setUser] = useState();
   async function getUsers() {
     try {
       setLoading(true);
@@ -92,5 +93,34 @@ export function useUsers() {
     }
   }
 
-  return { loading, users, createUser, editUser, setUserStatus };
+  async function getUserByEmail(email) {
+    try {
+      const response = await fetch(`${API_URL}/users/byEmail/${email}`);
+      if (response.status === 404) {
+        return;
+      }
+
+      if (!response.ok) {
+        return console.log(response);
+      }
+
+      const data = await response.json();
+      if (data) {
+        setUser(data);
+      }
+      return data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  return {
+    loading,
+    users,
+    createUser,
+    editUser,
+    setUserStatus,
+    getUserByEmail,
+    user,
+  };
 }
