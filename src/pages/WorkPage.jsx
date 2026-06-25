@@ -6,7 +6,7 @@ import { ChevronRight, ChevronLeft } from "lucide-react";
 import { useState } from "react";
 import { Ticket } from "./Ticket";
 import { AdminUsers } from "../components/AdminUsers";
-import { TicketOptions } from "../components/TicketOptions";
+import { TicketAdmin } from "../components/TicketAdmin";
 export function WorkPage() {
   const [navOpen, setNavOpen] = useState(true);
   return (
@@ -41,7 +41,7 @@ export function WorkPage() {
           <Route path="Board" element={<TicketBoard />} />
           <Route path="Board/tickets/:ticketId" element={<Ticket />} />
           <Route path="/admin/users" element={<AdminUsers />} />
-          <Route path="/admin/ticketOptions" element={<TicketOptions />} />
+          <Route path="/admin/ticketAdmin" element={<TicketAdmin />} />
         </Routes>
       </div>
     </div>

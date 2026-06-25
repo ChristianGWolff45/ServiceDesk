@@ -49,7 +49,7 @@ export function WorkspaceNavigation() {
 
           <button
             className="flex items-start gap-2 pt-2 pb-2 cursor-pointer"
-            onClick={() => navigate("/Workpage/admin/ticketOptions")}
+            onClick={() => navigate("/Workpage/admin/ticketAdmin")}
           >
             <Tag className="w-8 h-auto" />
             <div className="text-start">

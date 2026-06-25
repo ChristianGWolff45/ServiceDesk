@@ -23,5 +23,74 @@ export function UseLocations() {
   useEffect(() => {
     getLocations();
   }, []);
-  return (locations, loading);
+
+  async function updateLocation(locationId, location) {
+    locationId = Number(locationId);
+    if (!Number.isInteger(locationId) || locationId < 0) {
+      return console.log("not a valid id");
+    }
+    try {
+      const response = await fetch(`${API_URL}/locations/${locationId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ location }),
+      });
+      if (!response.ok) {
+        return console.log(response);
+      }
+      const updatedLocation = await response.json();
+      setLocations((prev) =>
+        prev.map((location) => {
+          if (location.id === updatedLocation.id) {
+            return updatedLocation;
+          } else {
+            return location;
+          }
+        }),
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function deleteLocation(locationId) {
+    locationId = Number(locationId);
+    if (!Number.isInteger(locationId) || locationId < 0) {
+      return console.log("not a valid id");
+    }
+    try {
+      const response = await fetch(`${API_URL}/locations/${locationId}`, {
+        method: "DELETE",
+      });
+      if (!response.ok) {
+        return console.log(response);
+      }
+      setLocations((prev) =>
+        prev.filter((location) => {
+          if (locationId !== location.id) return location;
+        }),
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function createLocation(location) {
+    try {
+      const response = await fetch(`${API_URL}/locations`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ location }),
+      });
+      if (!response.ok) {
+        return console.log(response);
+      }
+      const data = await response.json();
+      setLocations((prev) => [...prev, data]);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  return { locations, loading, createLocation, updateLocation, deleteLocation };
 }
