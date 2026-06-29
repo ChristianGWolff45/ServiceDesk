@@ -7,6 +7,7 @@ const userRoutes = require("./routes/userRoutes");
 const commentRoutes = require("./routes/commentRoutes");
 const locationRoutes = require("./routes/locationRoutes");
 const categoryRoutes = require("./routes/categoryRoutes");
+const authRoutes = require("./routes/authRoutes");
 
 const pool = require("./db");
 
@@ -37,6 +38,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/tickets/:ticketId/comments", commentRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/locations", locationRoutes);
+app.use("/api/auth", authRoutes);
 
 const PORT = process.env.PORT || 5000;
 
