@@ -169,6 +169,24 @@ async function deleteTicket(req, res) {
   }
 }
 
+async function getMyTickets(req, res) {
+  const user = req.user;
+  try {
+    const result = await pool.query(
+      `
+        SELECT *
+        FROM tickets
+        WHERE requester_id = $1
+      `,
+      [user.id],
+    );
+    console.log("result", result);
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ message: error });
+  }
+}
+
 module.exports = {
   getAllTickets,
   getTicketById,
@@ -178,4 +196,5 @@ module.exports = {
   updateTicketPriority,
   assignTicket,
   deleteTicket,
+  getMyTickets,
 };

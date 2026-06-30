@@ -11,12 +11,15 @@ const {
   updateTicketPriority,
   assignTicket,
   deleteTicket,
+  getMyTickets,
 } = require("../controller/ticketController");
 
+const { validateToken } = require("../middleware/authValidation");
 const ticketValidation = require("../middleware/ticketValidation");
 const { userBodyValidation } = require("../middleware/userValidation");
 
 router.get("/", getAllTickets);
+router.get("/me", validateToken, getMyTickets);
 router.get("/:ticketId", ticketValidation, getTicketById);
 router.post("/", userBodyValidation("requesterId"), createTicket);
 router.patch("/:ticketId", ticketValidation, updateTicket);
@@ -28,6 +31,7 @@ router.patch(
   userBodyValidation("assigneeId"),
   assignTicket,
 );
+
 router.delete("/:ticketId", ticketValidation, deleteTicket);
 
 module.exports = router;

@@ -7,6 +7,7 @@ import { useState } from "react";
 import { Ticket } from "./Ticket";
 import { AdminUsers } from "../components/AdminUsers";
 import { TicketAdmin } from "../components/TicketAdmin";
+import { MyTickets } from "./MyTickets";
 export function WorkPage() {
   const [navOpen, setNavOpen] = useState(true);
   return (
@@ -42,6 +43,7 @@ export function WorkPage() {
           <Route path="Board/tickets/:ticketId" element={<Ticket />} />
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/ticketAdmin" element={<TicketAdmin />} />
+          <Route path="/MyTicketsPage" element={<MyTickets />} />
         </Routes>
       </div>
     </div>

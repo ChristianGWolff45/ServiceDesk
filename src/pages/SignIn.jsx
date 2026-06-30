@@ -2,8 +2,10 @@ import { useState } from "react";
 import { Mail, Lock } from "lucide-react";
 import { Header } from "../components/Header";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../hooks/useAuth";
 
 export function SignIn() {
+  const { login: userLogin } = useAuth();
   const navigate = useNavigate();
   function handleChange(event) {
     const { name, value } = event.target;
@@ -16,10 +18,16 @@ export function SignIn() {
     Email: "",
     Password: "",
   });
-  const handleSubmit = (e) => {
+  async function handleSubmit(e) {
     e.preventDefault();
-    navigate("/Workpage/Board");
-  };
+    const success = await userLogin({
+      email: login.Email,
+      password: login.Password,
+    });
+    if (success) {
+      navigate("/Workpage/Board");
+    }
+  }
   return (
     <>
       <div className="bg-emerald-700 min-h-screen items-center flex justify-center">

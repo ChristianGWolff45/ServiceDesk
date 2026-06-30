@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Mail, Lock } from "lucide-react";
 import { Header } from "../components/Header";
 import { Navigate, useNavigate } from "react-router-dom";
-
+import { useAuth } from "../hooks/useAuth";
 export function SignUp() {
+  const { registerNewUser, actionSuccess } = useAuth();
   const navigate = useNavigate();
   function handleChange(event) {
     const { name, value } = event.target;
@@ -15,13 +16,26 @@ export function SignUp() {
   const [Account, setAccount] = useState({
     Email: "",
     Password: "",
+    PhoneNumber: "",
     ConfirmPassword: "",
     FirstName: "",
     LastName: "",
   });
   const handleSubmit = (e) => {
     e.preventDefault();
-    navigate("/SignIn");
+    if (Account.ConfirmPassword !== Account.Password) {
+      return alert("Passwords do no match");
+    }
+    registerNewUser({
+      firstName: Account.FirstName,
+      lastName: Account.LastName,
+      email: Account.Email,
+      phoneNumber: Account.PhoneNumber,
+      password: Account.Password,
+    });
+    if (actionSuccess) {
+      navigate("/SignIn");
+    }
   };
   return (
     <>
@@ -61,6 +75,19 @@ export function SignUp() {
                 placeholder="Enter Email Here"
                 name="Email"
                 value={Account.Email}
+                onChange={handleChange}
+                className="ml-2 focus:outline-none"
+              ></input>
+            </div>
+          </label>
+
+          <label className="flex flex-col text-xl font-semibold">
+            Phone Number
+            <div className="border-l border-b border-green-800 p-2 m-2 flex">
+              <input
+                placeholder="Enter Phone Number Here"
+                name="PhoneNumber"
+                value={Account.PhoneNumber}
                 onChange={handleChange}
                 className="ml-2 focus:outline-none"
               ></input>

@@ -9,6 +9,7 @@ import { TicketBoard } from "./components/TicketBoard";
 import { Route, Routes } from "react-router-dom";
 import { LandingPage } from "./pages/LandingPage";
 import { WorkPage } from "./pages/WorkPage";
+import { TicketPostSuccessPage } from "./pages/TicketPostSuccessPage";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/SignIn" element={<SignIn />} />
         <Route path="/SignUp" element={<SignUp />} />
         <Route path="/Workpage/*" element={<WorkPage />} />
+        <Route path="/ticketPostSuccess" element={<TicketPostSuccessPage />} />
         <Route path="*" element={<p>404 page not found</p>} />
       </Routes>
     </div>

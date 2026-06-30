@@ -6,7 +6,11 @@ import { useCategories } from "../hooks/useCategories";
 import { useTickets } from "../hooks/useTickets";
 import { useUsers } from "../hooks/useUsers";
 import { emailRegex, validateTicket } from "../utils/validateUser";
+import { useNavigate } from "react-router-dom";
+import { useAuthContext } from "../context/AuthContext";
 export function Issue() {
+  const navigate = useNavigate();
+  const { isLoggedIn, user: currentUser } = useAuthContext();
   const { locations } = UseLocations();
   const { categories } = useCategories();
   const { createTicket } = useTickets();
@@ -30,7 +34,7 @@ export function Issue() {
     }));
   }
   const [formData, setFormData] = useState({
-    email: "",
+    email: isLoggedIn ? currentUser.email : "",
     phoneNumber: "",
     subject: "",
     location: "",
@@ -65,6 +69,7 @@ export function Issue() {
       errorMessage: formData.errorMessage,
       description: formData.description,
     });
+    navigate("/ticketPostSuccess");
   }
 
   const [locationDropdown, setLocationDropdown] = useState(false);

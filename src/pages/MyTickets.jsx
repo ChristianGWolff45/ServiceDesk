@@ -1,0 +1,57 @@
+import { TicketCard } from "../components/TicketCard";
+import { useTicketsRequester } from "../hooks/useTicketsRequester";
+import { TicketFilter } from "../components/TicketFilter";
+import { TicketKanban } from "../components/TicketKanban";
+import { List, Kanban } from "lucide-react";
+import { useState } from "react";
+import { TicketList } from "../components/TicketList";
+import { useAuthContext } from "../context/AuthContext";
+
+export function MyTickets() {
+  const [isKanban, setIsKanban] = useState(false);
+  const { token } = useAuthContext();
+  const { tickets, loading } = useTicketsRequester(token);
+  if (loading) {
+    return <p>loading</p>;
+  }
+  console.log(tickets);
+  return (
+    <div>
+      <div className="flex justify-between items-center text-6xl mt-16">
+        <h1 className=" ml-16  text-emerald-900 font-bold">My Tickets</h1>
+        <div className="border flex items-center   mr-16 rounded-md">
+          <button
+            className={`cursor-pointer p-2 m-1 rounded-md ${!isKanban ? "bg-emerald-900 text-white" : "hover:bg-green-50"}`}
+            onClick={() => setIsKanban(false)}
+          >
+            <List className="w-12 h-auto " />
+          </button>
+          <button
+            onClick={() => setIsKanban(true)}
+            className={`cursor-pointer p-2 m-1 rounded-md ${isKanban ? "bg-emerald-900 text-white" : "hover:bg-green-50"}`}
+          >
+            <Kanban className="w-12 h-auto" />
+          </button>
+        </div>
+      </div>
+
+      {/* <TicketFilter
+        status={status}
+        setStatus={setStatus}
+        priority={priority}
+        setPriority={setPriority}
+        assigneeId={assigneeId}
+        setAssigneeId={setAssigneeId}
+        category={category}
+        setCategory={setCategory}
+        search={search}
+        setSearch={setSearch}
+      /> */}
+      {isKanban ? (
+        <TicketKanban tickets={tickets} />
+      ) : (
+        <TicketList tickets={tickets} />
+      )}
+    </div>
+  );
+}
