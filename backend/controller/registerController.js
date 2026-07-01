@@ -18,7 +18,18 @@ function createToken(user) {
 
 async function registerNewUser(req, res) {
   const { firstName, lastName, email, phoneNumber, password } = req.body;
-  console.log("values:", firstName, lastName, email, phoneNumber, password);
+  try {
+    const result = await pool.query(`SELECT * FROM users where email = $1`, [
+      email,
+    ]);
+    if (result.rows.length > 0) {
+      return res
+        .status(409)
+        .json({ message: "user already exists login instead" });
+    }
+  } catch (error) {
+    res.status(500).json({ message: "could not confirm unique email" });
+  }
   try {
     if (!firstName || !lastName || !email || !phoneNumber) {
       return res
@@ -100,20 +111,21 @@ async function login(req, res) {
         .status(400)
         .json({ message: "incorrect username or password" });
     }
+    if (user.password_reset) {
+      return res.status(403).json({ message: "user must reset password" });
+    }
 
     const token = createToken(user);
 
-    return res
-      .status(200)
-      .json({
-        user: {
-          email: user.email,
-          firstName: user.first_name,
-          lastName: user.last_name,
-          role: user.role,
-        },
-        token: token,
-      });
+    return res.status(200).json({
+      user: {
+        email: user.email,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        role: user.role,
+      },
+      token: token,
+    });
   } catch (error) {
     res.status(500).json({ message: "cant login user" });
   }
@@ -123,6 +135,42 @@ async function getMe(req, res) {
   res.json({
     user: { id: req.user.id, email: req.user.email, role: req.user.role },
   });
+}
+
+async function resetPassword(req, res) {
+  const { email, oldPassword, newPassword } = req.user;
+  try {
+    const result = await pool.query(
+      `
+        SELECT *
+        FROM users
+        WHERE email = $1
+      `,
+      [email],
+    );
+    if (result.rows.length < 1) {
+      return res.status(400).json({ message: "user not found" });
+    }
+    const user = result.rows[0];
+    const match = bcrypt.compare(oldPassword, user.hash_password);
+    if (!match) {
+      return res
+        .status(404)
+        .json({ message: "user or old password is incorrect" });
+    }
+    const hashedPassword = bcrypt.hash(newPassword, 10);
+    const passwordSwitch = await pool.query(
+      `
+          UPDATE users
+          SET hash_password = $1
+          WHERE email = $2
+        `,
+      [hashedPassword, email],
+    );
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "could not update password" });
+  }
 }
 
 module.exports = {

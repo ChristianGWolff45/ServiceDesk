@@ -14,7 +14,6 @@ export function MyTickets() {
   if (loading) {
     return <p>loading</p>;
   }
-  console.log(tickets);
   return (
     <div>
       <div className="flex justify-between items-center text-6xl mt-16">

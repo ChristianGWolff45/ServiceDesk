@@ -4,7 +4,7 @@ import { Header } from "../components/Header";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
-export function SignIn() {
+export function ResetPassword() {
   const { login: userLogin } = useAuth();
   const navigate = useNavigate();
   function handleChange(event) {
@@ -16,21 +16,18 @@ export function SignIn() {
   }
   const [login, setLogin] = useState({
     Email: "",
-    Password: "",
+    oldPassword: "",
+    newPassword: "",
+    confirmPassword: "",
   });
   async function handleSubmit(e) {
     e.preventDefault();
-    const result = await userLogin({
+    const success = await userLogin({
       email: login.Email,
       password: login.Password,
     });
-    if (result.success) {
+    if (success) {
       navigate("/Workpage/MyTicketsPage");
-    } else {
-      console.log(result.passwordReset);
-      if (result.passwordReset) {
-        navigate("/ResetPassword");
-      }
     }
   }
   return (
@@ -55,25 +52,53 @@ export function SignIn() {
           </label>
 
           <label className="flex flex-col text-xl font-semibold">
-            Password
+            Old Password
             <div className="border-l border-b border-green-800  p-2 m-2 flex ">
               <Lock />
               <input
-                placeholder="Password"
-                name="Password"
-                value={login.Password}
+                placeholder="Old Password"
+                name="oldPassword"
+                value={login.oldPassword}
                 onChange={handleChange}
                 className="ml-2 focus:outline-none w-full"
                 type="password"
               ></input>
             </div>
-            <button
-              className="rounded-full p-2 m-auto mt-8 pl-16 pr-16 bg-green-800 cursor-pointer drop-shadow-2xl text-white"
-              onClick={handleSubmit}
-            >
-              Login
-            </button>
           </label>
+          <label className="flex flex-col text-xl font-semibold">
+            Old Password
+            <div className="border-l border-b border-green-800  p-2 m-2 flex ">
+              <Lock />
+              <input
+                placeholder="New Password"
+                name="newPassword"
+                value={login.newPassword}
+                onChange={handleChange}
+                className="ml-2 focus:outline-none w-full"
+                type="password"
+              ></input>
+            </div>
+          </label>
+          <label className="flex flex-col text-xl font-semibold">
+            Confirm Password
+            <div className="border-l border-b border-green-800  p-2 m-2 flex ">
+              <Lock />
+              <input
+                placeholder="Confirm Password"
+                name="confirmPassword"
+                value={login.confirmPassword}
+                onChange={handleChange}
+                className="ml-2 focus:outline-none w-full"
+                type="password"
+              ></input>
+            </div>
+          </label>
+          <button
+            className="rounded-full p-2 m-auto mt-8 pl-16 pr-16 bg-green-800 cursor-pointer drop-shadow-2xl text-white"
+            onClick={handleSubmit}
+          >
+            Login
+          </button>
         </form>
       </div>
     </>

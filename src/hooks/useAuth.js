@@ -2,7 +2,6 @@ import { API_URL } from "./API_URL";
 import { useState, useContext, useEffect, createContext } from "react";
 import { useAuthContext } from "../context/AuthContext";
 export function useAuth() {
-  const [actionSuccess, setActionSuccess] = useState(false);
   const { login: storeData } = useAuthContext();
   async function registerNewUser({
     firstName,
@@ -11,7 +10,6 @@ export function useAuth() {
     phoneNumber,
     password,
   }) {
-    setActionSuccess(false);
     try {
       const response = await fetch(`${API_URL}/auth/registerNewUser`, {
         method: "POST",
@@ -25,20 +23,18 @@ export function useAuth() {
         }),
       });
       if (!response.ok) {
-        console.log(response);
-        return;
+        alert((await response.json()).message);
+        return false;
       }
 
       const data = await response.json();
       storeData({ user: data.user, token: data.token });
+      return true;
     } catch (error) {
       console.log(error);
-    } finally {
-      setActionSuccess(true);
     }
   }
   async function login({ email, password }) {
-    setActionSuccess(false);
     try {
       const response = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
@@ -46,17 +42,19 @@ export function useAuth() {
         body: JSON.stringify({ email, password }),
       });
       if (!response.ok) {
+        if (response.status === 403) {
+          alert((await response.json()).message);
+          return { success: false, passwordReset: true };
+        }
         alert((await response.json()).message);
-        setActionSuccess(false);
-        return false;
+        return { success: false, passwordReset: false };
       }
-      setActionSuccess(true);
       const data = await response.json();
       storeData({ user: data.user, token: data.token });
-      return true;
+      return { success: true, passwordReset: false };
     } catch (error) {
       console.log(error);
-      return false;
+      return { success: false, passwordReset: false };
     }
   }
 
@@ -77,5 +75,5 @@ export function useAuth() {
       return { error: "failed to retrieve user" };
     }
   }
-  return { registerNewUser, actionSuccess, login };
+  return { registerNewUser, login };
 }

@@ -21,19 +21,19 @@ export function SignUp() {
     FirstName: "",
     LastName: "",
   });
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (Account.ConfirmPassword !== Account.Password) {
       return alert("Passwords do no match");
     }
-    registerNewUser({
+    const success = await registerNewUser({
       firstName: Account.FirstName,
       lastName: Account.LastName,
       email: Account.Email,
       phoneNumber: Account.PhoneNumber,
       password: Account.Password,
     });
-    if (actionSuccess) {
+    if (success) {
       navigate("/SignIn");
     }
   };
