@@ -1,7 +1,8 @@
 const pool = require("../db");
 
 async function getCommentsByTicketId(req, res) {
-  const ticketId = req.params.ticketId;
+  const ticket = req.ticket;
+  const user = req.user;
   try {
     const results = await pool.query(
       `
@@ -9,7 +10,7 @@ async function getCommentsByTicketId(req, res) {
     FROM comments
     WHERE ticket_id = $1    
     `,
-      [ticketId],
+      [ticket.id],
     );
     res.json(results.rows);
   } catch (error) {
@@ -35,8 +36,11 @@ async function getCommentById(req, res) {
 }
 
 async function createComment(req, res) {
-  const { authorId, body, isInternal } = req.body;
+  const { body, isInternal } = req.body;
   const ticketId = req.params.ticketId;
+  const user = req.user;
+  console.log("user", user);
+  const authorId = user.id;
   try {
     const results = await pool.query(
       `

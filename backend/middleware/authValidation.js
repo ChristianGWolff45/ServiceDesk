@@ -1,4 +1,5 @@
 const jwt = require("jsonwebtoken");
+const { pool } = require("../db");
 
 function validateToken(req, res, next) {
   const authToken = req.headers.authorization;
@@ -7,7 +8,6 @@ function validateToken(req, res, next) {
   }
   try {
     const token = authToken.split(" ")[1];
-    console.log("token", token);
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     req.user = decoded;
     next();
@@ -17,4 +17,20 @@ function validateToken(req, res, next) {
   }
 }
 
-module.exports = { validateToken };
+function authorizeTicketAccess(req, res, next) {
+  const user = req.user;
+  const ticket = req.ticket;
+  if (
+    user.role === "ADMIN" ||
+    user.role === "AGENT" ||
+    ticket.requester_id === user.id
+  ) {
+    next();
+  } else {
+    return res
+      .status(400)
+      .json({ message: "user not authorized to view ticket" });
+  }
+}
+
+module.exports = { validateToken, authorizeTicketAccess };

@@ -4,6 +4,7 @@ import { useUser } from "../hooks/useUser";
 import { useComments } from "../hooks/useComments";
 import { useState } from "react";
 import { useEffect } from "react";
+import { useAuthContext } from "../context/AuthContext";
 import {
   Tag,
   TriangleAlert,
@@ -24,6 +25,8 @@ import {
 import { Comment } from "../components/Comment";
 
 export function Ticket() {
+  const { token, user, isLoggedIn } = useAuthContext();
+
   const params = useParams();
   const ticketId = params.ticketId;
   const { ticket, loading } = useTicket(ticketId);
@@ -34,7 +37,7 @@ export function Ticket() {
   const { user: userRequester } = useUser(ticket?.requester_id);
   const { user: userAssigned } = useUser(ticket?.assignee_id);
 
-  const { comments, createComment } = useComments(ticketId);
+  const { comments, createComment } = useComments(ticketId, token);
 
   const [newPublicComment, setNewPublicComment] = useState("");
   const [newPrivateComment, setNewPrivateComment] = useState("");
@@ -43,7 +46,7 @@ export function Ticket() {
     if (newPublicComment === "") {
       return alert("Comment body is empty");
     }
-    createComment(newPublicComment, false);
+    createComment(newPublicComment, false, token);
     setNewPublicComment("");
   }
 
@@ -65,7 +68,7 @@ export function Ticket() {
           <div className="p-6 border bg-white border-emerald-900 rounded-2xl  flex-col flex gap-2">
             <p className="flex gap-4 ml-2 text-xl items-center">
               <span className="p-2 pl-4 pr-4 border-emerald-900 bg-green-100 rounded-md border">
-                {ticket.id}
+                {`#TCK-${ticket.id}`}
               </span>
               <span>
                 {"Opened "}
@@ -79,18 +82,34 @@ export function Ticket() {
                   hour12: true,
                 })}
               </span>
+              <span>{"  -  "}</span>
+              <span>
+                {"Updated "}
+                {new Date(ticket.updated_at).toLocaleString("en-US", {
+                  weekday: "short",
+                  month: "short",
+                  day: "numeric",
+                  year: "numeric",
+                  hour: "numeric",
+                  minute: "2-digit",
+                  hour12: true,
+                })}
+              </span>
             </p>
-            <h1 className="text-4xl font-semibold m-3">{ticket.title}</h1>
+            <div>
+              <h1 className="text-4xl font-semibold m-3">{ticket.title}</h1>
+              <p className="text-2xl m-3">{ticket.description}</p>
+            </div>
             <div className="flex gap-4 text-lg items-center font-semibold m-2">
               <div className="flex  items-center text-center p-2 h-12 pr-8 bg-green-50 rounded-full border border-green-700 text-emerald-900">
                 <Dot className="bold stroke-3 w-8 h-auto" />
                 {ticket.status}
               </div>
-              <div className="flex gap-2 items-center text-center p-2 pl-4 pr-4 h-12 bg-green-50 rounded-full border border-green-700 text-emerald-900">
+              <div className="flex gap-2 items-center text-center p-2 pl-4 pr-4 h-12 bg-orange-50 rounded-full border border-amber-700 text-amber-900">
                 <TriangleAlert />
                 {ticket.priority}
               </div>
-              <div className="flex gap-2 items-center text-center p-2 h-12 pl-4 pr-4 bg-green-50 rounded-full border border-green-700 text-emerald-900">
+              <div className="flex gap-2 items-center text-center p-2 h-12 pl-4 pr-4 bg-sky-50 rounded-full border border-sky-700 text-blue-900">
                 <Tag />
                 {ticket.category}
               </div>
@@ -141,93 +160,97 @@ export function Ticket() {
               </button>
             </div>
           </div>
+          {(user.role === "ADMIN" || user.role) === "AGENT" && (
+            <div className=" rounded-2xl border bg-amber-100 border-amber-900 p-8">
+              <div className="flex gap-2 items-center">
+                <Lock className="text-amber-900" />
+                <h1 className="font-semibold text-2xl text-amber-900">
+                  Internal Notes
+                </h1>
+                <p></p>
+              </div>
+              {comments
+                .filter((comment) => {
+                  return comment.is_internal;
+                })
+                .map((comment) => {
+                  return (
+                    <Comment
+                      key={comment.id}
+                      bg="orange-100"
+                      text="amber-900"
+                      border="amber-900"
+                      comment={comment}
+                    />
+                  );
+                })}
+              <div className="w-full">
+                <div className="pt-8 ">
+                  <h2>Add internal comment --- visible to requesters</h2>
+                  <textarea
+                    className="border bg-white  border-amber-900 w-full h-28 rounded-md m-2 p-2"
+                    placeholder="Reply to the requester"
+                    value={newPrivateComment}
+                    onChange={(e) => setNewPrivateComment(e.target.value)}
+                  ></textarea>
+                </div>
 
-          <div className=" rounded-2xl border bg-amber-100 border-amber-900 p-8">
-            <div className="flex gap-2 items-center">
-              <Lock className="text-amber-900" />
-              <h1 className="font-semibold text-2xl text-amber-900">
-                Internal Notes
-              </h1>
-              <p></p>
+                <button
+                  onClick={postPrivateComment}
+                  className="bg-orange-700 cursor-pointer text-white rounded-xl mt-4 justify-self-end p-4 flex gap-2 text-xl font-semibold items-center"
+                >
+                  <Send />
+                  Internal Reply
+                </button>
+              </div>
             </div>
-            {comments
-              .filter((comment) => {
-                return comment.is_internal;
-              })
-              .map((comment) => {
-                return (
-                  <Comment
-                    key={comment.id}
-                    bg="orange-100"
-                    text="amber-900"
-                    border="amber-900"
-                    comment={comment}
-                  />
-                );
-              })}
-            <div className="w-full">
-              <div className="pt-8 ">
-                <h2>Add internal comment --- visible to requesters</h2>
-                <textarea
-                  className="border bg-white  border-amber-900 w-full h-28 rounded-md m-2 p-2"
-                  placeholder="Reply to the requester"
-                  value={newPrivateComment}
-                  onChange={(e) => setNewPrivateComment(e.target.value)}
-                ></textarea>
+          )}
+        </div>
+
+        <div className="flex flex-col gap-12 ">
+          {(user.role === "ADMIN" || user.role === "AGENT") && (
+            <div className="border bg-white border-emerald-900 rounded-2xl flex flex-col text-lg p-6 gap-6">
+              <div>
+                <p className="text-xl font-bold">Actions</p>
+                <p>manage this ticket</p>
               </div>
 
-              <button
-                onClick={postPrivateComment}
-                className="bg-orange-700 cursor-pointer text-white rounded-xl mt-4 justify-self-end p-4 flex gap-2 text-xl font-semibold items-center"
-              >
-                <Send />
-                Internal Reply
+              <button className="flex gap-2 w-full bg-green-700 text-white font-semibold rounded-xl cursor-pointer justify-center p-4 text-2xl items-center">
+                <UserPlus />
+                <p>Assign to me</p>
               </button>
+              <label>
+                <p className="text-xl font-semibold mb-2">Status</p>
+                <button
+                  onClick={() => setStatusDropdown(!statusDropdown)}
+                  className="flex items-center bg-green-100 border border-emerald-900 rounded-lg w-full justify-between p-4 cursor-pointer text-2xl font-semibold text-emerald-900 "
+                >
+                  {ticket.status}
+                  {statusDropdown ? <ChevronUp /> : <ChevronDown />}
+                </button>
+              </label>
+              <label className="">
+                <p className="text-xl font-semibold mb-2">Priority </p>
+                <button
+                  onClick={() => setPriorityDropdown(!priorityDropdown)}
+                  className="flex items-center bg-green-100 border border-emerald-900 rounded-lg w-full justify-between p-4 cursor-pointer text-2xl font-semibold text-emerald-900 "
+                >
+                  {ticket.priority}
+                  {priorityDropdown ? <ChevronUp /> : <ChevronDown />}
+                </button>
+              </label>
+              <div className="flex gap-4 w-full justify-between">
+                <button className="flex items-center gap-2 text-2xl font-semibold w-full bg-green-100 border-emerald-900 pt-4 pb-4 justify-center rounded-xl border text-emerald-900 cursor-pointer hover:bg-green-200">
+                  <CheckCircle />
+                  Resolve
+                </button>
+                <button className="flex items-center gap-2 text-2xl font-semibold w-full bg-orange-100 border-amber-900 border rounded-xl pt-4 pb-4 justify-center text-amber-900 cursor-pointer hover:bg-orange-200">
+                  <XCircle />
+                  Close
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
-        <div className="flex flex-col gap-12 ">
-          <div className="border bg-white border-emerald-900 rounded-2xl flex flex-col text-lg p-6 gap-6">
-            <div>
-              <p className="text-xl font-bold">Actions</p>
-              <p>manage this ticket</p>
-            </div>
-
-            <button className="flex gap-2 w-full bg-green-700 text-white font-semibold rounded-xl cursor-pointer justify-center p-4 text-2xl items-center">
-              <UserPlus />
-              <p>Assign to me</p>
-            </button>
-            <label>
-              <p className="text-xl font-semibold mb-2">Status</p>
-              <button
-                onClick={() => setStatusDropdown(!statusDropdown)}
-                className="flex items-center bg-green-100 border border-emerald-900 rounded-lg w-full justify-between p-4 cursor-pointer text-2xl font-semibold text-emerald-900 "
-              >
-                {ticket.status}
-                {statusDropdown ? <ChevronUp /> : <ChevronDown />}
-              </button>
-            </label>
-            <label className="">
-              <p className="text-xl font-semibold mb-2">Priority </p>
-              <button
-                onClick={() => setPriorityDropdown(!priorityDropdown)}
-                className="flex items-center bg-green-100 border border-emerald-900 rounded-lg w-full justify-between p-4 cursor-pointer text-2xl font-semibold text-emerald-900 "
-              >
-                {ticket.priority}
-                {priorityDropdown ? <ChevronUp /> : <ChevronDown />}
-              </button>
-            </label>
-            <div className="flex gap-4 w-full justify-between">
-              <button className="flex items-center gap-2 text-2xl font-semibold w-full bg-green-100 border-emerald-900 pt-4 pb-4 justify-center rounded-xl border text-emerald-900 cursor-pointer hover:bg-green-200">
-                <CheckCircle />
-                Resolve
-              </button>
-              <button className="flex items-center gap-2 text-2xl font-semibold w-full bg-orange-100 border-amber-900 border rounded-xl pt-4 pb-4 justify-center text-amber-900 cursor-pointer hover:bg-orange-200">
-                <XCircle />
-                Close
-              </button>
-            </div>
-          </div>
+          )}
           <div className="bg-white border flex flex-col text-lg  gap-4 rounded-xl border-emerald-900 w-full p-6">
             <h1 className="font-bold">Ticket Details</h1>
             <div className="flex justify-between">

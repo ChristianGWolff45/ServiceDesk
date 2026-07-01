@@ -40,7 +40,7 @@ export function WorkPage() {
         </div>
         <Routes>
           <Route path="Board" element={<TicketBoard />} />
-          <Route path="Board/tickets/:ticketId" element={<Ticket />} />
+          <Route path="/tickets/:ticketId" element={<Ticket />} />
           <Route path="/admin/users" element={<AdminUsers />} />
           <Route path="/admin/ticketAdmin" element={<TicketAdmin />} />
           <Route path="/MyTicketsPage" element={<MyTickets />} />

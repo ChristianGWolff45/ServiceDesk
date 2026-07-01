@@ -10,7 +10,7 @@ const express = require("express");
 const router = express.Router({ mergeParams: true });
 const TicketValidation = require("../middleware/ticketValidation");
 const commentValidation = require("../middleware/commentValidation");
-const { userBodyValidation } = require("../middleware/userValidation");
+const { userTokenValidation } = require("../middleware/userValidation");
 const {
   getCommentsByTicketId,
   getCommentById,
@@ -19,14 +19,26 @@ const {
   deleteComment,
 } = require("../controller/commentController");
 
-router.get("/", TicketValidation, getCommentsByTicketId);
+const {
+  validateToken,
+  authorizeTicketAccess,
+} = require("../middleware/authValidation");
+
+router.get(
+  "/",
+  validateToken,
+  TicketValidation,
+  authorizeTicketAccess,
+  getCommentsByTicketId,
+);
 
 router.get("/:commentId", commentValidation, getCommentById);
 
 router.post(
   "/",
+  validateToken,
   TicketValidation,
-  userBodyValidation("authorId"),
+  userTokenValidation,
   createComment,
 );
 

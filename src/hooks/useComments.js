@@ -1,14 +1,16 @@
 import { API_URL } from "./API_URL";
 import { useState, useEffect } from "react";
 
-export function useComments(ticketId) {
+export function useComments(ticketId, token) {
   const [loading, setLoading] = useState(true);
   const [comments, setComments] = useState([]);
 
   async function getComments() {
     if (!ticketId) return;
     try {
-      const response = await fetch(`${API_URL}/tickets/${ticketId}/comments`);
+      const response = await fetch(`${API_URL}/tickets/${ticketId}/comments`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const data = await response.json();
       setComments(data);
     } catch (error) {
@@ -17,15 +19,17 @@ export function useComments(ticketId) {
     }
   }
 
-  async function createComment(_body, _isInternal) {
+  async function createComment(_body, _isInternal, token) {
     if (!ticketId) return;
     try {
       const response = await fetch(`${API_URL}/tickets/${ticketId}/comments`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
           body: _body,
-          authorId: 1,
           isInternal: _isInternal,
         }),
       });

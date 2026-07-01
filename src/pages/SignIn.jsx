@@ -25,7 +25,7 @@ export function SignIn() {
       password: login.Password,
     });
     if (success) {
-      navigate("/Workpage/Board");
+      navigate("/Workpage/MyTicketsPage");
     }
   }
   return (

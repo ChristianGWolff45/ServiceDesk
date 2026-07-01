@@ -19,6 +19,7 @@ async function TicketValidation(req, res, next) {
     if (result.rows.length === 0) {
       return res.status(404).json({ message: "could not locate ticket" });
     }
+    req.ticket = result.rows[0];
   } catch (error) {
     console.log("error: ", error);
     return res.status(500).json({ message: "could not locate ticket" });
