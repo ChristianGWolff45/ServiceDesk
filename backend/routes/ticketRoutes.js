@@ -19,7 +19,7 @@ const { validateToken } = require("../middleware/authValidation");
 const ticketValidation = require("../middleware/ticketValidation");
 const { userBodyValidation } = require("../middleware/userValidation");
 
-router.get("/", getAllTickets);
+router.get("/", validateToken, getAllTickets);
 router.get("/me", validateToken, getMyTickets);
 router.get("/:ticketId", ticketValidation, getTicketById);
 router.post("/", userBodyValidation("requesterId"), createTicket);

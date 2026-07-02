@@ -5,9 +5,11 @@ import { TicketKanban } from "./TicketKanban";
 import { List, Kanban } from "lucide-react";
 import { useState } from "react";
 import { TicketList } from "./TicketList";
+import { useAuthContext } from "../context/AuthContext";
 
 export function TicketBoard() {
   const [isKanban, setIsKanban] = useState(false);
+  const { token } = useAuthContext();
   const {
     tickets,
     loading,
@@ -22,7 +24,7 @@ export function TicketBoard() {
     setCategory,
     search,
     setSearch,
-  } = useTickets();
+  } = useTickets(token);
   if (loading) return <p>Loading</p>;
   if (error) return <p>Error {` ${error}`}</p>;
   return (

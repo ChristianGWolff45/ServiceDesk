@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { API_URL } from "./API_URL";
 
-export function useTickets() {
+export function useTickets(token) {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -12,11 +12,18 @@ export function useTickets() {
   const [search, setSearch] = useState("");
   async function getTickets() {
     try {
-      const response = await fetch(`${API_URL}/tickets`);
+      let url = `${API_URL}/tickets`;
+      if (status !== "ALL_TICKETS") {
+        url += `?status=${status}`;
+      }
+      const response = await fetch(`${url}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (!response.ok) {
         throw new Error("failed to fetch tickets");
       }
       const data = await response.json();
+      console.log(data);
       setTickets(data);
     } catch (error) {
     } finally {
@@ -25,34 +32,9 @@ export function useTickets() {
   }
 
   useEffect(() => {
+    console.log(status);
     getTickets();
-  }, []);
-  // tickets =
-  //   status === "ALL_TICKETS"
-  //     ? allTickets
-  //     : allTickets.filter((ticket) => ticket.status === status);
-  // tickets =
-  //   priority === "ALL_PRIORITY"
-  //     ? tickets
-  //     : tickets.filter((ticket) => ticket.priority === priority);
-
-  // tickets =
-  //   assigneeId === "All Assignee"
-  //     ? tickets
-  //     : tickets.filter((ticket) => ticket.assigneeId === assigneeId);
-
-  // tickets =
-  //   category === "All Categories"
-  //     ? tickets
-  //     : tickets.filter((ticket) => ticket.category === category);
-
-  // tickets = !search
-  //   ? tickets
-  //   : tickets.filter((ticket) =>
-  //       Object.values(ticket).some((value) =>
-  //         !value ? false : value.toLowerCase().includes(search.toLowerCase()),
-  //       ),
-  //     );
+  }, [status]);
 
   async function createTicket({
     requesterId,

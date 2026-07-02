@@ -1,8 +1,30 @@
 const pool = require("../db");
 
 async function getAllTickets(req, res) {
+  const user = req.user;
+  const { status } = req.query;
+  if (user.role !== "ADMIN" && user.role !== "AGENT") {
+    res
+      .status(403)
+      .json({ message: "user does not have permission to view all tickets" });
+  }
+
   try {
-    const result = await pool.query("SELECT * FROM tickets");
+    let query = `
+      SELECT *
+      FROM tickets
+    `;
+    const values = [];
+    if (status) {
+      query += `
+        WHERE status = $1
+      `;
+      values.push(status);
+    }
+    query += `
+      ORDER BY updated_at DESC
+    `;
+    const result = await pool.query(query, values);
     res.json(result.rows);
   } catch (error) {
     console.log(error);
