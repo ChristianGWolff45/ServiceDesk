@@ -10,7 +10,6 @@ export function useTicketsRequester(token) {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await response.json();
-      console.log("data ", data);
       setTickets(data);
     } catch (error) {
       console.log(error);

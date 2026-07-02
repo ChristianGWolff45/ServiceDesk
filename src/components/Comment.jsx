@@ -15,7 +15,7 @@ export function Comment({ comment, bg, text, border }) {
           <p>{author.role}</p>
         </div>
         <p>
-          {new Date(author.created_at).toLocaleDateString([], {
+          {new Date(comment.created_at).toLocaleDateString([], {
             month: "short",
             day: "numeric",
             year: "numeric",

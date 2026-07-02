@@ -75,5 +75,39 @@ export function useAuth() {
       return { error: "failed to retrieve user" };
     }
   }
-  return { registerNewUser, login };
+
+  async function resetPassword(email, oldPassword, newPassword) {
+    try {
+      const response = await fetch(`${API_URL}/auth/resetPassword`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(email, oldPassword, newPassword),
+      });
+      if (!response.ok) {
+        console.log((await response.json()).message);
+        return false;
+      }
+      const data = await response.json();
+      storeData({ user: data.user, token: data.token });
+      return true;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  async function getMe(token) {
+    try {
+      const response = await fetch(`${API_URL}/auth/me`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) {
+        return console.log((await response.json()).message);
+      }
+      const data = await response.json();
+      return data.user.id;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  return { registerNewUser, login, resetPassword, getMe };
 }

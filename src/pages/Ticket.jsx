@@ -5,6 +5,8 @@ import { useComments } from "../hooks/useComments";
 import { useState } from "react";
 import { useEffect } from "react";
 import { useAuthContext } from "../context/AuthContext";
+import { Dropdown } from "../components/Dropdown";
+import { useAuth } from "../hooks/useAuth";
 import {
   Tag,
   TriangleAlert,
@@ -27,12 +29,20 @@ import { Comment } from "../components/Comment";
 export function Ticket() {
   const { token, user, isLoggedIn } = useAuthContext();
 
+  const { getMe } = useAuth();
+
   const params = useParams();
   const ticketId = params.ticketId;
-  const { ticket, loading } = useTicket(ticketId);
+  const { ticket, loading, updateStatus, updatePriority, assignTo } =
+    useTicket(ticketId);
 
+  const statusOption = ["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"];
   const [statusDropdown, setStatusDropdown] = useState(false);
+  const [statusSelected, setStatusSelected] = useState(null);
+
+  const priorityOptions = ["LOW", "MEDIUM", "HIGH", "CRITICAL"];
   const [priorityDropdown, setPriorityDropdown] = useState(false);
+  const [prioritySelected, setPrioritySelected] = useState(null);
 
   const { user: userRequester } = useUser(ticket?.requester_id);
   const { user: userAssigned } = useUser(ticket?.assignee_id);
@@ -54,9 +64,24 @@ export function Ticket() {
     if (newPrivateComment === "") {
       return alert("Comment body is empty");
     }
-    createComment(newPrivateComment, true);
+    createComment(newPrivateComment, true, token);
     setNewPrivateComment("");
   }
+  useEffect(() => {
+    if (!loading) {
+      setStatusSelected(ticket.status);
+      setPrioritySelected(ticket.priority);
+    }
+  }, [loading]);
+
+  useEffect(() => {
+    updateStatus(statusSelected, token);
+  }, [statusSelected]);
+
+  useEffect(() => {
+    updatePriority(prioritySelected, token);
+  }, [prioritySelected]);
+
   if (loading) {
     return <p>Loading</p>;
   }
@@ -215,36 +240,45 @@ export function Ticket() {
                 <p>manage this ticket</p>
               </div>
 
-              <button className="flex gap-2 w-full bg-green-700 text-white font-semibold rounded-xl cursor-pointer justify-center p-4 text-2xl items-center">
+              <button
+                onClick={() => assignTo(token)}
+                className="flex gap-2 w-full bg-green-700 text-white font-semibold rounded-xl cursor-pointer justify-center p-4 text-2xl items-center"
+              >
                 <UserPlus />
                 <p>Assign to me</p>
               </button>
               <label>
                 <p className="text-xl font-semibold mb-2">Status</p>
-                <button
-                  onClick={() => setStatusDropdown(!statusDropdown)}
-                  className="flex items-center bg-green-100 border border-emerald-900 rounded-lg w-full justify-between p-4 cursor-pointer text-2xl font-semibold text-emerald-900 "
-                >
-                  {ticket.status}
-                  {statusDropdown ? <ChevronUp /> : <ChevronDown />}
-                </button>
+                <Dropdown
+                  dropdownStatus={statusDropdown}
+                  changeDropdownStatus={setStatusDropdown}
+                  setSelected={setStatusSelected}
+                  selections={statusOption}
+                  selected={statusSelected}
+                ></Dropdown>
               </label>
               <label className="">
                 <p className="text-xl font-semibold mb-2">Priority </p>
-                <button
-                  onClick={() => setPriorityDropdown(!priorityDropdown)}
-                  className="flex items-center bg-green-100 border border-emerald-900 rounded-lg w-full justify-between p-4 cursor-pointer text-2xl font-semibold text-emerald-900 "
-                >
-                  {ticket.priority}
-                  {priorityDropdown ? <ChevronUp /> : <ChevronDown />}
-                </button>
+                <Dropdown
+                  dropdownStatus={priorityDropdown}
+                  changeDropdownStatus={setPriorityDropdown}
+                  setSelected={setPrioritySelected}
+                  selections={priorityOptions}
+                  selected={prioritySelected}
+                ></Dropdown>
               </label>
               <div className="flex gap-4 w-full justify-between">
-                <button className="flex items-center gap-2 text-2xl font-semibold w-full bg-green-100 border-emerald-900 pt-4 pb-4 justify-center rounded-xl border text-emerald-900 cursor-pointer hover:bg-green-200">
+                <button
+                  onClick={() => setStatusSelected("RESOLVED")}
+                  className="flex items-center gap-2 text-2xl font-semibold w-full bg-green-100 border-emerald-900 pt-4 pb-4 justify-center rounded-xl border text-emerald-900 cursor-pointer hover:bg-green-200"
+                >
                   <CheckCircle />
                   Resolve
                 </button>
-                <button className="flex items-center gap-2 text-2xl font-semibold w-full bg-orange-100 border-amber-900 border rounded-xl pt-4 pb-4 justify-center text-amber-900 cursor-pointer hover:bg-orange-200">
+                <button
+                  onClick={() => setStatusSelected("CLOSED")}
+                  className="flex items-center gap-2 text-2xl font-semibold w-full bg-orange-100 border-amber-900 border rounded-xl pt-4 pb-4 justify-center text-amber-900 cursor-pointer hover:bg-orange-200"
+                >
                   <XCircle />
                   Close
                 </button>

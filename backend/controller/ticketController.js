@@ -80,13 +80,19 @@ async function updateTicket(req, res) {
 async function updateTicketStatus(req, res) {
   const ticketId = req.params.ticketId;
   const status = req.body.status;
+  const user = req.user;
+  if (user.role !== "ADMIN" && user.role !== "AGENT") {
+    return res.status(403).json({
+      message: "user does not have permissions to change ticket status",
+    });
+  }
   const updateTime = new Date().toISOString();
   try {
     const result = await pool.query(
       `
       UPDATE tickets
       SET
-        status = COALESCE($1, status)
+        status = COALESCE($1, status),
         updated_at = $2
       WHERE
         id = $3
@@ -94,7 +100,10 @@ async function updateTicketStatus(req, res) {
       `,
       [status, updateTime, ticketId],
     );
-    res.json(result);
+    if (result.rows.length < 1) {
+      return res.status(404).json({ message: "could not find ticket" });
+    }
+    res.json(result.rows[0]);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "could not update ticket status" });
@@ -104,29 +113,75 @@ async function updateTicketStatus(req, res) {
 async function updateTicketPriority(req, res) {
   const ticketId = req.params.ticketId;
   const priority = req.body.priority;
-
+  const updateTime = new Date().toISOString();
+  const user = req.user;
+  if (user.role !== "ADMIN" && user.role !== "AGENT") {
+    res.status(403).json({
+      message: "user does not have permission to update ticket priority",
+    });
+  }
   try {
     const result = await pool.query(
       `
       UPDATE tickets
       SET
-        priority = COALESCE($1, priority)
+        priority = COALESCE($1, priority),
+        updated_at = $2
+      WHERE
+        id = $3
+      RETURNING *
+      `,
+      [priority, updateTime, ticketId],
+    );
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ message: "could not update ticket priority" });
+  }
+}
+async function assignTicketMe(req, res) {
+  const user = req.user;
+  const ticketId = req.params.ticketId;
+  if (user.role !== "ADMIN" && user.role !== "AGENT") {
+    return res.status(403).json({
+      message: "this account does not have permission to assign tickets",
+    });
+  }
+  try {
+    const result = await pool.query(
+      `
+      UPDATE tickets
+      SET
+        assignee_id = COALESCE($1, assignee_id)
       WHERE
         id = $2
       RETURNING *
       `,
-      [priority, ticketId],
+      [user.id, ticketId],
     );
-    res.json(result);
+    res.json(result.rows[0]);
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ message: "could not update ticket status" });
+    return res.status(500).json({ message: "could not assign ticket" });
   }
 }
-
 async function assignTicket(req, res) {
   const assignee = req.body.assigneeId;
   const ticketId = req.params.ticketId;
+  const user = req.user;
+  if (user.role !== "ADMIN" && user.role !== "AGENT") {
+    return res.status(403).json({
+      message: "this account does not have permission to assign tickets",
+    });
+  }
+  if (user.role === "AGENT" && user.id !== assignee) {
+    return res.status(403).json({
+      message:
+        "this account does not have permission to assign tickets to other agents",
+    });
+  }
 
   try {
     const result = await pool.query(
@@ -180,7 +235,6 @@ async function getMyTickets(req, res) {
       `,
       [user.id],
     );
-    console.log("result", result);
     res.json(result.rows);
   } catch (error) {
     res.status(500).json({ message: error });
@@ -195,6 +249,7 @@ module.exports = {
   updateTicketStatus,
   updateTicketPriority,
   assignTicket,
+  assignTicketMe,
   deleteTicket,
   getMyTickets,
 };

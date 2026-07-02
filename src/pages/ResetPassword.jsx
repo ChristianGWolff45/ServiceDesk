@@ -4,8 +4,8 @@ import { Header } from "../components/Header";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
-export function ResetPassword() {
-  const { login: userLogin } = useAuth();
+export function ResetPassword(email) {
+  const { resetPassword } = useAuth();
   const navigate = useNavigate();
   function handleChange(event) {
     const { name, value } = event.target;
@@ -22,9 +22,10 @@ export function ResetPassword() {
   });
   async function handleSubmit(e) {
     e.preventDefault();
-    const success = await userLogin({
+    const success = await resetPassword({
       email: login.Email,
-      password: login.Password,
+      oldPassword: login.oldPassword,
+      newPassword: login.newPassword,
     });
     if (success) {
       navigate("/Workpage/MyTicketsPage");
@@ -66,7 +67,7 @@ export function ResetPassword() {
             </div>
           </label>
           <label className="flex flex-col text-xl font-semibold">
-            Old Password
+            New Password
             <div className="border-l border-b border-green-800  p-2 m-2 flex ">
               <Lock />
               <input

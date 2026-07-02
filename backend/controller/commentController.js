@@ -39,7 +39,16 @@ async function createComment(req, res) {
   const { body, isInternal } = req.body;
   const ticketId = req.params.ticketId;
   const user = req.user;
-  console.log("user", user);
+  if (isInternal) {
+    if (user.role !== "AGENT" && user.role !== "ADMIN") {
+      return res
+        .status(403)
+        .json({
+          message:
+            "user does not have permission to create an internal comment",
+        });
+    }
+  }
   const authorId = user.id;
   try {
     const results = await pool.query(
