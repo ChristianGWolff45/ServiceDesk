@@ -12,6 +12,7 @@ import {
   TriangleAlert,
   Dot,
   UserPlus,
+  UserMinus,
   ChevronDown,
   ChevronUp,
   CheckCircle,
@@ -30,11 +31,16 @@ export function Ticket() {
   const { token, user, isLoggedIn } = useAuthContext();
 
   const { getMe } = useAuth();
-
   const params = useParams();
   const ticketId = params.ticketId;
-  const { ticket, loading, updateStatus, updatePriority, assignTo } =
-    useTicket(ticketId);
+  const {
+    ticket,
+    loading: ticketLoading,
+    updateStatus,
+    updatePriority,
+    assignTo,
+    removeAssignee,
+  } = useTicket(ticketId);
 
   const statusOption = ["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"];
   const [statusDropdown, setStatusDropdown] = useState(false);
@@ -44,8 +50,8 @@ export function Ticket() {
   const [priorityDropdown, setPriorityDropdown] = useState(false);
   const [prioritySelected, setPrioritySelected] = useState(null);
 
-  const { user: userRequester } = useUser(ticket?.requester_id);
-  const { user: userAssigned } = useUser(ticket?.assignee_id);
+  const { user: requester, setUserId: setRequesterId } = useUser();
+  const { user: assignee, setUserId: setAssigneeId } = useUser();
 
   const { comments, createComment } = useComments(ticketId, token);
 
@@ -68,11 +74,13 @@ export function Ticket() {
     setNewPrivateComment("");
   }
   useEffect(() => {
-    if (!loading) {
+    if (!ticketLoading) {
       setStatusSelected(ticket.status);
       setPrioritySelected(ticket.priority);
+      setRequesterId(ticket.requester_id);
+      setAssigneeId(ticket.assignee_id);
     }
-  }, [loading]);
+  }, [ticket]);
 
   useEffect(() => {
     updateStatus(statusSelected, token);
@@ -82,8 +90,8 @@ export function Ticket() {
     updatePriority(prioritySelected, token);
   }, [prioritySelected]);
 
-  if (loading) {
-    return <p>Loading</p>;
+  if (ticketLoading) {
+    return <p>ticketLoading</p>;
   }
 
   return (
@@ -236,17 +244,39 @@ export function Ticket() {
           {(user.role === "ADMIN" || user.role === "AGENT") && (
             <div className="border bg-white border-emerald-900 rounded-2xl flex flex-col text-lg p-6 gap-6">
               <div>
-                <p className="text-xl font-bold">Actions</p>
+                <p className="text-2xl font-bold">Actions</p>
                 <p>manage this ticket</p>
+                <p>
+                  {assignee ? (
+                    <span>
+                      assigned to{" "}
+                      <strong>
+                        {" "}
+                        {assignee.first_name} {assignee.last_name}
+                      </strong>
+                    </span>
+                  ) : (
+                    "Unassigned"
+                  )}
+                </p>
               </div>
-
-              <button
-                onClick={() => assignTo(token)}
-                className="flex gap-2 w-full bg-green-700 text-white font-semibold rounded-xl cursor-pointer justify-center p-4 text-2xl items-center"
-              >
-                <UserPlus />
-                <p>Assign to me</p>
-              </button>
+              {ticket.assignee_id === user.id ? (
+                <button
+                  onClick={() => removeAssignee(token)}
+                  className="flex gap-2 w-full bg-orange-700 text-white font-semibold rounded-xl cursor-pointer justify-center p-4 text-2xl items-center"
+                >
+                  <UserMinus />
+                  <p>Unassign to me</p>
+                </button>
+              ) : (
+                <button
+                  onClick={() => assignTo(token)}
+                  className="flex gap-2 w-full bg-green-700 text-white font-semibold rounded-xl cursor-pointer justify-center p-4 text-2xl items-center"
+                >
+                  <UserPlus />
+                  <p>Assign to me</p>
+                </button>
+              )}
               <label>
                 <p className="text-xl font-semibold mb-2">Status</p>
                 <Dropdown
@@ -294,8 +324,8 @@ export function Ticket() {
               </div>
               <p className="font-bold">
                 {`${
-                  userRequester
-                    ? userRequester.first_name + " " + userRequester.last_name
+                  requester
+                    ? requester.first_name + " " + requester.last_name
                     : "failed to load requester"
                 }`}
               </p>
@@ -308,11 +338,7 @@ export function Ticket() {
               </div>
               <p className="font-bold">
                 {" "}
-                {`${
-                  userRequester
-                    ? userRequester.email
-                    : "failed to load requester"
-                }`}
+                {`${requester ? requester.email : "failed to load requester"}`}
               </p>
             </div>
 
@@ -322,8 +348,8 @@ export function Ticket() {
                 <p>Assignee</p>
               </div>
               <p className="font-bold">{`${
-                userAssigned
-                  ? userAssigned.first_name + " " + userAssigned.last_name
+                assignee
+                  ? assignee.first_name + " " + assignee.last_name
                   : "UNASSIGNED"
               }`}</p>
             </div>

@@ -5,25 +5,34 @@ export function useTickets(token) {
   const [tickets, setTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [status, setStatus] = useState("ALL_TICKETS");
-  const [priority, setPriority] = useState("ALL_PRIORITY");
-  const [category, setCategory] = useState("All Categories");
-  const [assigneeId, setAssigneeId] = useState("All Assignee");
+  const [status, setStatus] = useState(null);
+  const [priority, setPriority] = useState(null);
+  const [category, setCategory] = useState(null);
+  const [assigneeId, setAssigneeId] = useState(null);
   const [search, setSearch] = useState("");
   async function getTickets() {
     try {
       let url = `${API_URL}/tickets`;
-      if (status !== "ALL_TICKETS") {
-        url += `?status=${status}`;
+      const params = new URLSearchParams();
+      if (status) {
+        params.append("status", `${status}`);
       }
-      const response = await fetch(`${url}`, {
+      if (priority) {
+        params.append("priority", `${priority}`);
+      }
+      if (category) {
+        params.append("category", `${category}`);
+      }
+      if (assigneeId) {
+        params.append("assigneeId", `${assigneeId}`);
+      }
+      const response = await fetch(`${url}?${params.toString()}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!response.ok) {
         throw new Error("failed to fetch tickets");
       }
       const data = await response.json();
-      console.log(data);
       setTickets(data);
     } catch (error) {
     } finally {
@@ -32,9 +41,8 @@ export function useTickets(token) {
   }
 
   useEffect(() => {
-    console.log(status);
     getTickets();
-  }, [status]);
+  }, [status, priority, assigneeId, category]);
 
   async function createTicket({
     requesterId,

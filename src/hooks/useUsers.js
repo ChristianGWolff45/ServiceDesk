@@ -114,6 +114,19 @@ export function useUsers() {
     }
   }
 
+  async function getUserById(userId) {
+    if (!userId) return;
+    if (userId > 0) {
+      try {
+        const response = await fetch(`${API_URL}/users/${userId}`);
+        const data = await response.json();
+        return data;
+      } catch (error) {
+      } finally {
+        setLoading(false);
+      }
+    }
+  }
   return {
     loading,
     users,
@@ -121,6 +134,7 @@ export function useUsers() {
     editUser,
     setUserStatus,
     getUserByEmail,
+    getUserById,
     user,
   };
 }

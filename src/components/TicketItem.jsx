@@ -1,9 +1,18 @@
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../hooks/useUser";
+import { useEffect } from "react";
 
 export function TicketItem({ ticket }) {
   const navigate = useNavigate();
-  const { user: assignee } = useUser(ticket.assigneeId);
+  const { user: assignee, setUserId, userLoading } = useUser();
+
+  useEffect(() => {
+    setUserId(ticket.assignee_id);
+  }, [ticket]);
+
+  if (userLoading) {
+    return <p>Loading</p>;
+  }
   return (
     <div
       className="items-center grid-cols-[2fr_1fr_1fr_1fr_1fr_1fr] grid bg-green-50 p-4 border-t rounded-b-lg border-emerald-900 cursor-pointer hover:bg-green-100 hover:p-4 hover:text-2xl"
@@ -36,8 +45,8 @@ export function TicketItem({ ticket }) {
         })}
       </p>
       <p className="font-semibold ">
-        {ticket.assigneeId
-          ? assignee.first_name + " " + assignee.lastName
+        {assignee
+          ? assignee.first_name + " " + assignee.last_name
           : "UNASSIGNED"}
       </p>
     </div>

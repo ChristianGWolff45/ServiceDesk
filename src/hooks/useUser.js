@@ -1,11 +1,16 @@
 import { API_URL } from "./API_URL";
 import { useState, useEffect } from "react";
-export function useUser(userId) {
+export function useUser() {
   const [user, setUser] = useState(null);
   const [userLoading, setLoading] = useState(true);
+  const [userId, setUserId] = useState(null);
 
   async function getUser() {
-    if (!userId) return;
+    setLoading(true);
+    if (!userId) {
+      setLoading(false);
+      return setUser(null);
+    }
     if (userId > 0) {
       try {
         const response = await fetch(`${API_URL}/users/${userId}`);
@@ -21,5 +26,5 @@ export function useUser(userId) {
     getUser();
   }, [userId]);
 
-  return { user, userLoading };
+  return { user, userLoading, setUserId };
 }

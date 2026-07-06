@@ -15,9 +15,12 @@ const {
   deactivateUser,
   activateUser,
   getUserByEmail,
+  getSupportStaff,
 } = require("../controller/userController");
 
 router.get("/", getAllUsers);
+
+router.get("/staff", getSupportStaff);
 
 router.get("/:userId", userParamValidation, getUserById);
 
@@ -32,4 +35,5 @@ router.patch("/:userId/userRole", userParamValidation, updateUserRole);
 router.patch("/:userId/deactivate", userParamValidation, deactivateUser);
 
 router.patch("/:userId/activate", userParamValidation, activateUser);
+
 module.exports = router;

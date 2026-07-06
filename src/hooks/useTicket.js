@@ -85,5 +85,25 @@ export function useTicket(ticketId) {
       console.log(error);
     }
   }
-  return { ticket, loading, updateStatus, updatePriority, assignTo };
+
+  async function removeAssignee(token) {
+    try {
+      const response = await fetch(
+        `${API_URL}/tickets/${ticketId}/removeAssignee`,
+        { method: "PATCH", headers: { Authorization: `Bearer ${token}` } },
+      );
+      const data = await response.json();
+      setTicket(data);
+    } catch (error) {
+      throw new Error(error);
+    }
+  }
+  return {
+    ticket,
+    loading,
+    updateStatus,
+    updatePriority,
+    assignTo,
+    removeAssignee,
+  };
 }

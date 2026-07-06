@@ -1,7 +1,12 @@
+import { useEffect } from "react";
 import { useUser } from "../hooks/useUser";
 
 export function Comment({ comment, bg, text, border }) {
-  const { user: author, userLoading } = useUser(comment.author_id);
+  const { user: author, userLoading, setUserId } = useUser();
+  useEffect(() => {
+    setUserId(comment.author_id);
+  }, []);
+
   if (userLoading) {
     return <p>loading</p>;
   }

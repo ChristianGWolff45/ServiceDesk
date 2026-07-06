@@ -10,6 +10,7 @@ const {
   updateTicketStatus,
   updateTicketPriority,
   assignTicket,
+  removeAssignee,
   deleteTicket,
   getMyTickets,
   assignTicketMe,
@@ -50,6 +51,13 @@ router.patch(
   validateToken,
   ticketValidation,
   assignTicketMe,
+);
+
+router.patch(
+  "/:ticketId/removeAssignee",
+  validateToken,
+  ticketValidation,
+  removeAssignee,
 );
 
 router.delete("/:ticketId", ticketValidation, deleteTicket);

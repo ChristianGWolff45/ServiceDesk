@@ -125,13 +125,13 @@ async function login(req, res) {
     }
 
     const token = createToken(user);
-
     return res.status(200).json({
       user: {
         email: user.email,
         firstName: user.first_name,
         lastName: user.last_name,
         role: user.role,
+        id: user.id,
       },
       token: token,
     });

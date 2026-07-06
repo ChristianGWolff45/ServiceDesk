@@ -2,7 +2,7 @@ const pool = require("../db");
 
 async function getAllTickets(req, res) {
   const user = req.user;
-  const { status } = req.query;
+  const { status, priority, assigneeId, category } = req.query;
   if (user.role !== "ADMIN" && user.role !== "AGENT") {
     res
       .status(403)
@@ -14,13 +14,41 @@ async function getAllTickets(req, res) {
       SELECT *
       FROM tickets
     `;
+    let i = 1;
     const values = [];
     if (status) {
       query += `
-        WHERE status = $1
+        ${i === 1 ? "WHERE" : "AND"}
+        status = $${i}
       `;
+      i++;
       values.push(status);
     }
+    if (priority) {
+      query += `
+        ${i === 1 ? "WHERE" : "AND"}
+        priority = $${i}
+      `;
+      i++;
+      values.push(priority);
+    }
+    if (category) {
+      query += `
+        ${i === 1 ? "WHERE" : "AND"}
+        category = $${i}
+      `;
+      i++;
+      values.push(category);
+    }
+    if (assigneeId) {
+      query += `
+      ${i === 1 ? "WHERE" : "AND"}
+        assignee_id = $${i}
+      `;
+      i++;
+      values.push(Number(assigneeId));
+    }
+
     query += `
       ORDER BY updated_at DESC
     `;
@@ -31,7 +59,6 @@ async function getAllTickets(req, res) {
     return res.status(500).json({ message: "could not retrieve tickets" });
   }
 }
-
 async function getTicketById(req, res) {
   try {
     const ticket = await pool.query("SELECT * FROM tickets WHERE id = $1", [
@@ -46,7 +73,6 @@ async function getTicketById(req, res) {
     return res.status(500).json({ message: "could not find ticket" });
   }
 }
-
 async function createTicket(req, res) {
   const { title, description, location, category, requesterId } = req.body;
   if (!title || !description || !category || !requesterId || !location) {
@@ -73,7 +99,6 @@ async function createTicket(req, res) {
     return res.status(500).json({ message: "could not create ticket" });
   }
 }
-
 async function updateTicket(req, res) {
   const ticketId = req.params.ticketId;
   const { title, description, category } = req.body;
@@ -98,7 +123,6 @@ async function updateTicket(req, res) {
     return res.status(500).json({ message: "could not update ticket" });
   }
 }
-
 async function updateTicketStatus(req, res) {
   const ticketId = req.params.ticketId;
   const status = req.body.status;
@@ -131,7 +155,6 @@ async function updateTicketStatus(req, res) {
     return res.status(500).json({ message: "could not update ticket status" });
   }
 }
-
 async function updateTicketPriority(req, res) {
   const ticketId = req.params.ticketId;
   const priority = req.body.priority;
@@ -189,6 +212,28 @@ async function assignTicketMe(req, res) {
     return res.status(500).json({ message: "could not assign ticket" });
   }
 }
+async function removeAssignee(req, res) {
+  const user = req.user;
+  if (user.role !== "ADMIN" && user.role !== "AGENT") {
+    return res
+      .status(403)
+      .json({ message: "user does not have permission to remove agent" });
+  }
+  try {
+    const response = await pool.query(
+      `
+        UPDATE tickets
+        SET assignee_id = null
+        WHERE id = $1
+        RETURNING *
+      `,
+      [req.params.ticketId],
+    );
+    res.json(response.rows[0]);
+  } catch (error) {
+    return res.status(500).json({ message: "could not remove assignee" });
+  }
+}
 async function assignTicket(req, res) {
   const assignee = req.body.assigneeId;
   const ticketId = req.params.ticketId;
@@ -223,7 +268,6 @@ async function assignTicket(req, res) {
     return res.status(500).json({ message: "could not assign ticket" });
   }
 }
-
 async function deleteTicket(req, res) {
   const ticketId = req.params.ticketId;
 
@@ -245,7 +289,6 @@ async function deleteTicket(req, res) {
     return res.status(500).json({ message: "could not delete ticket" });
   }
 }
-
 async function getMyTickets(req, res) {
   const user = req.user;
   try {
@@ -272,6 +315,7 @@ module.exports = {
   updateTicketPriority,
   assignTicket,
   assignTicketMe,
+  removeAssignee,
   deleteTicket,
   getMyTickets,
 };

@@ -160,6 +160,21 @@ async function getUserByEmail(req, res) {
   }
 }
 
+async function getSupportStaff(req, res) {
+  try {
+    const response = await pool.query(`
+          SELECT *
+          FROM users
+          WHERE 
+          role IN ('AGENT', 'ADMIN')
+      `);
+    console.log(response.rows);
+    res.json(response.rows);
+  } catch (error) {
+    return res.status(500).json({ message: "could not get support staff" });
+  }
+}
+
 module.exports = {
   getAllUsers,
   getUserById,
@@ -169,4 +184,5 @@ module.exports = {
   deactivateUser,
   activateUser,
   getUserByEmail,
+  getSupportStaff,
 };
