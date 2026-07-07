@@ -15,8 +15,12 @@ export function useUser() {
       try {
         const response = await fetch(`${API_URL}/users/${userId}`);
         const data = await response.json();
+        if (!response.ok) {
+          return console.log(response);
+        }
         setUser(data);
       } catch (error) {
+        return console.log(error);
       } finally {
         setLoading(false);
       }

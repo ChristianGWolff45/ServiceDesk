@@ -7,6 +7,8 @@ import { useEffect } from "react";
 import { useAuthContext } from "../context/AuthContext";
 import { Dropdown } from "../components/Dropdown";
 import { useAuth } from "../hooks/useAuth";
+import { useSupportStaff } from "../hooks/useSupportStaff";
+
 import {
   Tag,
   TriangleAlert,
@@ -29,6 +31,8 @@ import { Comment } from "../components/Comment";
 
 export function Ticket() {
   const { token, user, isLoggedIn } = useAuthContext();
+  const { agents } = useSupportStaff();
+  const [assigneeDropdown, setAssigneeDropdown] = useState(false);
 
   const { getMe } = useAuth();
   const params = useParams();
@@ -193,7 +197,7 @@ export function Ticket() {
               </button>
             </div>
           </div>
-          {(user.role === "ADMIN" || user.role) === "AGENT" && (
+          {(user.role === "ADMIN" || user.role === "AGENT") && (
             <div className=" rounded-2xl border bg-amber-100 border-amber-900 p-8">
               <div className="flex gap-2 items-center">
                 <Lock className="text-amber-900" />
@@ -260,13 +264,53 @@ export function Ticket() {
                   )}
                 </p>
               </div>
-              {ticket.assignee_id === user.id ? (
+              {user.role === "ADMIN" ? (
+                <div>
+                  {/* <Dropdown
+                    dropdownStatus={assigneeDropdown}
+                    changeDropdownStatus={setAssigneeDropdown}
+                    setSelected={setAssigneeId}
+                    selected={assignee}
+                    selections={agents.map((agent) => {
+                      return agent.first_name + agent.last_name;
+                    })}
+                  /> */}
+                  <p className="font-semibold mb-2 text-xl">Assign To</p>
+                  <button
+                    className="flex items-center bg-green-100 border border-emerald-900 rounded-lg w-full justify-between p-4 cursor-pointer text-2xl font-semibold text-emerald-900 "
+                    onClick={() => setAssigneeDropdown(!assigneeDropdown)}
+                  >
+                    <p>
+                      {assignee
+                        ? assignee.first_name + " " + assignee.last_name
+                        : "UNASSIGNED"}
+                    </p>
+                    {assigneeDropdown ? <ChevronUp /> : <ChevronDown />}
+                  </button>
+                  {assigneeDropdown && (
+                    <div className="flex flex-col border border-emerald-900 rounded-lg w-full">
+                      {agents.map((agent, index) => (
+                        <button
+                          onClick={() => {
+                            setAssigneeId(agent.id);
+                            setAssigneeDropdown(false);
+                          }}
+                          key={index}
+                          className={`flex  items-center rounded-lg  justify-between p-4 cursor-pointer text-2xl font-semibold  ${assignee && agent.id === assignee.id ? "text-white bg-emerald-900" : "text-emerald-900 hover:bg-green-100"}`}
+                        >
+                          {agent.first_name + " " + agent.last_name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : ticket.assignee_id === user.id ? (
                 <button
                   onClick={() => removeAssignee(token)}
                   className="flex gap-2 w-full bg-orange-700 text-white font-semibold rounded-xl cursor-pointer justify-center p-4 text-2xl items-center"
                 >
                   <UserMinus />
-                  <p>Unassign to me</p>
+                  <p>Unassign To Me</p>
                 </button>
               ) : (
                 <button
@@ -274,7 +318,7 @@ export function Ticket() {
                   className="flex gap-2 w-full bg-green-700 text-white font-semibold rounded-xl cursor-pointer justify-center p-4 text-2xl items-center"
                 >
                   <UserPlus />
-                  <p>Assign to me</p>
+                  <p>Assign To Me</p>
                 </button>
               )}
               <label>

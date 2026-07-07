@@ -20,13 +20,13 @@ export function Dropdown({
       </div>
       {dropdownStatus && (
         <div className="flex flex-col border border-emerald-900 rounded-lg w-full">
-          {selections.map((selection) => (
+          {selections.map((selection, index) => (
             <button
               onClick={() => {
                 setSelected(selection);
                 changeDropdownStatus(false);
               }}
-              key={selection}
+              key={index}
               className={`flex  items-center rounded-lg  justify-between p-4 cursor-pointer text-2xl font-semibold  ${selection === selected ? "text-white bg-emerald-900" : "text-emerald-900 hover:bg-green-100"}`}
             >
               {selection}

@@ -194,6 +194,7 @@ async function resetPassword(req, res) {
       firstName: user.first_name,
       lastName: user.last_name,
       role: user.role,
+      id: user.id,
     };
 
     res.json({ user: safeUser, token: token });

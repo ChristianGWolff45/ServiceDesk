@@ -7,7 +7,7 @@ export function Comment({ comment, bg, text, border }) {
     setUserId(comment.author_id);
   }, []);
 
-  if (userLoading) {
+  if (userLoading || !author) {
     return <p>loading</p>;
   }
   return (
