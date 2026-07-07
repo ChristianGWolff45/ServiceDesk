@@ -12,7 +12,7 @@ const { validateToken } = require("../middleware/authValidation");
 
 // const { authenticateToken } = require("../middleware/authMiddleware");
 
-// router.post("/registerNewUser", registerNewUser);
+router.post("/registerNewUser", registerNewUser);
 
 router.post("/login", login);
 

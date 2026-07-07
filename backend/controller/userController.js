@@ -1,8 +1,20 @@
 const pool = require("../db");
+const bcrypt = require("bcrypt");
 
 async function getAllUsers(req, res) {
+  const { search } = req.query;
+  let query = `SELECT * from users WHERE 1=1`;
+  let values = [];
+  if (search) {
+    query += `
+    AND (first_name ILIKE $1
+     OR last_name ILIKE $1
+     OR email ILIKE $1
+     OR phone_number ILIKE $1)`;
+    values.push(`%${search}%`);
+  }
   try {
-    const result = await pool.query("SELECT * FROM users ORDER BY id");
+    const result = await pool.query(query, values);
     res.json(result.rows);
   } catch (error) {
     console.log(error);
@@ -26,13 +38,28 @@ async function getUserById(req, res) {
 }
 
 async function createUser(req, res) {
-  const { firstName, lastName, email, phoneNumber, role } = req.body;
-  if (!firstName || !lastName || !email || !phoneNumber || !role) {
+  const { firstName, lastName, email, phoneNumber, role, tempPassword } =
+    req.body;
+  const user = req.user;
+  if (user.role !== "ADMIN") {
+    return res
+      .status(403)
+      .json({ message: "user does not have permission to create user" });
+  }
+  if (
+    !firstName ||
+    !lastName ||
+    !email ||
+    !phoneNumber ||
+    !role ||
+    !tempPassword
+  ) {
     return res.status(400).json({
       message: "missing firstName, lastName, email, phoneNumber, or role",
     });
   }
   try {
+    const hash_password = await bcrypt.hash(tempPassword, 10);
     const result = await pool.query(
       `
       INSERT INTO users(
@@ -40,12 +67,13 @@ async function createUser(req, res) {
         last_name,
         email,
         phone_number,
-        role
+        role,
+        hash_password
       )
-      VALUES ($1,$2,$3,$4,$5)
+      VALUES ($1,$2,$3,$4,$5,$6)
       RETURNING *  
       `,
-      [firstName, lastName, email, phoneNumber || null, role],
+      [firstName, lastName, email, phoneNumber || null, role, hash_password],
     );
     res.json(result.rows[0]);
   } catch (error) {
@@ -56,6 +84,12 @@ async function createUser(req, res) {
 
 async function updateUser(req, res) {
   const { firstName, lastName, email, phoneNumber, role } = req.body;
+  const user = req.user;
+  if (user.role !== "ADMIN") {
+    return res
+      .status(403)
+      .json({ message: "user does not have permission to create user" });
+  }
   const id = req.params.userId;
   try {
     const result = await pool.query(
@@ -82,6 +116,12 @@ async function updateUser(req, res) {
 function updateUserRole(req, res) {
   const id = req.params.userId;
   const role = req.body.role;
+  const user = req.user;
+  if (user.role !== "ADMIN") {
+    return res
+      .status(403)
+      .json({ message: "user does not have permission to create user" });
+  }
   try {
     const result = pool.query(
       `
@@ -102,6 +142,12 @@ function updateUserRole(req, res) {
 
 async function deactivateUser(req, res) {
   const id = req.params.userId;
+  const user = req.user;
+  if (user.role !== "ADMIN") {
+    return res
+      .status(403)
+      .json({ message: "user does not have permission to create user" });
+  }
   try {
     const result = await pool.query(
       `
@@ -122,6 +168,12 @@ async function deactivateUser(req, res) {
 
 async function activateUser(req, res) {
   const id = req.params.userId;
+  const user = req.user;
+  if (user.role !== "ADMIN") {
+    return res
+      .status(403)
+      .json({ message: "user does not have permission to create user" });
+  }
   try {
     const result = await pool.query(
       `
@@ -168,7 +220,6 @@ async function getSupportStaff(req, res) {
           WHERE 
           role IN ('AGENT', 'ADMIN')
       `);
-    console.log(response.rows);
     res.json(response.rows);
   } catch (error) {
     return res.status(500).json({ message: "could not get support staff" });

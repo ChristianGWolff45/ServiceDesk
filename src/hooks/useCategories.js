@@ -1,7 +1,7 @@
 import { API_URL } from "./API_URL";
 import { useState, useEffect } from "react";
 
-export function useCategories() {
+export function useCategories(token) {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   async function getCategories() {
@@ -28,7 +28,10 @@ export function useCategories() {
     try {
       const response = await fetch(`${API_URL}/categories/${categoryId}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ categoryName }),
       });
       if (!response.ok) {
@@ -55,6 +58,7 @@ export function useCategories() {
       const response = await fetch(`${API_URL}/categories`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        Authorization: `Bearer ${token}`,
         body: JSON.stringify({ categoryName }),
       });
       if (!response.ok) {
@@ -71,6 +75,7 @@ export function useCategories() {
     try {
       const response = await fetch(`${API_URL}/categories/${categoryId}`, {
         method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (!response.ok) {
         return console.log(response);

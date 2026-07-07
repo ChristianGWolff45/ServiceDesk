@@ -2,7 +2,7 @@ const pool = require("../db");
 
 async function getAllTickets(req, res) {
   const user = req.user;
-  const { status, priority, assigneeId, category } = req.query;
+  const { status, priority, assigneeId, category, search } = req.query;
   if (user.role !== "ADMIN" && user.role !== "AGENT") {
     res
       .status(403)
@@ -13,12 +13,13 @@ async function getAllTickets(req, res) {
     let query = `
       SELECT *
       FROM tickets
+      WHERE 1 = 1
     `;
     let i = 1;
     const values = [];
     if (status) {
       query += `
-        ${i === 1 ? "WHERE" : "AND"}
+        AND
         status = $${i}
       `;
       i++;
@@ -26,7 +27,7 @@ async function getAllTickets(req, res) {
     }
     if (priority) {
       query += `
-        ${i === 1 ? "WHERE" : "AND"}
+        AND
         priority = $${i}
       `;
       i++;
@@ -34,7 +35,7 @@ async function getAllTickets(req, res) {
     }
     if (category) {
       query += `
-        ${i === 1 ? "WHERE" : "AND"}
+        AND
         category = $${i}
       `;
       i++;
@@ -42,11 +43,20 @@ async function getAllTickets(req, res) {
     }
     if (assigneeId) {
       query += `
-      ${i === 1 ? "WHERE" : "AND"}
+       AND
         assignee_id = $${i}
       `;
       i++;
       values.push(Number(assigneeId));
+    }
+    if (search) {
+      query += `
+      AND
+      (title ILIKE  $${i}
+      or description ILIKE  $${i}
+      or category ILIKE  $${i})
+      `;
+      values.push(`%${search}%`);
     }
 
     query += `

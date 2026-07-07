@@ -13,8 +13,8 @@ export function UserForm({ onClose, onSubmit, action, user }) {
     phoneNumber: user?.phone_number ?? "",
     role: user?.role ?? "REQUESTER",
     userId: user?.id ?? "",
+    tempPassword: "",
   });
-
   function handleChange(key, value) {
     setValues((prev) => ({ ...prev, [key]: value }));
   }
@@ -126,8 +126,30 @@ export function UserForm({ onClose, onSubmit, action, user }) {
             </button>
           </div>
         )}
+        {!user && (
+          <div className="mt-4">
+            <p>Temporary Password</p>
+            <input
+              type="password"
+              value={values.tempPassword}
+              onChange={(e) => handleChange("tempPassword", e.target.value)}
+              className="border rounded-lg border-emerald-900 w-full p-1"
+            ></input>
+          </div>
+        )}
       </div>
       <div className="flex justify-end w-full gap-4 items-center">
+        {user && (
+          <button
+            type="button"
+            className="pl-4 pr-4 p-2 border rounded-lg cursor-pointer text-amber-900 border-amber-900"
+            onClick={() => {
+              onClose(false);
+            }}
+          >
+            Reset Password
+          </button>
+        )}
         <button
           type="button"
           className="pl-4 pr-4 p-2 border rounded-lg cursor-pointer text-amber-900 border-amber-900"

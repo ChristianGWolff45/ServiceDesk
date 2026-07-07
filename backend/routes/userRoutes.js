@@ -18,6 +18,8 @@ const {
   getSupportStaff,
 } = require("../controller/userController");
 
+const { validateToken } = require("../middleware/authValidation.js");
+
 router.get("/", getAllUsers);
 
 router.get("/staff", getSupportStaff);
@@ -26,14 +28,29 @@ router.get("/:userId", userParamValidation, getUserById);
 
 router.get("/byEmail/:email", getUserByEmail);
 
-router.post("/", createUser);
+router.post("/", validateToken, createUser);
 
-router.patch("/:userId", userParamValidation, updateUser);
+router.patch("/:userId", validateToken, userParamValidation, updateUser);
 
-router.patch("/:userId/userRole", userParamValidation, updateUserRole);
+router.patch(
+  "/:userId/userRole",
+  validateToken,
+  userParamValidation,
+  updateUserRole,
+);
 
-router.patch("/:userId/deactivate", userParamValidation, deactivateUser);
+router.patch(
+  "/:userId/deactivate",
+  validateToken,
+  userParamValidation,
+  deactivateUser,
+);
 
-router.patch("/:userId/activate", userParamValidation, activateUser);
+router.patch(
+  "/:userId/activate",
+  validateToken,
+  userParamValidation,
+  activateUser,
+);
 
 module.exports = router;

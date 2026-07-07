@@ -16,6 +16,9 @@ async function getAllLocations(req, res) {
 async function updateLocation(req, res) {
   const id = Number(req.params.locationId);
   const location = req.body.location;
+  if (req.user.role !== "ADMIN") {
+    return res.status(403).json({ message: "user does not have permission" });
+  }
   if (!Number.isInteger(id) || id < 0) {
     return res.status(400).json({ message: " not a valid id" });
   }
@@ -38,6 +41,9 @@ async function updateLocation(req, res) {
 
 async function deleteLocation(req, res) {
   const id = Number(req.params.locationId);
+  if (req.user.role !== "ADMIN") {
+    return res.status(403).json({ message: "user does not have permission" });
+  }
   if (!Number.isInteger(id) || id < 0) {
     return res.status(400).json({ message: " not a valid id" });
   }
@@ -58,6 +64,9 @@ async function deleteLocation(req, res) {
 
 async function createLocation(req, res) {
   const location = req.body.location;
+  if (req.user.role !== "ADMIN") {
+    return res.status(403).json({ message: "user does not have permission" });
+  }
   try {
     const result = await pool.query(
       `

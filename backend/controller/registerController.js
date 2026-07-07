@@ -111,11 +111,17 @@ async function login(req, res) {
       `,
       [email],
     );
+    if (result.rows.length < 1) {
+      return res.status(404).json({ message: "could not find user" });
+    }
 
     const user = result.rows[0];
-
+    if (user.hash_password === "[null]") {
+      return res.status(403).json({ message: "user must reset password" });
+    }
     const successfullLogin = await bcrypt.compare(password, user.hash_password);
     if (!successfullLogin) {
+      console.log(user.hash_password);
       return res
         .status(400)
         .json({ message: "incorrect username or password" });
@@ -163,7 +169,7 @@ async function resetPassword(req, res) {
     }
     const user = result.rows[0];
     const match = bcrypt.compare(oldPassword, user.hash_password);
-    if (!match) {
+    if (!match && user.hash_password !== "[null]") {
       return res
         .status(404)
         .json({ message: "user or old password is incorrect" });

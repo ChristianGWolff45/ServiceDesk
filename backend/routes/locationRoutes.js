@@ -7,12 +7,14 @@ const {
   createLocation,
 } = require("../controller/locationController");
 
+const { validateToken } = require("../middleware/authValidation");
+
 router.get("/", getAllLocations);
 
-router.patch("/:locationId", updateLocation);
+router.patch("/:locationId", validateToken, updateLocation);
 
-router.delete("/:locationId", deleteLocation);
+router.delete("/:locationId", validateToken, deleteLocation);
 
-router.post("/", createLocation);
+router.post("/", validateToken, createLocation);
 
 module.exports = router;

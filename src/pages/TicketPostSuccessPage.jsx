@@ -30,7 +30,7 @@ export function TicketPostSuccessPage() {
           </button>
 
           <button
-            onClick={() => navigate("/WorkPage/MyTickets")}
+            onClick={() => navigate("/WorkPage/MyTicketsPage")}
             className="p-2 border bg-green-200 border-emerald-900 rounded-lg text-xl text-emerald-900 cursor-pointer"
           >
             Review Tickets

@@ -27,7 +27,6 @@ export function SignIn() {
     if (result.success) {
       navigate("/Workpage/MyTicketsPage");
     } else {
-      console.log(result.passwordReset);
       if (result.passwordReset) {
         navigate("/ResetPassword");
       }

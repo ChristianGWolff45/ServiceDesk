@@ -19,7 +19,11 @@ async function updateCategory(req, res) {
   if (!Number.isInteger(id) || id < 0) {
     res.status(400).json({ message: "id is not a valid integer" });
   }
-
+  if (req.user.role !== "ADMIN") {
+    return res.status(403).json({
+      message: "user does not have permission to complete this action.",
+    });
+  }
   try {
     const result = await pool.query(
       `
@@ -39,6 +43,13 @@ async function updateCategory(req, res) {
 
 async function createCategory(req, res) {
   const categoryName = req.body.categoryName;
+  if (req.user.role !== "ADMIN") {
+    return res
+      .status(403)
+      .json({
+        message: "user does not have permission to complete this action.",
+      });
+  }
   try {
     const result = await pool.query(
       `
@@ -58,6 +69,11 @@ async function createCategory(req, res) {
 
 async function deleteCategory(req, res) {
   const id = Number(req.params.categoryId);
+  if (req.user.role !== "ADMIN") {
+    return res.status(403).json({
+      message: "user does not have permission to complete this action.",
+    });
+  }
   if (!Number.isInteger(id) || id < 0) {
     res.status(400).json({ message: "id is not a valid integer" });
   }

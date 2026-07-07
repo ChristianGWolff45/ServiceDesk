@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { UseLocations } from "../hooks/useLocations";
 import { useCategories } from "../hooks/useCategories";
-import { useTickets } from "../hooks/useTickets";
+import { createTicket } from "../hooks/useTicketCreate";
 import { useUsers } from "../hooks/useUsers";
 import { emailRegex, validateTicket } from "../utils/validateUser";
 import { useNavigate } from "react-router-dom";
@@ -13,7 +13,6 @@ export function Issue() {
   const { isLoggedIn, user: currentUser } = useAuthContext();
   const { locations } = UseLocations();
   const { categories } = useCategories();
-  const { createTicket } = useTickets();
   const { getUserByEmail, user } = useUsers();
 
   function clearIssue() {

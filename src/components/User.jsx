@@ -5,7 +5,7 @@ import { UserForm } from "./UserForm";
 export function User({ user, editUser, setUserStatus }) {
   const [editingUser, setEditingUser] = useState(false);
   return (
-    <div className=" border-b items-center p-2  grid grid-cols-[1fr_2fr_2fr_1fr_1fr_1fr_2fr] gap-4">
+    <div className=" border-t items-center p-2  grid grid-cols-[1fr_2fr_2fr_1fr_1fr_1fr_2fr] gap-4">
       <div>
         <p>{user.first_name}</p>
         <p>{user.last_name}</p>

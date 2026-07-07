@@ -1,13 +1,18 @@
 import { API_URL } from "./API_URL";
 import { useState, useEffect } from "react";
-export function useUsers() {
+export function useUsers(token) {
   const [loading, setLoading] = useState();
   const [users, setUsers] = useState([]);
   const [user, setUser] = useState();
+  const [search, setSearch] = useState("");
   async function getUsers() {
     try {
+      const params = new URLSearchParams();
+      if (search !== "") {
+        params.append("search", search);
+      }
       setLoading(true);
-      const response = await fetch(`${API_URL}/users`);
+      const response = await fetch(`${API_URL}/users?${params.toString()}`);
       const users = await response.json();
       setUsers(users);
     } catch (error) {
@@ -18,14 +23,41 @@ export function useUsers() {
 
   useEffect(() => {
     getUsers();
-  }, []);
+  }, [search]);
 
-  async function createUser({ firstName, lastName, email, phoneNumber, role }) {
+  async function createUser({
+    firstName,
+    lastName,
+    email,
+    phoneNumber,
+    role,
+    tempPassword,
+  }) {
+    console.log(
+      JSON.stringify({
+        firstName,
+        lastName,
+        email,
+        phoneNumber,
+        role,
+        tempPassword,
+      }),
+    );
     try {
       const response = await fetch(`${API_URL}/users`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstName, lastName, email, phoneNumber, role }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          firstName,
+          lastName,
+          email,
+          phoneNumber,
+          role,
+          tempPassword,
+        }),
       });
       if (!response.ok) {
         throw new Error("failed to create new user");
@@ -33,6 +65,8 @@ export function useUsers() {
       const data = await response.json();
       setUsers([...users, data]);
     } catch (error) {
+      console.log(error);
+      return;
     } finally {
     }
   }
@@ -48,7 +82,10 @@ export function useUsers() {
     try {
       const response = await fetch(`${API_URL}/users/${userId}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ firstName, lastName, email, phoneNumber, role }),
       });
 
@@ -76,7 +113,7 @@ export function useUsers() {
     try {
       const response = await fetch(
         `${API_URL}/users/${userId}/${activate ? "activate" : "deactivate"}`,
-        { method: "PATCH" },
+        { method: "PATCH", headers: { Authorization: `Bearer ${token}` } },
       );
       const data = await response.json();
       setUsers((prev) => {
@@ -135,6 +172,8 @@ export function useUsers() {
     setUserStatus,
     getUserByEmail,
     getUserById,
+    search,
+    setSearch,
     user,
   };
 }

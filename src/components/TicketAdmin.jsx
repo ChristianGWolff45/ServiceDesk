@@ -5,28 +5,23 @@ import { Tag, Plus, MapPin } from "lucide-react";
 import { useState, useEffect } from "react";
 import { UseLocations } from "../hooks/useLocations";
 import { TicketOptions } from "./TicketOptions";
-// title,
-// description,
-// options,
-// createOption,
-// updateOption,
-// deleteOption,
-// name,
+import { useAuthContext } from "../context/AuthContext";
 export function TicketAdmin() {
+  const { token } = useAuthContext();
   const {
     loading: locationsLoading,
     locations,
     createLocation,
     updateLocation,
     deleteLocation,
-  } = UseLocations();
+  } = UseLocations(token);
   const {
     categories,
     loading,
     updateCategory,
     createCategory,
     deleteCategory,
-  } = useCategories();
+  } = useCategories(token);
   const [categoryName, setCategoryName] = useState("");
   const [isEditingCategory, setIsEditingCategory] = useState(false);
   const [editCategoryId, setEditCategoryId] = useState();

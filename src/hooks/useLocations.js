@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { API_URL } from "./API_URL";
-export function UseLocations() {
+export function UseLocations(token) {
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -32,7 +32,10 @@ export function UseLocations() {
     try {
       const response = await fetch(`${API_URL}/locations/${locationId}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ location }),
       });
       if (!response.ok) {
@@ -61,6 +64,7 @@ export function UseLocations() {
     try {
       const response = await fetch(`${API_URL}/locations/${locationId}`, {
         method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (!response.ok) {
         return console.log(response);
@@ -79,7 +83,10 @@ export function UseLocations() {
     try {
       const response = await fetch(`${API_URL}/locations`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({ location }),
       });
       if (!response.ok) {

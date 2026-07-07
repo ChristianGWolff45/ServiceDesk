@@ -26,6 +26,9 @@ export function useTickets(token) {
       if (assigneeId) {
         params.append("assigneeId", `${assigneeId}`);
       }
+      if (search !== "") {
+        params.append("search", search);
+      }
       const response = await fetch(`${url}?${params.toString()}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -42,37 +45,7 @@ export function useTickets(token) {
 
   useEffect(() => {
     getTickets();
-  }, [status, priority, assigneeId, category]);
-
-  async function createTicket({
-    requesterId,
-    title,
-    location,
-    category,
-    errorMessage,
-    description,
-  }) {
-    try {
-      const response = await fetch(`${API_URL}/tickets`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          requesterId,
-          title,
-          location,
-          category,
-          errorMessage,
-          description,
-        }),
-      });
-      if (!response.ok) {
-        console.log(response);
-      }
-      const data = await response.json();
-    } catch (error) {
-      console.log(error);
-    }
-  }
+  }, [status, priority, assigneeId, category, search]);
 
   return {
     tickets,
@@ -88,6 +61,5 @@ export function useTickets(token) {
     setCategory,
     search,
     setSearch,
-    createTicket,
   };
 }

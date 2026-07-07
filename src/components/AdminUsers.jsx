@@ -1,10 +1,20 @@
-import { UserCog, UserPlus } from "lucide-react";
+import { UserCog, UserPlus, Search } from "lucide-react";
 import { useUsers } from "../hooks/useUsers";
 import { User } from "./User";
 import { useState, useEffect } from "react";
 import { UserForm } from "./UserForm";
+import { useAuthContext } from "../context/AuthContext";
 export function AdminUsers() {
-  const { loading, users, createUser, editUser, setUserStatus } = useUsers();
+  const { token } = useAuthContext();
+  const {
+    loading,
+    users,
+    createUser,
+    editUser,
+    setUserStatus,
+    search,
+    setSearch,
+  } = useUsers(token);
   const [addingUser, setAddingUser] = useState(false);
 
   return (
@@ -26,8 +36,17 @@ export function AdminUsers() {
           </button>
         </div>
       </div>
+      <div className="flex gap-4 p-2 border border-emerald-900 rounded-lg items-center">
+        <Search />
+        <input
+          className="width-full focus:outline-none w-full"
+          placeholder="Search for user using name, email, or phone number"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        ></input>
+      </div>
       <div className="overflow-x-auto  border rounded-md">
-        <div className=" border-b rounded-t-md grid p-2 grid-cols-[1fr_2fr_2fr_1fr_1fr_1fr_2fr] gap-4">
+        <div className=" rounded-t-md grid p-2 grid-cols-[1fr_2fr_2fr_1fr_1fr_1fr_2fr] gap-4">
           <p>Name</p>
           <p>Email</p>
           <p>Phone Number</p>
