@@ -403,8 +403,8 @@ describe("/api/auth/login", () => {
   });
 });
 
-describe("/api/auth/getMe", () => {
-  test("GET /api/auth/getMe 200 when token is fine", async () => {
+describe("/api/auth/me", () => {
+  test("GET /api/auth/me 200 when token is fine", async () => {
     const token = jwt.sign(
       { id: 1, email: "ada@example.com", role: "REQUESTER" },
       "test-secret",
@@ -419,11 +419,17 @@ describe("/api/auth/getMe", () => {
       role: "REQUESTER",
     });
   });
-  test("GET /api/auth/getMe 401 when token is not valid", async () => {
+  test("GET /api/auth/me 403 when token is not valid", async () => {
     const response = await request(app)
       .get("/api/auth/me")
       .set({ Authorization: `Bearer 111111` });
     expect(response.status).toBe(403);
+    expect(response.body.user).toBeUndefined();
+  });
+  test("GET /api/auth/me returns 401 when token is missing", async () => {
+    const response = await request(app).get("/api/auth/me");
+
+    expect(response.status).toBe(401);
     expect(response.body.user).toBeUndefined();
   });
 });
