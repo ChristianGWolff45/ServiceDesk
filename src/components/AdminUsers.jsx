@@ -4,6 +4,9 @@ import { User } from "./User";
 import { useState, useEffect } from "react";
 import { UserForm } from "./UserForm";
 import { useAuthContext } from "../context/AuthContext";
+import { ResetPassword } from "./ResetPassword";
+import { useAuth } from "../hooks/useAuth";
+
 export function AdminUsers() {
   const { token } = useAuthContext();
   const {
@@ -15,7 +18,11 @@ export function AdminUsers() {
     search,
     setSearch,
   } = useUsers(token);
+  const { adminResetPassword } = useAuth();
   const [addingUser, setAddingUser] = useState(false);
+  const [resettingPassword, setResettingPassword] = useState(false);
+  const [resetUser, setResetUser] = useState(null);
+  const [temporaryPassword, setTemporaryPassword] = useState("");
 
   return (
     <div className="flex flex-col gap-8 p-16 m-32  border rounded-2xl text-xl font-semibold">
@@ -58,6 +65,10 @@ export function AdminUsers() {
         {users.map((user) => (
           <User
             key={user.id}
+            setResetPassword={() => {
+              setResettingPassword(true);
+              setResetUser(user);
+            }}
             user={user}
             editUser={editUser}
             setUserStatus={setUserStatus}
@@ -77,6 +88,22 @@ export function AdminUsers() {
             />
           </div>
         </div>
+      )}
+      {resettingPassword && (
+        <ResetPassword
+          user={resetUser}
+          exit={() => {
+            setResettingPassword(false);
+            setResetUser(null);
+            setTemporaryPassword("");
+          }}
+          temporaryPassword={temporaryPassword}
+          setTemporaryPassword={setTemporaryPassword}
+          submit={() => {
+            adminResetPassword(token, temporaryPassword, resetUser.id);
+            setResettingPassword(false);
+          }}
+        />
       )}
     </div>
   );

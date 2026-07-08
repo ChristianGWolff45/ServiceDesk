@@ -4,7 +4,7 @@ const { pool } = require("../db");
 function validateToken(req, res, next) {
   const authToken = req.headers.authorization;
   if (!authToken) {
-    return res.status(400).json({ message: "could not find token" });
+    return res.status(401).json({ message: "could not find token" });
   }
   try {
     const token = authToken.split(" ")[1];
@@ -13,7 +13,7 @@ function validateToken(req, res, next) {
     next();
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ error: error });
+    return res.status(403).json({ message: "invalid token" });
   }
 }
 

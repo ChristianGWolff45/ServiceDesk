@@ -20,6 +20,12 @@ async function registerNewUser(req, res) {
   const { firstName, lastName, email, phoneNumber, password, passwordReset } =
     req.body;
 
+  if (!firstName || !lastName || !email || !phoneNumber || !password) {
+    return res.status(400).json({
+      message: "missing firstname, lastname, password, email or phone number",
+    });
+  }
+
   try {
     const result = await pool.query(`SELECT * FROM users where email = $1`, [
       email,
@@ -33,12 +39,6 @@ async function registerNewUser(req, res) {
     res.status(500).json({ message: "could not confirm unique email" });
   }
   try {
-    if (!firstName || !lastName || !email || !phoneNumber) {
-      return res
-        .status(500)
-        .json({ message: "missing firstname, lastname email or phone number" });
-    }
-
     const passwordHash = await bcrypt.hash(password, 10);
     const response = await pool.query(
       `
@@ -60,42 +60,20 @@ async function registerNewUser(req, res) {
     const user = response.rows[0];
     const token = createToken(user);
 
-    res.json({ token, user });
+    const safeUser = {
+      id: user.id,
+      email: user.email,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      phoneNumber: user.phone_number,
+      role: user.role,
+    };
+    res.status(201).json({ token, user: safeUser });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "could not register new user" });
   }
 }
-
-// async function registerExistingUser(req, res) {
-//   try {
-//     const id = req.params.userId;
-//     const password = req.body.password;
-//     const passwordHash = await bcrypt.hash(password);
-//     const response = await pool.query(
-//       `UPDATE users
-//         SET hash_password=$1
-//         WHERE id =$2
-//         RETURNING*
-//         `,
-//       [passwordHash, id],
-//     );
-//     const token = createToken(user);
-//     const user = response.row[0];
-//     res.json({
-//       token,
-//       user: {
-//         email: user.email,
-//         firstName: user.first_name,
-//         lastName: user.last_name,
-//         role: user.role,
-//       },
-//     });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({ message: "could not register user" });
-//   }
-// }
 
 async function login(req, res) {
   const { password, email } = req.body;
@@ -131,14 +109,16 @@ async function login(req, res) {
     }
 
     const token = createToken(user);
+    const safeUser = {
+      email: user.email,
+      firstName: user.first_name,
+      lastName: user.last_name,
+      phoneNumber: user.phone_number,
+      role: user.role,
+      id: user.id,
+    };
     return res.status(200).json({
-      user: {
-        email: user.email,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        role: user.role,
-        id: user.id,
-      },
+      user: safeUser,
       token: token,
     });
   } catch (error) {
@@ -147,7 +127,7 @@ async function login(req, res) {
 }
 
 async function getMe(req, res) {
-  res.json({
+  res.status(200).json({
     user: { id: req.user.id, email: req.user.email, role: req.user.role },
   });
 }
@@ -204,10 +184,37 @@ async function resetPassword(req, res) {
   }
 }
 
+async function adminResetPassword(req, res) {
+  const { password, userId } = req.body;
+  if (req.user.role !== "ADMIN") {
+    return res
+      .status(403)
+      .json({ message: "user does not have permission to reset password" });
+  }
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const result = await pool.query(
+      `
+      UPDATE users
+      SET
+        hash_password = $1,
+        password_reset = $2
+      WHERE id = $3
+      `,
+      [hashedPassword, true, userId],
+    );
+    res.status(200).json({ message: "succefully changed password" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: error });
+  }
+}
+
 module.exports = {
   resetPassword,
   registerNewUser,
   createToken,
   login,
   getMe,
+  adminResetPassword,
 };

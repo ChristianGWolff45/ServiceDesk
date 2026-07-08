@@ -95,6 +95,24 @@ export function useAuth() {
     }
   }
 
+  async function adminResetPassword(token, password, userId) {
+    try {
+      const response = await fetch(`${API_URL}/auth/adminResetPassword`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ password, userId }),
+      });
+      if (!response.ok) {
+        return console.log(response);
+      }
+    } catch (error) {
+      return console.log(error);
+    }
+  }
+
   async function getMe(token) {
     try {
       const response = await fetch(`${API_URL}/auth/me`, {
@@ -109,5 +127,5 @@ export function useAuth() {
       console.log(error);
     }
   }
-  return { registerNewUser, login, resetPassword, getMe };
+  return { registerNewUser, login, resetPassword, getMe, adminResetPassword };
 }

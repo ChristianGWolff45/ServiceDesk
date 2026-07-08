@@ -3,7 +3,13 @@ import { useState, useEffect } from "react";
 import { validateUser } from "../utils/validateUser";
 import { useUser } from "../hooks/useUser";
 
-export function UserForm({ onClose, onSubmit, action, user }) {
+export function UserForm({
+  onClose,
+  onSubmit,
+  action,
+  user,
+  setResetPassword,
+}) {
   const [roleDropdown, setRoleDropdown] = useState(false);
 
   const [values, setValues] = useState({
@@ -145,6 +151,7 @@ export function UserForm({ onClose, onSubmit, action, user }) {
             className="pl-4 pr-4 p-2 border rounded-lg cursor-pointer text-amber-900 border-amber-900"
             onClick={() => {
               onClose(false);
+              setResetPassword();
             }}
           >
             Reset Password

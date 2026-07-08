@@ -1,0 +1,18 @@
+200 - route worked
+201 - resource was created
+400 - request was malformed or missing data
+401 - user is not authenticated
+403 - user is authenticated but not allowed
+404 - requested resource does not exist
+500 - backend/database error
+
+
+No token      -> 401 or 400 depending on your current middleware
+Bad token     -> 401
+Requester     -> 200 only for own data
+Requester     -> 403 for all/private/admin data
+Agent         -> 200 for ticket-management routes
+Admin         -> 200 for everything admin-level
+Missing item  -> 404
+Bad input     -> 400 or 422
+Database fail -> 500
