@@ -4,7 +4,7 @@ async function getAllTickets(req, res) {
   const user = req.user;
   const { status, priority, assigneeId, category, search } = req.query;
   if (user.role !== "ADMIN" && user.role !== "AGENT") {
-    res
+    return res
       .status(403)
       .json({ message: "user does not have permission to view all tickets" });
   }
@@ -70,25 +70,15 @@ async function getAllTickets(req, res) {
   }
 }
 async function getTicketById(req, res) {
-  try {
-    const ticket = await pool.query("SELECT * FROM tickets WHERE id = $1", [
-      req.params.ticketId,
-    ]);
-    if (ticket.rows.length === 0) {
-      return res.status(404).json;
-    }
-    res.json(ticket.rows[0]);
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ message: "could not find ticket" });
-  }
+  const ticket = req.ticket;
+  res.status(200).json(ticket);
 }
 async function createTicket(req, res) {
-  const { title, description, location, category, requesterId } = req.body;
-  if (!title || !description || !category || !requesterId || !location) {
+  const { userId } = req.user.id;
+  const { title, description, location, category } = req.body;
+  if (!title || !description || !category || !location) {
     return res.status(400).json({
-      message:
-        "title, description, category, location, or requesterId is missing",
+      message: "title, description, category, location,  is missing",
     });
   }
 
@@ -100,18 +90,18 @@ async function createTicket(req, res) {
     VALUES($1, $2, $3, $4, $5)
     RETURNING *
     `,
-      [title, description, category, requesterId, location],
+      [title, description, category, userId, location],
     );
 
-    res.status(201).json(result);
+    res.status(201).json(result.rows[0]);
   } catch (error) {
-    console.log(error);
+    console.log("error", error);
     return res.status(500).json({ message: "could not create ticket" });
   }
 }
 async function updateTicket(req, res) {
   const ticketId = req.params.ticketId;
-  const { title, description, category } = req.body;
+  const { title, description, location, category } = req.body;
   const updateTime = new Date().toISOString();
   try {
     const result = await pool.query(
@@ -121,13 +111,15 @@ async function updateTicket(req, res) {
         title = COALESCE($1, title),
         description = COALESCE($2, description),
         category = COALESCE($3, category),
-        updated_at = $4
-      WHERE id = $5
+        location = COALESCE($4, location),
+        updated_at = $5
+      WHERE id = $6
       RETURNING *
       `,
-      [title, description, category, updateTime, ticketId],
+      [title, description, category, location, updateTime, ticketId],
     );
-    res.json(result);
+
+    res.json(result.rows[0]);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "could not update ticket" });
@@ -137,6 +129,14 @@ async function updateTicketStatus(req, res) {
   const ticketId = req.params.ticketId;
   const status = req.body.status;
   const user = req.user;
+  if (
+    status !== "OPEN" &&
+    status !== "IN_PROGRESS" &&
+    status !== "RESOLVED" &&
+    status !== "CLOSED"
+  ) {
+    return res.status(400).json({ message: "not a valid status" });
+  }
   if (user.role !== "ADMIN" && user.role !== "AGENT") {
     return res.status(403).json({
       message: "user does not have permissions to change ticket status",
@@ -170,8 +170,16 @@ async function updateTicketPriority(req, res) {
   const priority = req.body.priority;
   const updateTime = new Date().toISOString();
   const user = req.user;
+  if (
+    priority !== "LOW" &&
+    priority !== "MEDIUM" &&
+    priority !== "HIGH" &&
+    priority !== "CRITICAL"
+  ) {
+    return res.status(400).json({ message: "not a valid priority" });
+  }
   if (user.role !== "ADMIN" && user.role !== "AGENT") {
-    res.status(403).json({
+    return res.status(403).json({
       message: "user does not have permission to update ticket priority",
     });
   }
@@ -224,6 +232,7 @@ async function assignTicketMe(req, res) {
 }
 async function removeAssignee(req, res) {
   const user = req.user;
+  const ticket = req.ticket;
   if (user.role !== "ADMIN" && user.role !== "AGENT") {
     return res
       .status(403)
@@ -272,7 +281,7 @@ async function assignTicket(req, res) {
       `,
       [assignee, ticketId],
     );
-    res.json(result);
+    res.json(result.rows[0]);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "could not assign ticket" });

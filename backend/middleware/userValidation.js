@@ -75,8 +75,36 @@ async function userTokenValidation(req, res, next) {
   next();
 }
 
+async function userAssigneeValidation(req, res, next) {
+  const assigneeId = Number(req.body.assigneeId);
+  if (!Number.isInteger(assigneeId) || assigneeId < 1) {
+    return res.status(400).json({ message: "assigneeId must be a valid id" });
+  }
+  try {
+    const response = await pool.query(`SELECT * FROM users WHERE id = $1`, [
+      assigneeId,
+    ]);
+    if (response.rows.length === 0) {
+      return res.status(404).json({ message: "could not find user" });
+    }
+    if (
+      response.rows[0].role !== "ADMIN" &&
+      response.rows[0].role !== "AGENT"
+    ) {
+      return res.status(400).json({
+        message: "user must be an ADMIN or AGENT to be assigned a ticket",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "could not validate assignee" });
+  }
+  next();
+}
+
 module.exports = {
   userBodyValidation,
   userParamValidation,
   userTokenValidation,
+  userAssigneeValidation,
 };

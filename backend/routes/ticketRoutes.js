@@ -16,15 +16,34 @@ const {
   assignTicketMe,
 } = require("../controller/ticketController");
 
-const { validateToken } = require("../middleware/authValidation");
+const {
+  validateToken,
+  authorizeTicketAccess,
+} = require("../middleware/authValidation");
 const ticketValidation = require("../middleware/ticketValidation");
-const { userBodyValidation } = require("../middleware/userValidation");
+const {
+  userBodyValidation,
+  userTokenValidation,
+  userAssigneeValidation,
+} = require("../middleware/userValidation");
 
 router.get("/", validateToken, getAllTickets);
 router.get("/me", validateToken, getMyTickets);
-router.get("/:ticketId", ticketValidation, getTicketById);
-router.post("/", userBodyValidation("requesterId"), createTicket);
-router.patch("/:ticketId", ticketValidation, updateTicket);
+router.get(
+  "/:ticketId",
+  ticketValidation,
+  validateToken,
+  authorizeTicketAccess,
+  getTicketById,
+);
+router.post("/", validateToken, createTicket);
+router.patch(
+  "/:ticketId",
+  validateToken,
+  ticketValidation,
+  authorizeTicketAccess,
+  updateTicket,
+);
 router.patch(
   "/:ticketId/priority",
   validateToken,
@@ -42,7 +61,7 @@ router.patch(
   "/:ticketId/assignee",
   validateToken,
   ticketValidation,
-  userBodyValidation("assigneeId"),
+  userAssigneeValidation,
   assignTicket,
 );
 
@@ -59,7 +78,5 @@ router.patch(
   ticketValidation,
   removeAssignee,
 );
-
-router.delete("/:ticketId", ticketValidation, deleteTicket);
 
 module.exports = router;

@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "nodemon server.js",
     "test": "cross-env NODE_ENV=test jest --runInBand",
-    "test:watch": "cross-env NODE_ENV=test jest --watch"
+    "test:watch": "cross-env NODE_ENV=test jest --watch",
+    "test:file": "cross-env NODE_ENV=test jest --watch"
   },
   "keywords": [],
   "author": "",

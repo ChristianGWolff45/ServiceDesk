@@ -28,7 +28,7 @@ function authorizeTicketAccess(req, res, next) {
     next();
   } else {
     return res
-      .status(400)
+      .status(403)
       .json({ message: "user not authorized to view ticket" });
   }
 }
