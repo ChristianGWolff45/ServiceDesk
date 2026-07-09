@@ -99,7 +99,6 @@ async function login(req, res) {
     }
     const successfullLogin = await bcrypt.compare(password, user.hash_password);
     if (!successfullLogin) {
-      console.log(user.hash_password);
       return res
         .status(400)
         .json({ message: "incorrect username or password" });
@@ -134,6 +133,11 @@ async function getMe(req, res) {
 
 async function resetPassword(req, res) {
   const { email, oldPassword, newPassword } = req.body;
+  if (!email || !oldPassword || !newPassword) {
+    return res.status(400).json({
+      message: `missing ${!email ? "email" : ""} ${!oldPassword ? "old password" : ""} ${!newPassword ? "newPassword" : ""}`,
+    });
+  }
 
   try {
     const result = await pool.query(
@@ -145,13 +149,13 @@ async function resetPassword(req, res) {
       [email],
     );
     if (result.rows.length < 1) {
-      return res.status(400).json({ message: "user not found" });
+      return res.status(404).json({ message: "could not find user" });
     }
     const user = result.rows[0];
-    const match = bcrypt.compare(oldPassword, user.hash_password);
+    const match = await bcrypt.compare(oldPassword, user.hash_password);
     if (!match && user.hash_password !== "[null]") {
       return res
-        .status(404)
+        .status(401)
         .json({ message: "user or old password is incorrect" });
     }
     const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -166,7 +170,7 @@ async function resetPassword(req, res) {
       [hashedPassword, false, email],
     );
     if (passwordSwitch.rows.length < 1) {
-      res.status(404).json({ message: "could not find user" });
+      res.status(404).json({ message: "could not switch users password" });
     }
     const token = createToken(user);
     const safeUser = {
@@ -186,6 +190,9 @@ async function resetPassword(req, res) {
 
 async function adminResetPassword(req, res) {
   const { password, userId } = req.body;
+  if (!password || !userId) {
+    return res.status(400).json({ message: "missing password or userId" });
+  }
   if (req.user.role !== "ADMIN") {
     return res
       .status(403)
@@ -193,6 +200,17 @@ async function adminResetPassword(req, res) {
   }
   try {
     const hashedPassword = await bcrypt.hash(password, 10);
+    const response = await pool.query(
+      `
+        SELECT *
+        FROM user
+        WHERE id = $1
+      `,
+      [userId],
+    );
+    if (response.rows.length < 1) {
+      return res.status(404).json({ message: "could not find user" });
+    }
     const result = await pool.query(
       `
       UPDATE users

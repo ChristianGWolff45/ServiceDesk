@@ -9,6 +9,15 @@ const app = require("../app");
 const jwt = require("jsonwebtoken");
 const expectCookies = require("supertest/lib/cookies");
 
+//             id: 1,
+//             first_name: "Ada",
+//             last_name: "Lovelace",
+//             email: "ada@example.com",
+//             phone_number: "555-123-4567",
+//             role: "REQUESTER",
+//             hash_password: "hashed-password-from-db",
+//             password_reset: false,
+
 describe("/api/auth/registerNewUser", () => {
   beforeEach(() => {
     pool.query.mockReset();
@@ -431,5 +440,320 @@ describe("/api/auth/me", () => {
 
     expect(response.status).toBe(401);
     expect(response.body.user).toBeUndefined();
+  });
+});
+
+describe("/api/auth/resetPassword", () => {
+  let oldPassword;
+  let oldPasswordHash;
+  beforeEach(async () => {
+    pool.query.mockReset();
+    oldPassword = "Password123!";
+    oldPasswordHash = await bcrypt.hash(oldPassword, 10);
+  });
+
+  test("PATCH /api/auth/resetPassword good password and email should receive 200", async () => {
+    pool.query.mockResolvedValueOnce({
+      rows: [
+        {
+          id: 1,
+          first_name: "Ada",
+          last_name: "Lovelace",
+          email: "ada@example.com",
+          phone_number: "555-123-4567",
+          role: "REQUESTER",
+          hash_password: oldPasswordHash,
+          password_reset: true,
+        },
+      ],
+    });
+    pool.query.mockResolvedValueOnce({
+      rows: [
+        {
+          id: 1,
+          first_name: "Ada",
+          last_name: "Lovelace",
+          email: "ada@example.com",
+          phone_number: "555-123-4567",
+          role: "REQUESTER",
+          hash_password: oldPasswordHash,
+          password_reset: false,
+        },
+      ],
+    });
+    const response = await request(app).patch("/api/auth/resetPassword").send({
+      email: "ada@example.com",
+      oldPassword: "Password123!",
+      newPassword: "newPassword",
+    });
+    expect(response.status).toBe(200);
+    expect(response.body.user).toEqual({
+      id: 1,
+      firstName: "Ada",
+      lastName: "Lovelace",
+      email: "ada@example.com",
+      role: "REQUESTER",
+    });
+    const decodedToken = jwt.verify(response.body.token, "test-secret");
+    expect(decodedToken).toMatchObject({
+      id: 1,
+      email: "ada@example.com",
+      role: "REQUESTER",
+    });
+    const updateCall = pool.query.mock.calls[1];
+
+    expect(updateCall[1][0]).not.toBe("newPassword");
+    expect(await bcrypt.compare("newPassword", updateCall[1][0])).toBe(true);
+    expect(pool.query).toHaveBeenCalledTimes(2);
+  });
+  test("PATCH /api/auth/resetPassword bad old password and good email should receive 401", async () => {
+    pool.query.mockResolvedValueOnce({
+      rows: [
+        {
+          id: 1,
+          first_name: "Ada",
+          last_name: "Lovelace",
+          email: "ada@example.com",
+          phone_number: "555-123-4567",
+          role: "REQUESTER",
+          hash_password: oldPasswordHash,
+          password_reset: true,
+        },
+      ],
+    });
+    const response = await request(app).patch("/api/auth/resetPassword").send({
+      email: "ada@example.com",
+      oldPassword: "BadPassword!",
+      newPassword: "newPassword",
+    });
+    expect(response.body.message).toBe("user or old password is incorrect");
+    expect(response.status).toBe(401);
+    expect(response.body.user).toBeUndefined();
+    expect(response.body.token).toBeUndefined();
+    expect(pool.query).toHaveBeenCalledTimes(1);
+  });
+  test("PATCH /api/auth/resetPassword email not found should receive 404", async () => {
+    pool.query.mockResolvedValueOnce({
+      rows: [],
+    });
+    const response = await request(app).patch("/api/auth/resetPassword").send({
+      email: "noemail@example.com",
+      oldPassword: "Password123!",
+      newPassword: "newPassword",
+    });
+    expect(response.body.message).toBe("could not find user");
+    expect(response.status).toBe(404);
+    expect(response.body.user).toBeUndefined();
+    expect(response.body.token).toBeUndefined();
+    expect(pool.query).toHaveBeenCalledTimes(1);
+  });
+  test("PATCH /api/auth/resetPassword missing email should receive 400", async () => {
+    const response = await request(app).patch("/api/auth/resetPassword").send({
+      oldPassword: "Password123!",
+      newPassword: "newPassword",
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.user).toBeUndefined();
+    expect(response.body.token).toBeUndefined();
+    expect(pool.query).toHaveBeenCalledTimes(0);
+  });
+  test("PATCH /api/auth/resetPassword missing oldPassword should receive 400", async () => {
+    const response = await request(app).patch("/api/auth/resetPassword").send({
+      email: "ada@example.com",
+      newPassword: "newPassword",
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.user).toBeUndefined();
+    expect(response.body.token).toBeUndefined();
+    expect(pool.query).toHaveBeenCalledTimes(0);
+  });
+  test("PATCH /api/auth/resetPassword missing newPassword should receive 400", async () => {
+    const response = await request(app).patch("/api/auth/resetPassword").send({
+      email: "ada@example.com",
+      oldPassword: "Password123!",
+    });
+
+    expect(response.status).toBe(400);
+    expect(response.body.user).toBeUndefined();
+    expect(response.body.token).toBeUndefined();
+    expect(pool.query).toHaveBeenCalledTimes(0);
+  });
+});
+
+describe("/api/auth/adminResetPassword", () => {
+  beforeEach(() => {
+    pool.query.mockReset();
+  });
+
+  test("PATCH /api/auth/adminResetPassword authorized password reset should receive 200", async () => {
+    const token = jwt.sign(
+      {
+        userId: 1,
+        email: "ada@example.com",
+        role: "ADMIN",
+      },
+      "test-secret",
+    );
+
+    pool.query.mockResolvedValueOnce({
+      rows: [
+        {
+          id: 2,
+          first_name: "Ada",
+          last_name: "Lovelace",
+          email: "ada@example.com",
+          phone_number: "555-123-4567",
+          role: "REQUESTER",
+          hash_password: "hashed-password-from-db",
+          password_reset: false,
+        },
+      ],
+    });
+
+    pool.query.mockResolvedValueOnce({
+      rows: [
+        {
+          id: 2,
+          first_name: "Ada",
+          last_name: "Lovelace",
+          email: "ada@example.com",
+          phone_number: "555-123-4567",
+          role: "REQUESTER",
+          hash_password: "hashed-password-from-db",
+          password_reset: true,
+        },
+      ],
+    });
+
+    const response = await request(app)
+      .patch("/api/auth/adminResetPassword")
+      .set({ Authorization: `Bearer ${token}` })
+      .send({
+        password: "NewPassword123!",
+        userId: 2,
+      });
+
+    expect(response.status).toBe(200);
+    const updateCall = pool.query.mock.calls[1];
+    const queryValues = updateCall[1];
+    const hashPassword = queryValues[0];
+    expect(hashPassword).not.toBe("NewPassword123!");
+    const isMatch = await bcrypt.compare("NewPassword123!", hashPassword);
+    expect(isMatch).toBe(true);
+    expect(queryValues).toContain(2);
+  });
+  test("PATCH /api/auth/adminResetPassword authorized admin non existent user should receive 404", async () => {
+    const token = jwt.sign(
+      {
+        userId: 1,
+        email: "ada@example.com",
+        role: "ADMIN",
+      },
+      "test-secret",
+    );
+
+    pool.query.mockResolvedValueOnce({
+      rows: [],
+    });
+
+    const response = await request(app)
+      .patch("/api/auth/adminResetPassword")
+      .set({ Authorization: `Bearer ${token}` })
+      .send({
+        password: "NewPassword123!",
+        userId: 2,
+      });
+
+    expect(response.status).toBe(404);
+  });
+  test("PATCH /api/auth/adminResetPassword unauthorized password reset should receive 403", async () => {
+    const token = jwt.sign(
+      {
+        userId: 1,
+        email: "ada@example.com",
+        role: "AGENT",
+      },
+      "test-secret",
+    );
+
+    pool.query.mockResolvedValueOnce({
+      rows: [
+        {
+          id: 2,
+          first_name: "Ada",
+          last_name: "Lovelace",
+          email: "ada@example.com",
+          phone_number: "555-123-4567",
+          role: "REQUESTER",
+          hash_password: "hashed-password-from-db",
+          password_reset: false,
+        },
+      ],
+    });
+
+    pool.query.mockResolvedValueOnce({
+      rows: [
+        {
+          id: 2,
+          first_name: "Ada",
+          last_name: "Lovelace",
+          email: "ada@example.com",
+          phone_number: "555-123-4567",
+          role: "REQUESTER",
+          hash_password: "hashed-password-from-db",
+          password_reset: true,
+        },
+      ],
+    });
+
+    const response = await request(app)
+      .patch("/api/auth/adminResetPassword")
+      .set({ Authorization: `Bearer ${token}` })
+      .send({
+        password: "NewPassword123!",
+        userId: 2,
+      });
+
+    expect(response.status).toBe(403);
+  });
+  test("PATCH /api/auth/adminResetPassword missing password 400", async () => {
+    const token = jwt.sign(
+      {
+        userId: 1,
+        email: "ada@example.com",
+        role: "ADMIN",
+      },
+      "test-secret",
+    );
+
+    const response = await request(app)
+      .patch("/api/auth/adminResetPassword")
+      .set({ Authorization: `Bearer ${token}` })
+      .send({
+        userId: 2,
+      });
+
+    expect(response.status).toBe(400);
+  });
+  test("PATCH /api/auth/adminResetPassword missing userId should receive 400", async () => {
+    const token = jwt.sign(
+      {
+        userId: 1,
+        email: "ada@example.com",
+        role: "ADMIN",
+      },
+      "test-secret",
+    );
+
+    const response = await request(app)
+      .patch("/api/auth/adminResetPassword")
+      .set({ Authorization: `Bearer ${token}` })
+      .send({
+        password: "password",
+      });
+
+    expect(response.status).toBe(400);
   });
 });
