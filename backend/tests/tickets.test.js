@@ -342,7 +342,7 @@ describe("GET /api/tickets/:id", () => {
       .set({ Authorization: `Bearer ${token}` });
     expect(response.status).toBe(403);
     expect(response.body).toEqual({
-      message: "user not authorized to view ticket",
+      message: "user does not have access to this ticket",
     });
   });
   test("GET /api/tickets/:id allows admin to view ticket they do not own", async () => {
@@ -749,7 +749,7 @@ describe("PATCH /api/tickets/:1", () => {
 
     expect(response.status).toBe(403);
     expect(response.body).toEqual({
-      message: "user not authorized to view ticket",
+      message: "user does not have access to this ticket",
     });
 
     expect(pool.query).toHaveBeenCalledTimes(1);
@@ -995,7 +995,7 @@ describe("PATCH /api/tickets/:ticketId/priority", () => {
 
     expect(response.status).toBe(403);
     expect(response.body).toEqual({
-      message: "user does not have permission to update ticket priority",
+      message: "user does not have access to this ticket",
     });
     expect(pool.query).toHaveBeenCalledTimes(1);
   });
@@ -1386,15 +1386,8 @@ describe("PATCH /api/tickets/:ticketId/assignee", () => {
   );
 
   test("REQUESTER cannot assign a ticket", async () => {
-    pool.query
-      .mockResolvedValueOnce({ rows: [testTickets[9]] })
-      .mockResolvedValueOnce({
-        rows: [
-          {
-            role: "AGENT",
-          },
-        ],
-      });
+    pool.query.mockResolvedValueOnce({ rows: [testTickets[9]] });
+
     const response = await request(app)
       .patch("/api/tickets/10/assignee")
       .set("Authorization", `Bearer ${requesterToken}`)
@@ -1403,7 +1396,7 @@ describe("PATCH /api/tickets/:ticketId/assignee", () => {
       });
     expect(response.status).toBe(403);
     expect(response.body.ticket).toBeUndefined();
-    expect(pool.query).toHaveBeenCalledTimes(2);
+    expect(pool.query).toHaveBeenCalledTimes(1);
   });
 
   test("AGENT cannot assign a ticket", async () => {

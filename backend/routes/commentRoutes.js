@@ -32,7 +32,7 @@ router.get(
   getCommentsByTicketId,
 );
 
-router.get("/:commentId", commentValidation, getCommentById);
+router.get("/:commentId", validateToken, commentValidation, getCommentById);
 
 router.post(
   "/",
@@ -42,8 +42,6 @@ router.post(
   createComment,
 );
 
-router.patch("/:commentId", commentValidation, updateComment);
-
-router.delete("/:commentId", commentValidation, deleteComment);
+router.patch("/:commentId", validateToken, commentValidation, updateComment);
 
 module.exports = router;

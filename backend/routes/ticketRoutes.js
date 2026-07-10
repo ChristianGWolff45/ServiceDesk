@@ -31,8 +31,9 @@ router.get("/", validateToken, getAllTickets);
 router.get("/me", validateToken, getMyTickets);
 router.get(
   "/:ticketId",
-  ticketValidation,
+
   validateToken,
+  ticketValidation,
   authorizeTicketAccess,
   getTicketById,
 );

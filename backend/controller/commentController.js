@@ -3,15 +3,15 @@ const pool = require("../db");
 async function getCommentsByTicketId(req, res) {
   const ticket = req.ticket;
   const user = req.user;
-  try {
-    const results = await pool.query(
-      `
-    SELECT *
+  let query = `SELECT *
     FROM comments
-    WHERE ticket_id = $1    
-    `,
-      [ticket.id],
-    );
+    WHERE ticket_id = $1 `;
+
+  if (user.role !== "ADMIN" && user.role !== "AGENT") {
+    query += `AND is_internal = false`;
+  }
+  try {
+    const results = await pool.query(query, [ticket.id]);
     res.json(results.rows);
   } catch (error) {
     console.log(error);
@@ -20,18 +20,16 @@ async function getCommentsByTicketId(req, res) {
 }
 
 async function getCommentById(req, res) {
-  const commentId = req.params.commentId;
-  try {
-    const results = await pool.query(
-      `
-      SELECT * FROM comments WHERE id = $1
-    `,
-      [commentId],
-    );
-    res.json(results.rows);
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ message: "could not get comment" });
+  if (
+    req.comment.author_id === req.user.id ||
+    req.user.role === "ADMIN" ||
+    req.user.role === "AGENT"
+  ) {
+    res.status(200).json(req.comment);
+  } else {
+    return res
+      .status(403)
+      .json({ message: "user does not have access to this ticket" });
   }
 }
 
@@ -41,15 +39,15 @@ async function createComment(req, res) {
   const user = req.user;
   if (isInternal) {
     if (user.role !== "AGENT" && user.role !== "ADMIN") {
-      return res
-        .status(403)
-        .json({
-          message:
-            "user does not have permission to create an internal comment",
-        });
+      return res.status(403).json({
+        message: "user does not have permission to create an internal comment",
+      });
     }
   }
   const authorId = user.id;
+  if (!authorId || !body || body === "") {
+    return res.status(400).json({ message: "no comment or user received" });
+  }
   try {
     const results = await pool.query(
       `
@@ -70,6 +68,14 @@ async function createComment(req, res) {
 async function updateComment(req, res) {
   const commentId = req.params.commentId;
   const updatedAt = new Date().toISOString();
+  if (req.user.id !== req.comment.author_id) {
+    return res
+      .status(403)
+      .json({ message: "user can not update edit users comment" });
+  }
+  if (!req.body.body || req.body.body === "") {
+    return res.status(400).json({ message: "comment body is empty" });
+  }
   try {
     const result = await pool.query(
       `
@@ -79,15 +85,15 @@ async function updateComment(req, res) {
           updatedAt = $2
         WHERE
           id = $3
+        RETURNING *
       `,
       [req.body.body, updatedAt, commentId],
     );
-    res.json(result);
+    res.json(result.rows[0]);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "could not update comment" });
   }
-  res.json(comment);
 }
 
 async function deleteComment(req, res) {

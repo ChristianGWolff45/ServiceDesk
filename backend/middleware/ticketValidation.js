@@ -19,6 +19,16 @@ async function TicketValidation(req, res, next) {
     if (result.rows.length === 0) {
       return res.status(404).json({ message: "could not locate ticket" });
     }
+    const ticket = result.rows[0];
+    if (
+      req.user.role !== "ADMIN" &&
+      req.user.role !== "AGENT" &&
+      req.user.id !== ticket.requester_id
+    ) {
+      return res
+        .status(403)
+        .json({ message: "user does not have access to this ticket" });
+    }
     req.ticket = result.rows[0];
   } catch (error) {
     console.log("error: ", error);
