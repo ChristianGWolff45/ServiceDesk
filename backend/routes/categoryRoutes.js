@@ -9,7 +9,7 @@ const {
 
 const { validateToken } = require("../middleware/authValidation");
 
-router.get("/", getCategories);
+router.get("/", validateToken, getCategories);
 
 router.patch("/:categoryId", validateToken, updateCategory);
 

@@ -44,11 +44,9 @@ async function updateCategory(req, res) {
 async function createCategory(req, res) {
   const categoryName = req.body.categoryName;
   if (req.user.role !== "ADMIN") {
-    return res
-      .status(403)
-      .json({
-        message: "user does not have permission to complete this action.",
-      });
+    return res.status(403).json({
+      message: "user does not have permission to complete this action.",
+    });
   }
   try {
     const result = await pool.query(
@@ -60,7 +58,7 @@ async function createCategory(req, res) {
         `,
       [categoryName],
     );
-    res.json(result.rows[0]);
+    res.status(201).json(result.rows[0]);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "could not get categories" });
