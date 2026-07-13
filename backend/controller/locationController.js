@@ -32,6 +32,9 @@ async function updateLocation(req, res) {
         `,
       [location, id],
     );
+    if (result.rows.length === 0) {
+      res.status(404).json({ message: "could not find location" });
+    }
     res.json(result.rows[0]);
   } catch (error) {
     console.log(error);
@@ -55,7 +58,7 @@ async function deleteLocation(req, res) {
     `,
       [id],
     );
-    res.json(result);
+    res.json({ message: "location succefully deleted" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "failed to delete location" });
@@ -76,7 +79,7 @@ async function createLocation(req, res) {
     `,
       [location],
     );
-    res.json(result.rows[0]);
+    res.status(201).json(result.rows[0]);
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "failed to post location" });

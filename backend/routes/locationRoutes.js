@@ -9,7 +9,7 @@ const {
 
 const { validateToken } = require("../middleware/authValidation");
 
-router.get("/", getAllLocations);
+router.get("/", validateToken, getAllLocations);
 
 router.patch("/:locationId", validateToken, updateLocation);
 
