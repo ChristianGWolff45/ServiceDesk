@@ -20,13 +20,13 @@ const {
 
 const { validateToken } = require("../middleware/authValidation.js");
 
-router.get("/", getAllUsers);
+router.get("/", validateToken, getAllUsers);
 
-router.get("/staff", getSupportStaff);
+router.get("/staff", validateToken, getSupportStaff);
 
-router.get("/:userId", userParamValidation, getUserById);
+router.get("/:userId", validateToken, userParamValidation, getUserById);
 
-router.get("/byEmail/:email", getUserByEmail);
+router.get("/byEmail/:email", validateToken, getUserByEmail);
 
 router.post("/", validateToken, createUser);
 

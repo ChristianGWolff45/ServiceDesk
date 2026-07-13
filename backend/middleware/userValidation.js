@@ -19,6 +19,7 @@ async function userParamValidation(req, res, next) {
     if (user.rows.length == 0) {
       return res.status(404).json({ message: "could not find user" });
     }
+    req.userResult = user.rows[0];
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "user could not be validated" });

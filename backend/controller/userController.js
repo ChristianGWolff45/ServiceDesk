@@ -15,7 +15,18 @@ async function getAllUsers(req, res) {
   }
   try {
     const result = await pool.query(query, values);
-    res.json(result.rows);
+    const users = result.rows.map(
+      (user) =>
+        (user = {
+          isActive: user.is_active,
+          firstName: user.first_name,
+          lastName: user.last_name,
+          email: user.email,
+          id: user.id,
+          role: user.role,
+        }),
+    );
+    res.json(users);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Failed to get users" });
@@ -23,39 +34,29 @@ async function getAllUsers(req, res) {
 }
 
 async function getUserById(req, res) {
-  try {
-    const result = await pool.query(`SELECT * FROM users WHERE id = $1`, [
-      req.params.userId,
-    ]);
-    if (result.rows.length === 0) {
-      return res.status(404).json({ message: "failed to find account" });
-    }
-    res.json(result.rows[0]);
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ message: "Failed to find user" });
-  }
+  const user = req.userResult;
+  const safeUser = {
+    isActive: user.is_active,
+    firstName: user.first_name,
+    lastName: user.last_name,
+    email: user.email,
+    id: user.id,
+    role: user.role,
+  };
+  res.json(safeUser);
 }
 
 async function createUser(req, res) {
-  const { firstName, lastName, email, phoneNumber, role, tempPassword } =
-    req.body;
+  const { firstName, lastName, email, role, tempPassword } = req.body;
   const user = req.user;
   if (user.role !== "ADMIN") {
     return res
       .status(403)
       .json({ message: "user does not have permission to create user" });
   }
-  if (
-    !firstName ||
-    !lastName ||
-    !email ||
-    !phoneNumber ||
-    !role ||
-    !tempPassword
-  ) {
+  if (!firstName || !lastName || !email || !role || !tempPassword) {
     return res.status(400).json({
-      message: "missing firstName, lastName, email, phoneNumber, or role",
+      message: "missing firstName, lastName, email, password or role",
     });
   }
   try {
@@ -66,16 +67,25 @@ async function createUser(req, res) {
         first_name,
         last_name,
         email,
-        phone_number,
         role,
         hash_password
       )
-      VALUES ($1,$2,$3,$4,$5,$6)
+      VALUES ($1,$2,$3,$4,$5)
       RETURNING *  
       `,
-      [firstName, lastName, email, phoneNumber || null, role, hash_password],
+      [firstName, lastName, email, role, hash_password],
     );
-    res.json(result.rows[0]);
+    const resultUser = result.rows[0];
+    const safeUser = {
+      isActive: resultUser.is_active,
+      firstName: resultUser.first_name,
+      lastName: resultUser.last_name,
+      email: resultUser.email,
+      id: resultUser.id,
+      role: resultUser.role,
+    };
+
+    res.json(safeUser);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "failed to create user" });
@@ -83,7 +93,7 @@ async function createUser(req, res) {
 }
 
 async function updateUser(req, res) {
-  const { firstName, lastName, email, phoneNumber, role } = req.body;
+  const { firstName, lastName, email, role } = req.body;
   const user = req.user;
   if (user.role !== "ADMIN") {
     return res
@@ -99,21 +109,30 @@ async function updateUser(req, res) {
         first_name = COALESCE($1, first_name),
         last_name = COALESCE($2, last_name),
         email = COALESCE($3, email),
-        phone_number = COALESCE($4, phone_number),
-        role = COALESCE($5, role)
-      WHERE id = $6
+        role = COALESCE($4, role)
+      WHERE id = $5
       RETURNING *
       `,
-      [firstName, lastName, email, phoneNumber, role, id],
+      [firstName, lastName, email, role, id],
     );
-    res.json(result.rows[0]);
+    const resultUser = result.rows[0];
+    const safeUser = {
+      isActive: resultUser.is_active,
+      firstName: resultUser.first_name,
+      lastName: resultUser.last_name,
+      email: resultUser.email,
+      id: resultUser.id,
+      role: resultUser.role,
+    };
+
+    res.json(safeUser);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "faled to update user" });
   }
 }
 
-function updateUserRole(req, res) {
+async function updateUserRole(req, res) {
   const id = req.params.userId;
   const role = req.body.role;
   const user = req.user;
@@ -122,18 +141,35 @@ function updateUserRole(req, res) {
       .status(403)
       .json({ message: "user does not have permission to create user" });
   }
+  if (!role || role === "") {
+    return res.status(400).json({ message: "no role entered" });
+  }
   try {
-    const result = pool.query(
+    const result = await pool.query(
       `
       UPDATE users
       SET
         role = COALESCE($1, role)
       WHERE
         id = $2
+      RETURNING *
       `,
       [role, id],
     );
-    res.json(result);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "could not find user" });
+    }
+    const resultUser = result.rows[0];
+    const safeUser = {
+      isActive: resultUser.is_active,
+      firstName: resultUser.first_name,
+      lastName: resultUser.last_name,
+      email: resultUser.email,
+      id: resultUser.id,
+      role: resultUser.role,
+    };
+
+    res.json(safeUser);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "could not update user role" });
@@ -158,8 +194,17 @@ async function deactivateUser(req, res) {
       `,
       [id],
     );
+    const resultUser = result.rows[0];
+    const safeUser = {
+      isActive: resultUser.is_active,
+      firstName: resultUser.first_name,
+      lastName: resultUser.last_name,
+      email: resultUser.email,
+      id: resultUser.id,
+      role: resultUser.role,
+    };
 
-    res.json(result.rows[0]);
+    res.json(safeUser);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "could not delete user" });
@@ -184,7 +229,17 @@ async function activateUser(req, res) {
       `,
       [id],
     );
-    res.json(result.rows[0]);
+    const resultUser = result.rows[0];
+    const safeUser = {
+      isActive: resultUser.is_active,
+      firstName: resultUser.first_name,
+      lastName: resultUser.last_name,
+      email: resultUser.email,
+      id: resultUser.id,
+      role: resultUser.role,
+    };
+
+    res.json(safeUser);
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "could not delete user" });
@@ -214,13 +269,25 @@ async function getUserByEmail(req, res) {
 
 async function getSupportStaff(req, res) {
   try {
-    const response = await pool.query(`
+    const result = await pool.query(`
           SELECT *
           FROM users
           WHERE 
           role IN ('AGENT', 'ADMIN')
       `);
-    res.json(response.rows);
+
+    const users = result.rows.map(
+      (user) =>
+        (user = {
+          isActive: user.is_active,
+          firstName: user.first_name,
+          lastName: user.last_name,
+          email: user.email,
+          id: user.id,
+          role: user.role,
+        }),
+    );
+    res.json(users);
   } catch (error) {
     return res.status(500).json({ message: "could not get support staff" });
   }
