@@ -22,7 +22,7 @@ export function ResetPassword({
         <p className="text-3xl">Reset User Password</p>
         <p>
           {user
-            ? user.first_name + " " + user.last_name
+            ? user.firstName + " " + user.lastName
             : "error could not find user"}
         </p>
         <p className="font-light ">

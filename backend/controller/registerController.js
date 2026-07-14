@@ -92,6 +92,14 @@ async function login(req, res) {
     if (result.rows.length < 1) {
       return res.status(404).json({ message: "could not find user" });
     }
+    if (result.rows[0].is_active === false) {
+      return res
+        .status(400)
+        .json({
+          message:
+            "account is disabled please contact administrater to activate you",
+        });
+    }
 
     const user = result.rows[0];
     if (user.hash_password === "[null]") {

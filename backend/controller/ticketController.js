@@ -74,7 +74,7 @@ async function getTicketById(req, res) {
   res.status(200).json(ticket);
 }
 async function createTicket(req, res) {
-  const { userId } = req.user.id;
+  const userId = req.user.id;
   const { title, description, location, category } = req.body;
   if (!title || !description || !category || !location) {
     return res.status(400).json({

@@ -1,10 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../hooks/useUser";
 import { useEffect } from "react";
+import { useAuthContext } from "../context/AuthContext";
 
 export function TicketItem({ ticket }) {
   const navigate = useNavigate();
-  const { user: assignee, setUserId, userLoading } = useUser();
+  const { token } = useAuthContext();
+  const { user: assignee, setUserId, userLoading } = useUser(token);
 
   useEffect(() => {
     setUserId(ticket.assignee_id);
@@ -45,9 +47,7 @@ export function TicketItem({ ticket }) {
         })}
       </p>
       <p className="font-semibold ">
-        {assignee
-          ? assignee.first_name + " " + assignee.last_name
-          : "UNASSIGNED"}
+        {assignee ? assignee.firstName + " " + assignee.lastName : "UNASSIGNED"}
       </p>
     </div>
   );

@@ -1,6 +1,6 @@
 import { API_URL } from "./API_URL";
 import { useState, useEffect } from "react";
-export function useUser() {
+export function useUser(token) {
   const [user, setUser] = useState(null);
   const [userLoading, setLoading] = useState(true);
   const [userId, setUserId] = useState(null);
@@ -13,7 +13,9 @@ export function useUser() {
     }
     if (userId > 0) {
       try {
-        const response = await fetch(`${API_URL}/users/${userId}`);
+        const response = await fetch(`${API_URL}/users/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         const data = await response.json();
         if (!response.ok) {
           return console.log(response);

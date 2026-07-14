@@ -1,13 +1,15 @@
 import { useState, useEffect } from "react";
 import { API_URL } from "./API_URL";
-export function UseLocations(token) {
+export function useLocations(token) {
   const [locations, setLocations] = useState([]);
   const [loading, setLoading] = useState(false);
 
   async function getLocations() {
     setLoading(true);
     try {
-      const response = await fetch(`${API_URL}/locations`);
+      const response = await fetch(`${API_URL}/locations`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (!response.ok) {
         return console.log(response);
       }

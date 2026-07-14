@@ -34,18 +34,6 @@ export function MyTickets() {
         </div>
       </div>
 
-      {/* <TicketFilter
-        status={status}
-        setStatus={setStatus}
-        priority={priority}
-        setPriority={setPriority}
-        assigneeId={assigneeId}
-        setAssigneeId={setAssigneeId}
-        category={category}
-        setCategory={setCategory}
-        search={search}
-        setSearch={setSearch}
-      /> */}
       {isKanban ? (
         <TicketKanban tickets={tickets} />
       ) : (

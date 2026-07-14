@@ -3,7 +3,7 @@ import { useCategories } from "../hooks/useCategories";
 import { Option } from "./Option";
 import { Tag, Plus, MapPin } from "lucide-react";
 import { useState, useEffect } from "react";
-import { UseLocations } from "../hooks/useLocations";
+import { useLocations } from "../hooks/useLocations";
 import { TicketOptions } from "./TicketOptions";
 import { useAuthContext } from "../context/AuthContext";
 export function TicketAdmin() {
@@ -14,7 +14,7 @@ export function TicketAdmin() {
     createLocation,
     updateLocation,
     deleteLocation,
-  } = UseLocations(token);
+  } = useLocations(token);
   const {
     categories,
     loading,

@@ -47,16 +47,15 @@ export function AdminUsers() {
         <Search />
         <input
           className="width-full focus:outline-none w-full"
-          placeholder="Search for user using name, email, or phone number"
+          placeholder="Search for user using name, or email"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
         ></input>
       </div>
       <div className="overflow-x-auto  border rounded-md">
-        <div className=" rounded-t-md grid p-2 grid-cols-[1fr_2fr_2fr_1fr_1fr_1fr_2fr] gap-4">
+        <div className=" rounded-t-md grid p-2 grid-cols-[1fr_2fr_1fr_1fr_1fr_2fr] gap-4">
           <p>Name</p>
           <p>Email</p>
-          <p>Phone Number</p>
           <p>Role</p>
           <p>Status</p>
           <p>Created</p>

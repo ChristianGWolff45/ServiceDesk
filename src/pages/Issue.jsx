@@ -1,24 +1,24 @@
 import { Header } from "../components/Header";
 import { useState, useEffect } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { UseLocations } from "../hooks/useLocations";
+import { useLocations } from "../hooks/useLocations";
 import { useCategories } from "../hooks/useCategories";
 import { createTicket } from "../hooks/useTicketCreate";
 import { useUsers } from "../hooks/useUsers";
 import { emailRegex, validateTicket } from "../utils/validateUser";
 import { useNavigate } from "react-router-dom";
 import { useAuthContext } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 export function Issue() {
   const navigate = useNavigate();
-  const { isLoggedIn, user: currentUser } = useAuthContext();
-  const { locations } = UseLocations();
-  const { categories } = useCategories();
-  const { getUserByEmail, user } = useUsers();
+  const { isLoggedIn, user: currentUser, token } = useAuthContext();
+  const { locations } = useLocations(token);
+  const { categories } = useCategories(token);
+  const { getUserByEmail, user } = useUsers(token);
 
   function clearIssue() {
     setFormData({
       Email: "",
-      PhoneNumber: "",
       Subject: "",
       Location: "",
       Category: "",
@@ -34,7 +34,6 @@ export function Issue() {
   }
   const [formData, setFormData] = useState({
     email: isLoggedIn ? currentUser.email : "",
-    phoneNumber: "",
     subject: "",
     location: "",
     category: "",
@@ -47,11 +46,6 @@ export function Issue() {
     }
   }, [formData.email]);
 
-  useEffect(() => {
-    if (user) {
-      handleChange("phoneNumber", user.phone_number);
-    }
-  }, [user]);
   async function handleSubmit(e) {
     e.preventDefault();
     const user = await getUserByEmail(formData.email);
@@ -67,6 +61,7 @@ export function Issue() {
       category: formData.category,
       errorMessage: formData.errorMessage,
       description: formData.description,
+      token: token,
     });
     navigate("/ticketPostSuccess");
   }
@@ -89,19 +84,6 @@ export function Issue() {
               placeholder="Email"
               value={formData.email}
               onChange={(e) => handleChange("email", e.target.value)}
-              className="border border-gray-700 rounded-sm p-2"
-            ></input>
-          </label>
-
-          <p className="m-4">Phone Number: Please enter 10-digit number</p>
-
-          <label className="flex flex-col gap-2 m-4">
-            Phone Number:
-            <input
-              name="Phone Number"
-              placeholder=""
-              value={formData.phoneNumber}
-              onChange={(e) => handleChange("phoneNumber", e.target.value)}
               className="border border-gray-700 rounded-sm p-2"
             ></input>
           </label>

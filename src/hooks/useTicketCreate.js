@@ -6,11 +6,15 @@ export async function createTicket({
   category,
   errorMessage,
   description,
+  token,
 }) {
   try {
     const response = await fetch(`${API_URL}/tickets`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
       body: JSON.stringify({
         requesterId,
         title,
@@ -24,7 +28,6 @@ export async function createTicket({
       console.log(response);
     }
     const data = await response.json();
-    console.log(data);
   } catch (error) {
     console.log(error);
   }

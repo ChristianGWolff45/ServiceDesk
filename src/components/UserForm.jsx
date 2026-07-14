@@ -13,10 +13,9 @@ export function UserForm({
   const [roleDropdown, setRoleDropdown] = useState(false);
 
   const [values, setValues] = useState({
-    firstName: user?.first_name ?? "",
-    lastName: user?.last_name ?? "",
+    firstName: user?.firstName ?? "",
+    lastName: user?.lastName ?? "",
     email: user?.email ?? "",
-    phoneNumber: user?.phone_number ?? "",
     role: user?.role ?? "REQUESTER",
     userId: user?.id ?? "",
     tempPassword: "",
@@ -75,14 +74,6 @@ export function UserForm({
         ></input>
       </label>
 
-      <label>
-        <p>Phone</p>
-        <input
-          value={values.phoneNumber}
-          onChange={(e) => handleChange("phoneNumber", e.target.value)}
-          className="border border-emerald-900 rounded-md p-2 w-full"
-        ></input>
-      </label>
       <div>
         <label>
           <p>Role</p>

@@ -7,7 +7,9 @@ export function useCategories(token) {
   async function getCategories() {
     try {
       setLoading(true);
-      const response = await fetch(`${API_URL}/categories`);
+      const response = await fetch(`${API_URL}/categories`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (!response.ok) {
         return console.log("failed to fetch categories");
       }
@@ -57,8 +59,11 @@ export function useCategories(token) {
     try {
       const response = await fetch(`${API_URL}/categories`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        Authorization: `Bearer ${token}`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+
         body: JSON.stringify({ categoryName }),
       });
       if (!response.ok) {

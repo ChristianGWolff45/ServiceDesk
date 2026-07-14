@@ -5,20 +5,19 @@ import { UserForm } from "./UserForm";
 export function User({ user, editUser, setUserStatus, setResetPassword }) {
   const [editingUser, setEditingUser] = useState(false);
   return (
-    <div className=" border-t items-center p-2  grid grid-cols-[1fr_2fr_2fr_1fr_1fr_1fr_2fr] gap-4">
+    <div className=" border-t items-center p-2  grid grid-cols-[1fr_2fr_1fr_1fr_1fr_2fr] gap-4">
       <div>
-        <p>{user.first_name}</p>
-        <p>{user.last_name}</p>
+        <p>{user.firstName}</p>
+        <p>{user.lastName}</p>
       </div>
 
       <p>{user.email}</p>
-      <p>{user.phone_number}</p>
       <p>{user.role}</p>
       <div>
         <p
-          className={`w-fit pl-2 pr-2 rounded-md ${user.is_active ? "bg-green-200 border border-emerald-900" : "bg-orange-200 border border-amber-900"}`}
+          className={`w-fit pl-2 pr-2 rounded-md ${user.isActive ? "bg-green-200 border border-emerald-900" : "bg-orange-200 border border-amber-900"}`}
         >
-          {user.is_active ? "active" : "inactive"}
+          {user.isActive ? "active" : "inactive"}
         </p>
       </div>
       <p>{new Date(user.created_at).toLocaleDateString([], {})}</p>
@@ -32,9 +31,9 @@ export function User({ user, editUser, setUserStatus, setResetPassword }) {
         </button>
         <button
           className="cursor-pointer"
-          onClick={() => setUserStatus(user.id, !user.is_active)}
+          onClick={() => setUserStatus(user.id, !user.isActive)}
         >
-          {user.is_active ? "Deactivate" : "Activate"}
+          {user.isActive ? "Deactivate" : "Activate"}
         </button>
       </div>
       {editingUser && (

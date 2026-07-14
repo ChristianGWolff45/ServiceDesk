@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const { pool } = require("../db");
 
-function validateToken(req, res, next) {
+async function validateToken(req, res, next) {
   const authToken = req.headers.authorization;
   if (!authToken) {
     return res.status(401).json({ message: "could not find token" });
@@ -9,6 +9,7 @@ function validateToken(req, res, next) {
   try {
     const token = authToken.split(" ")[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
     req.user = decoded;
     next();
   } catch (error) {

@@ -1,8 +1,9 @@
 import { useEffect } from "react";
 import { useUser } from "../hooks/useUser";
-
+import { useAuthContext } from "../context/AuthContext";
 export function Comment({ comment, bg, text, border }) {
-  const { user: author, userLoading, setUserId } = useUser();
+  const { token } = useAuthContext();
+  const { user: author, userLoading, setUserId } = useUser(token);
   useEffect(() => {
     setUserId(comment.author_id);
   }, []);
@@ -14,7 +15,7 @@ export function Comment({ comment, bg, text, border }) {
     <div className={`m-4 border border-${border}  bg-white rounded-xl`}>
       <div className="flex gap-4 items-center m-4">
         <h1 className="font-semibold text-xl">
-          {author.first_name + " " + author.last_name}
+          {author.firstName + " " + author.lastName}
         </h1>
         <div className={` bg-${bg} rounded-sm text-${text} m-1`}>
           <p>{author.role}</p>

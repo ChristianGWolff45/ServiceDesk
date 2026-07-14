@@ -31,7 +31,7 @@ import { Comment } from "../components/Comment";
 
 export function Ticket() {
   const { token, user, isLoggedIn } = useAuthContext();
-  const { agents } = useSupportStaff();
+  const { agents } = useSupportStaff(token);
   const [assigneeDropdown, setAssigneeDropdown] = useState(false);
 
   const { getMe } = useAuth();
@@ -43,8 +43,9 @@ export function Ticket() {
     updateStatus,
     updatePriority,
     assignTo,
+    assignToMe,
     removeAssignee,
-  } = useTicket(ticketId);
+  } = useTicket(ticketId, token);
 
   const statusOption = ["OPEN", "IN_PROGRESS", "RESOLVED", "CLOSED"];
   const [statusDropdown, setStatusDropdown] = useState(false);
@@ -54,8 +55,8 @@ export function Ticket() {
   const [priorityDropdown, setPriorityDropdown] = useState(false);
   const [prioritySelected, setPrioritySelected] = useState(null);
 
-  const { user: requester, setUserId: setRequesterId } = useUser();
-  const { user: assignee, setUserId: setAssigneeId } = useUser();
+  const { user: requester, setUserId: setRequesterId } = useUser(token);
+  const { user: assignee, setUserId: setAssigneeId } = useUser(token);
 
   const { comments, createComment } = useComments(ticketId, token);
 
@@ -81,17 +82,31 @@ export function Ticket() {
     if (!ticketLoading) {
       setStatusSelected(ticket.status);
       setPrioritySelected(ticket.priority);
-      setRequesterId(ticket.requester_id);
       setAssigneeId(ticket.assignee_id);
+      setRequesterId(ticket.requester_id);
     }
   }, [ticket]);
 
   useEffect(() => {
-    updateStatus(statusSelected, token);
+    if (
+      statusSelected === "OPEN" ||
+      statusSelected === "IN_PROGRESS" ||
+      statusSelected === "RESOLVED" ||
+      statusSelected === "CLOSED"
+    ) {
+      updateStatus(statusSelected);
+    }
   }, [statusSelected]);
 
   useEffect(() => {
-    updatePriority(prioritySelected, token);
+    if (
+      prioritySelected == "LOW" ||
+      prioritySelected == "MEDIUM" ||
+      prioritySelected == "HIGH" ||
+      prioritySelected == "CRITICAL"
+    ) {
+      updatePriority(prioritySelected);
+    }
   }, [prioritySelected]);
 
   if (ticketLoading) {
@@ -256,7 +271,7 @@ export function Ticket() {
                       assigned to{" "}
                       <strong>
                         {" "}
-                        {assignee.first_name} {assignee.last_name}
+                        {assignee.firstName} {assignee.lastName}
                       </strong>
                     </span>
                   ) : (
@@ -266,15 +281,6 @@ export function Ticket() {
               </div>
               {user.role === "ADMIN" ? (
                 <div>
-                  {/* <Dropdown
-                    dropdownStatus={assigneeDropdown}
-                    changeDropdownStatus={setAssigneeDropdown}
-                    setSelected={setAssigneeId}
-                    selected={assignee}
-                    selections={agents.map((agent) => {
-                      return agent.first_name + agent.last_name;
-                    })}
-                  /> */}
                   <p className="font-semibold mb-2 text-xl">Assign To</p>
                   <button
                     className="flex items-center bg-green-100 border border-emerald-900 rounded-lg w-full justify-between p-4 cursor-pointer text-2xl font-semibold text-emerald-900 "
@@ -282,7 +288,7 @@ export function Ticket() {
                   >
                     <p>
                       {assignee
-                        ? assignee.first_name + " " + assignee.last_name
+                        ? assignee.firstName + " " + assignee.lastName
                         : "UNASSIGNED"}
                     </p>
                     {assigneeDropdown ? <ChevronUp /> : <ChevronDown />}
@@ -292,13 +298,13 @@ export function Ticket() {
                       {agents.map((agent, index) => (
                         <button
                           onClick={() => {
-                            setAssigneeId(agent.id);
+                            assignTo(agent.id);
                             setAssigneeDropdown(false);
                           }}
                           key={index}
                           className={`flex  items-center rounded-lg  justify-between p-4 cursor-pointer text-2xl font-semibold  ${assignee && agent.id === assignee.id ? "text-white bg-emerald-900" : "text-emerald-900 hover:bg-green-100"}`}
                         >
-                          {agent.first_name + " " + agent.last_name}
+                          {agent.firstName + " " + agent.lastName}
                         </button>
                       ))}
                     </div>
@@ -314,7 +320,7 @@ export function Ticket() {
                 </button>
               ) : (
                 <button
-                  onClick={() => assignTo(token)}
+                  onClick={() => assignToMe()}
                   className="flex gap-2 w-full bg-green-700 text-white font-semibold rounded-xl cursor-pointer justify-center p-4 text-2xl items-center"
                 >
                   <UserPlus />
@@ -369,7 +375,7 @@ export function Ticket() {
               <p className="font-bold">
                 {`${
                   requester
-                    ? requester.first_name + " " + requester.last_name
+                    ? requester.firstName + " " + requester.lastName
                     : "failed to load requester"
                 }`}
               </p>
@@ -393,7 +399,7 @@ export function Ticket() {
               </div>
               <p className="font-bold">{`${
                 assignee
-                  ? assignee.first_name + " " + assignee.last_name
+                  ? assignee.firstName + " " + assignee.lastName
                   : "UNASSIGNED"
               }`}</p>
             </div>

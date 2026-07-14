@@ -19,7 +19,7 @@ export function useComments(ticketId, token) {
     }
   }
 
-  async function createComment(_body, _isInternal, token) {
+  async function createComment(_body, _isInternal) {
     if (!ticketId) return;
     try {
       const response = await fetch(`${API_URL}/tickets/${ticketId}/comments`, {
@@ -39,7 +39,6 @@ export function useComments(ticketId, token) {
       }
 
       const data = await response.json();
-      console.log(data.id);
       setComments([...comments, data]);
     } catch (error) {
       console.log(error);

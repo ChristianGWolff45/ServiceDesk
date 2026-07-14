@@ -17,15 +17,10 @@ export function validateUser(values) {
     errors.email = "Enter a valid email";
   }
 
-  if (!phoneRegex.test(values.phoneNumber)) {
-    errors.phoneNumber = "Enter a valid phone number";
-  }
-
   return errors;
 }
 
 export function validateTicket(values) {
-  console.log(JSON.stringify(values));
   const errors = {};
   if (!values.formData.location.trim()) {
     errors.location = "Location is required";
@@ -47,8 +42,5 @@ export function validateTicket(values) {
     errors.email = "Enter a valid email";
   }
 
-  if (!phoneRegex.test(values.formData.phoneNumber)) {
-    errors.phoneNumber = "Enter a valid phone number";
-  }
   return errors;
 }

@@ -1,12 +1,14 @@
 import { useState, useEffect } from "react";
 import { API_URL } from "./API_URL";
-export function useTicket(ticketId) {
+export function useTicket(ticketId, token) {
   const [ticket, setTicket] = useState();
   const [loading, setLoading] = useState(true);
   async function getTicket() {
     if (ticketId > 0) {
       try {
-        const response = await fetch(`${API_URL}/tickets/${ticketId}`);
+        const response = await fetch(`${API_URL}/tickets/${ticketId}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
         if (!response.ok) {
           throw new Error("failed to fetch ticket");
         }
@@ -24,7 +26,7 @@ export function useTicket(ticketId) {
     getTicket();
   }, []);
 
-  async function updateStatus(status, token) {
+  async function updateStatus(status) {
     try {
       const response = await fetch(`${API_URL}/tickets/${ticketId}/status`, {
         method: "PATCH",
@@ -45,7 +47,7 @@ export function useTicket(ticketId) {
     }
   }
 
-  async function updatePriority(priority, token) {
+  async function updatePriority(priority) {
     try {
       const response = await fetch(`${API_URL}/tickets/${ticketId}/priority`, {
         method: "PATCH",
@@ -66,7 +68,27 @@ export function useTicket(ticketId) {
     }
   }
 
-  async function assignTo(token) {
+  async function assignTo(assigneeId) {
+    try {
+      const response = await fetch(`${API_URL}/tickets/${ticketId}/assignee`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ assigneeId }),
+      });
+      if (!response.ok) {
+        console.log((await response.json()).message);
+        return;
+      }
+      const data = await response.json();
+      setTicket(data);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  async function assignToMe() {
     try {
       const response = await fetch(`${API_URL}/tickets/${ticketId}/assignMe`, {
         method: "PATCH",
@@ -86,7 +108,7 @@ export function useTicket(ticketId) {
     }
   }
 
-  async function removeAssignee(token) {
+  async function removeAssignee() {
     try {
       const response = await fetch(
         `${API_URL}/tickets/${ticketId}/removeAssignee`,
@@ -105,5 +127,6 @@ export function useTicket(ticketId) {
     updatePriority,
     assignTo,
     removeAssignee,
+    assignToMe,
   };
 }

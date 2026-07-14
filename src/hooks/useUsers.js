@@ -12,7 +12,9 @@ export function useUsers(token) {
         params.append("search", search);
       }
       setLoading(true);
-      const response = await fetch(`${API_URL}/users?${params.toString()}`);
+      const response = await fetch(`${API_URL}/users?${params.toString()}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       const users = await response.json();
       setUsers(users);
     } catch (error) {
@@ -132,7 +134,9 @@ export function useUsers(token) {
 
   async function getUserByEmail(email) {
     try {
-      const response = await fetch(`${API_URL}/users/byEmail/${email}`);
+      const response = await fetch(`${API_URL}/users/byEmail/${email}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       if (response.status === 404) {
         return;
       }
@@ -155,7 +159,9 @@ export function useUsers(token) {
     if (!userId) return;
     if (userId > 0) {
       try {
-        const response = await fetch(`${API_URL}/users/${userId}`);
+        const response = await fetch(`${API_URL}/users/${userId}`, {
+          headers: { Authorization: token },
+        });
         const data = await response.json();
         return data;
       } catch (error) {
