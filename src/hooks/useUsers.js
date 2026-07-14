@@ -56,7 +56,6 @@ export function useUsers(token) {
           firstName,
           lastName,
           email,
-          phoneNumber,
           role,
           tempPassword,
         }),

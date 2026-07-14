@@ -4,6 +4,8 @@ import { useUsers } from "../hooks/useUsers";
 import { useUser } from "../hooks/useUser";
 import { useCategories } from "../hooks/useCategories";
 import { useSupportStaff } from "../hooks/useSupportStaff";
+import { useAuthContext } from "../context/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 
 export function TicketFilter({
   status,
@@ -17,15 +19,16 @@ export function TicketFilter({
   search,
   setSearch,
 }) {
+  const { token } = useAuthContext();
   const [statusDropdown, setStatusDropdown] = useState(false);
   const [priorityDropdown, setPriorityDropdown] = useState(false);
   const [assigneeIdDropdown, setAssigneeIdDropdown] = useState(false);
   const [categoryDropdown, setCategoryDropdown] = useState(false);
-  const { user: assignee, setUserId } = useUser();
-  const { loading: categoriesLoading, categories } = useCategories();
+  const { user: assignee, setUserId } = useUser(token);
+  const { loading: categoriesLoading, categories } = useCategories(token);
 
-  const { loading: usersLoading, users, getUserById } = useUsers();
-  const { loading: agentsLoading, agents } = useSupportStaff();
+  const { loading: usersLoading, users, getUserById } = useUsers(token);
+  const { loading: agentsLoading, agents } = useSupportStaff(token);
 
   function closeDropdowns() {
     setStatusDropdown(false);
@@ -184,7 +187,7 @@ export function TicketFilter({
             Assignee:{" "}
             <span className="font-semibold">
               {assignee
-                ? `${assignee.first_name} ${assignee.last_name}`
+                ? `${assignee.firstName} ${assignee.lastName}`
                 : "All Users"}
             </span>
           </p>
@@ -214,7 +217,7 @@ export function TicketFilter({
                       setAssigneeId(agent.id);
                     }}
                   >
-                    {agent.first_name + " " + agent.last_name}
+                    {agent.firstName + " " + agent.lastName}
                   </button>
                 ))}
               </div>

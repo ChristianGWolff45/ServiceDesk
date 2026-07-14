@@ -32,6 +32,7 @@ export function Issue() {
       [name]: value,
     }));
   }
+
   const [formData, setFormData] = useState({
     email: isLoggedIn ? currentUser.email : "",
     subject: "",

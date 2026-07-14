@@ -17,12 +17,11 @@ function createToken(user) {
 }
 
 async function registerNewUser(req, res) {
-  const { firstName, lastName, email, phoneNumber, password, passwordReset } =
-    req.body;
-
-  if (!firstName || !lastName || !email || !phoneNumber || !password) {
+  let { firstName, lastName, email, password, passwordReset } = req.body;
+  email = email.toLowerCase();
+  if (!firstName || !lastName || !email || !password) {
     return res.status(400).json({
-      message: "missing firstname, lastname, password, email or phone number",
+      message: "missing firstname, lastname, email",
     });
   }
 
@@ -43,18 +42,17 @@ async function registerNewUser(req, res) {
     const response = await pool.query(
       `
             INSERT INTO 
-            users(first_name, last_name, email, phone_number, role, hash_password, password_reset)
-            VALUES($1, $2, $3, $4, $5, $6, $7)
+            users(first_name, last_name, email, role, hash_password, password_reset)
+            VALUES($1, $2, $3, $4, $5, $6)
             RETURNING*
         `,
       [
         firstName,
         lastName,
         email,
-        phoneNumber,
         "REQUESTER",
         passwordHash,
-        passwordReset ?? false,
+        passwordReset ?? true,
       ],
     );
     const user = response.rows[0];
@@ -65,7 +63,6 @@ async function registerNewUser(req, res) {
       email: user.email,
       firstName: user.first_name,
       lastName: user.last_name,
-      phoneNumber: user.phone_number,
       role: user.role,
     };
     res.status(201).json({ token, user: safeUser });
@@ -76,9 +73,10 @@ async function registerNewUser(req, res) {
 }
 
 async function login(req, res) {
-  const { password, email } = req.body;
-  if (!password || !email) {
-    return res.status(400).json({ message: "missing password or email" });
+  let { email, password } = req.body;
+  email = email.toLowerCase();
+  if (!email) {
+    return res.status(400).json({ message: "missing email" });
   }
   try {
     const result = await pool.query(
@@ -93,18 +91,14 @@ async function login(req, res) {
       return res.status(404).json({ message: "could not find user" });
     }
     if (result.rows[0].is_active === false) {
-      return res
-        .status(400)
-        .json({
-          message:
-            "account is disabled please contact administrater to activate you",
-        });
+      return res.status(400).json({
+        message:
+          "account is disabled please contact administrater to activate you",
+      });
     }
 
     const user = result.rows[0];
-    if (user.hash_password === "[null]") {
-      return res.status(403).json({ message: "user must reset password" });
-    }
+
     const successfullLogin = await bcrypt.compare(password, user.hash_password);
     if (!successfullLogin) {
       return res
@@ -120,7 +114,6 @@ async function login(req, res) {
       email: user.email,
       firstName: user.first_name,
       lastName: user.last_name,
-      phoneNumber: user.phone_number,
       role: user.role,
       id: user.id,
     };
@@ -129,7 +122,8 @@ async function login(req, res) {
       token: token,
     });
   } catch (error) {
-    res.status(500).json({ message: "cant login user" });
+    console.log(error);
+    return res.status(500).json({ message: "cant login user" });
   }
 }
 
@@ -140,7 +134,8 @@ async function getMe(req, res) {
 }
 
 async function resetPassword(req, res) {
-  const { email, oldPassword, newPassword } = req.body;
+  let { email, oldPassword, newPassword } = req.body;
+  email = email.toLowerCase();
   if (!email || !oldPassword || !newPassword) {
     return res.status(400).json({
       message: `missing ${!email ? "email" : ""} ${!oldPassword ? "old password" : ""} ${!newPassword ? "newPassword" : ""}`,

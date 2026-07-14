@@ -7,8 +7,8 @@ export function useAuth() {
     firstName,
     lastName,
     email,
-    phoneNumber,
     password,
+    passwordReset,
   }) {
     try {
       const response = await fetch(`${API_URL}/auth/registerNewUser`, {
@@ -18,8 +18,8 @@ export function useAuth() {
           firstName,
           lastName,
           email,
-          phoneNumber,
           password,
+          passwordReset,
         }),
       });
       if (!response.ok) {

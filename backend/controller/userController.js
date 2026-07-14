@@ -24,6 +24,7 @@ async function getAllUsers(req, res) {
           email: user.email,
           id: user.id,
           role: user.role,
+          createdAt: user.created_at,
         }),
     );
     res.json(users);
@@ -42,12 +43,14 @@ async function getUserById(req, res) {
     email: user.email,
     id: user.id,
     role: user.role,
+    createdAt: user.created_at,
   };
   res.json(safeUser);
 }
 
 async function createUser(req, res) {
-  const { firstName, lastName, email, role, tempPassword } = req.body;
+  let { firstName, lastName, email, role, tempPassword } = req.body;
+  email = email.toLowerCase();
   const user = req.user;
   if (user.role !== "ADMIN") {
     return res
@@ -71,12 +74,13 @@ async function createUser(req, res) {
         last_name,
         email,
         role,
-        hash_password
+        hash_password,
+        password_reset
       )
-      VALUES ($1,$2,$3,$4,$5)
+      VALUES ($1,$2,$3,$4,$5,$6)
       RETURNING *  
       `,
-      [firstName, lastName, email, role, hash_password],
+      [firstName, lastName, email, role, hash_password, true],
     );
     const resultUser = result.rows[0];
     const safeUser = {
