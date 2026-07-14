@@ -36,25 +36,33 @@
 
 ## Motivation
 
-<!-- Why did you build this project? -->
+I built ServiceDesk with two primary goals in mind.
+
+First, I wanted to solve a real problem. My help desk previously relied on a basic ticketing process that lacked many of the features found in modern service management platforms. ServiceDesk was created as a more robust and user-friendly solution, providing role-based access control, ticket assignment, comments, activity tracking, and a structured workflow inspired by enterprise tools like Freshservice.
+
+Second, I wanted to deepen my understanding of full-stack software development by building a technically challenging application from the ground up. As the Director of Technical Development for my fraternity, Kappa Theta Pi, it is my responsiblity to mentor and teach new members modern full-stack development practices. I wanted to build this project to better understand the tech stack I would be teaching.
 
 ## Description
 
-<!-- Brief overview of what the application does -->
+ServiceDesk is a full-stack IT service management application inspired by modern help desk platforms such as Freshservice. It enables requesters to submit and track technical support tickets, while providing agents with the tools to review, assign, prioritize, and move tickets through a structured workflow. Agents can communicate with requesters through public comments and collaborate internally using private notes.
+
+Administrators have full system management capabilities, including creating and managing user accounts, assigning roles, deactivating users, resetting passwords, and overseeing the overall support workflow. By combining role-based access control, secure authentication, and ticket lifecycle management, ServiceDesk provides a centralized platform for efficiently managing technical support requests.
 
 ## Problem Solved
 
-<!-- What real-world problem does this solve? -->
+My help desk previously relied on a deprecated ticketing application hosted on an internal webpage. The system was difficult to navigate, poorly organized, and made it challenging for both technicians and users to communicate effectively or keep track of support requests. Finding ticket information, following conversations, and managing the ticket lifecycle required unnecessary effort, leading to an inefficient support experience.
+
+ServiceDesk was built to address these shortcomings by providing a modern, intuitive web application tailored to the needs of our help desk. The application centralizes ticket management with a clean user interface, structured workflows, role-based access control, public and internal messaging, and improved visibility into ticket status and history. The result is a faster, more organized, and more collaborative support process for both requesters and support staff.
 
 ---
 
 # Live Demo
 
-**Frontend:** <!-- Link -->
+**Application:** [ServiceDesk](https://service-desk-three-eta.vercel.app/)
 
-**Backend API:** <!-- Link -->
+**Backend API:** [Render API](https://servicedesk-c5s8.onrender.com/)
 
-**GitHub Repository:** <!-- Link -->
+**GitHub Repository:** [GitHub Repository](https://github.com/ChristianGWolff45/ServiceDesk)
 
 ---
 
