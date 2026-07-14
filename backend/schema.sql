@@ -7,7 +7,7 @@ CREATE TABLE users (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
-    password_hash TEXT NOT NULL,
+    hash_password TEXT NOT NULL,
     password_reset BOOLEAN NOT NULL DEFAULT FALSE
 );
 

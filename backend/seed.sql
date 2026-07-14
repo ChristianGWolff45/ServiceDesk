@@ -5,7 +5,7 @@
 -- ===========================
 
 INSERT INTO users
-(first_name, last_name, email, role, password_hash)
+(first_name, last_name, email, role, hash_password)
 VALUES
 ('Admin', 'User', 'admin@example.com', 'ADMIN', '$2b$10$JIF64yE067/gGVP82fNkue1jwJJJmfPNhOmsOl8Rs3jkLlGIRmu/6'),
 ('Alice', 'Johnson', 'alice@example.com', 'AGENT', '$2b$10$JIF64yE067/gGVP82fNkue1jwJJJmfPNhOmsOl8Rs3jkLlGIRmu/6'),
