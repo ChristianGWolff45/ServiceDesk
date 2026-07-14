@@ -59,6 +59,9 @@ async function createUser(req, res) {
       message: "missing firstName, lastName, email, password or role",
     });
   }
+  if (role !== "ADMIN" && role !== "AGENT" && role !== "REQUESTER") {
+    return res.status(400).json({ message: "role is not valid" });
+  }
   try {
     const hash_password = await bcrypt.hash(tempPassword, 10);
     const result = await pool.query(

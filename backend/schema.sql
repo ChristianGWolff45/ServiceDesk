@@ -1,0 +1,49 @@
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    role TEXT NOT NULL CHECK (role IN ('REQUESTER', 'AGENT', 'ADMIN')),
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    password_hash TEXT NOT NULL,
+    password_reset BOOLEAN NOT NULL DEFAULT FALSE
+);
+
+CREATE TABLE tickets (
+    id SERIAL PRIMARY KEY,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'OPEN' CHECK (status IN ('OPEN', 'IN_PROGRESS', 'RESOLVED', 'CLOSED')),
+    priority TEXT NOT NULL DEFAULT 'LOW' CHECK (priority IN ('LOW', 'MEDIUM', 'HIGH', 'CRITICAL')),
+    category TEXT NOT NULL,
+
+    requester_id INT NOT NULL REFERENCES users(id),
+    assignee_id INT REFERENCES users(id),
+
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    location TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE comments(
+    id SERIAL PRIMARY KEY,
+    body TEXT NOT NULL,
+    ticket_id INT NOT NULL REFERENCES tickets(id),
+    author_id INT NOT NULL REFERENCES users(id),
+    is_internal BOOLEAN NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE categories(
+    id SERIAL PRIMARY KEY,
+    category TEXT NOT NULL UNIQUE
+);
+
+CREATE TABLE locations(
+    id SERIAL PRIMARY KEY,
+    location TEXT NOT NULL UNIQUE
+);
