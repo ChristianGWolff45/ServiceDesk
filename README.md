@@ -181,7 +181,7 @@ ServiceDesk was built to address these shortcomings by providing a modern, intui
 
 ## High-Level Architecture
 
-![ArchitecuteDiagram](ArchitectureDiagram.pdf)
+![ArchitecuteDiagram](./ArchitectureDiagram.pdf)
 
 ---
 
@@ -189,7 +189,7 @@ ServiceDesk was built to address these shortcomings by providing a modern, intui
 
 ## Entity Relationship Diagram
 
-![EntityRelation](ERDiagram.pdf)
+![EntityRelation](./ERDiagram.pdf)
 
 ---
 
