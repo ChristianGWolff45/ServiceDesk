@@ -1,6 +1,5 @@
 const express = require("express");
 const cors = require("cors");
-// require("dotenv").config();
 
 const app = express();
 
@@ -31,18 +30,6 @@ app.get("/", (req, res) => {
   res.send("ServiceDesk API is running");
 });
 
-app.get("/api/test-db", async (req, res) => {
-  try {
-    const result = await pool.query("SELECT NOW()");
-    res.json({
-      message: "DATABASE CONNECTED",
-      time: result.row[0],
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "failed to connect to database" });
-  }
-});
 app.use("/api/tickets", ticketRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/tickets/:ticketId/comments", commentRoutes);

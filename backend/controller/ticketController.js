@@ -1,0 +1,340 @@
+const pool = require("../db");
+
+async function getAllTickets(req, res) {
+  const user = req.user;
+  const { status, priority, assigneeId, category, search } = req.query;
+  if (user.role !== "ADMIN" && user.role !== "AGENT") {
+    return res
+      .status(403)
+      .json({ message: "user does not have permission to view all tickets" });
+  }
+
+  try {
+    let query = `
+      SELECT *
+      FROM tickets
+      WHERE 1 = 1
+    `;
+    let i = 1;
+    const values = [];
+    if (status) {
+      query += `
+        AND
+        status = $${i}
+      `;
+      i++;
+      values.push(status);
+    }
+    if (priority) {
+      query += `
+        AND
+        priority = $${i}
+      `;
+      i++;
+      values.push(priority);
+    }
+    if (category) {
+      query += `
+        AND
+        category = $${i}
+      `;
+      i++;
+      values.push(category);
+    }
+    if (assigneeId) {
+      query += `
+       AND
+        assignee_id = $${i}
+      `;
+      i++;
+      values.push(Number(assigneeId));
+    }
+    if (search) {
+      query += `
+      AND
+      (title ILIKE  $${i}
+      or description ILIKE  $${i}
+      or category ILIKE  $${i})
+      `;
+      values.push(`%${search}%`);
+    }
+
+    query += `
+      ORDER BY updated_at DESC
+    `;
+    const result = await pool.query(query, values);
+    res.json(result.rows);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "could not retrieve tickets" });
+  }
+}
+async function getTicketById(req, res) {
+  const ticket = req.ticket;
+  res.status(200).json(ticket);
+}
+async function createTicket(req, res) {
+  const userId = req.user.id;
+  const { title, description, location, category } = req.body;
+  if (!title || !description || !category || !location) {
+    return res.status(400).json({
+      message: "title, description, category, location,  is missing",
+    });
+  }
+
+  try {
+    const result = await pool.query(
+      `
+    INSERT INTO 
+    tickets(title, description, category, requester_id, location)
+    VALUES($1, $2, $3, $4, $5)
+    RETURNING *
+    `,
+      [title, description, category, userId, location],
+    );
+
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.log("error", error);
+    return res.status(500).json({ message: "could not create ticket" });
+  }
+}
+async function updateTicket(req, res) {
+  const ticketId = req.params.ticketId;
+  const { title, description, location, category } = req.body;
+  const updateTime = new Date().toISOString();
+  try {
+    const result = await pool.query(
+      `
+      UPDATE tickets
+      SET
+        title = COALESCE($1, title),
+        description = COALESCE($2, description),
+        category = COALESCE($3, category),
+        location = COALESCE($4, location),
+        updated_at = $5
+      WHERE id = $6
+      RETURNING *
+      `,
+      [title, description, category, location, updateTime, ticketId],
+    );
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "could not update ticket" });
+  }
+}
+async function updateTicketStatus(req, res) {
+  const ticketId = req.params.ticketId;
+  const status = req.body.status;
+  const user = req.user;
+  if (
+    status !== "OPEN" &&
+    status !== "IN_PROGRESS" &&
+    status !== "RESOLVED" &&
+    status !== "CLOSED"
+  ) {
+    return res.status(400).json({ message: "not a valid status" });
+  }
+  if (user.role !== "ADMIN" && user.role !== "AGENT") {
+    return res.status(403).json({
+      message: "user does not have permissions to change ticket status",
+    });
+  }
+  const updateTime = new Date().toISOString();
+  try {
+    const result = await pool.query(
+      `
+      UPDATE tickets
+      SET
+        status = COALESCE($1, status),
+        updated_at = $2
+      WHERE
+        id = $3
+      RETURNING *
+      `,
+      [status, updateTime, ticketId],
+    );
+    if (result.rows.length < 1) {
+      return res.status(404).json({ message: "could not find ticket" });
+    }
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "could not update ticket status" });
+  }
+}
+async function updateTicketPriority(req, res) {
+  const ticketId = req.params.ticketId;
+  const priority = req.body.priority;
+  const updateTime = new Date().toISOString();
+  const user = req.user;
+  if (
+    priority !== "LOW" &&
+    priority !== "MEDIUM" &&
+    priority !== "HIGH" &&
+    priority !== "CRITICAL"
+  ) {
+    return res.status(400).json({ message: "not a valid priority" });
+  }
+  if (user.role !== "ADMIN" && user.role !== "AGENT") {
+    return res.status(403).json({
+      message: "user does not have permission to update ticket priority",
+    });
+  }
+  try {
+    const result = await pool.query(
+      `
+      UPDATE tickets
+      SET
+        priority = COALESCE($1, priority),
+        updated_at = $2
+      WHERE
+        id = $3
+      RETURNING *
+      `,
+      [priority, updateTime, ticketId],
+    );
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ message: "could not update ticket priority" });
+  }
+}
+async function assignTicketMe(req, res) {
+  const user = req.user;
+  const ticketId = req.params.ticketId;
+  if (user.role !== "ADMIN" && user.role !== "AGENT") {
+    return res.status(403).json({
+      message: "this account does not have permission to assign tickets",
+    });
+  }
+  try {
+    const result = await pool.query(
+      `
+      UPDATE tickets
+      SET
+        assignee_id = COALESCE($1, assignee_id)
+      WHERE
+        id = $2
+      RETURNING *
+      `,
+      [user.id, ticketId],
+    );
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "could not assign ticket" });
+  }
+}
+async function removeAssignee(req, res) {
+  const user = req.user;
+  const ticket = req.ticket;
+  if (user.role !== "ADMIN" && user.role !== "AGENT") {
+    return res
+      .status(403)
+      .json({ message: "user does not have permission to remove agent" });
+  }
+  try {
+    const response = await pool.query(
+      `
+        UPDATE tickets
+        SET assignee_id = null
+        WHERE id = $1
+        RETURNING *
+      `,
+      [req.params.ticketId],
+    );
+    res.json(response.rows[0]);
+  } catch (error) {
+    return res.status(500).json({ message: "could not remove assignee" });
+  }
+}
+async function assignTicket(req, res) {
+  const assignee = req.body.assigneeId;
+  const ticketId = req.params.ticketId;
+  const user = req.user;
+  if (user.role !== "ADMIN" && user.role !== "AGENT") {
+    return res.status(403).json({
+      message: "this account does not have permission to assign tickets",
+    });
+  }
+  if (user.role === "AGENT" && user.id !== assignee) {
+    return res.status(403).json({
+      message:
+        "this account does not have permission to assign tickets to other agents",
+    });
+  }
+
+  try {
+    const result = await pool.query(
+      `
+      UPDATE tickets
+      SET
+        assignee_id = COALESCE($1, assignee_id)
+      WHERE
+        id = $2
+      RETURNING *
+      `,
+      [assignee, ticketId],
+    );
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "could not assign ticket" });
+  }
+}
+async function deleteTicket(req, res) {
+  const ticketId = req.params.ticketId;
+
+  try {
+    const result = await pool.query(
+      `
+      UPDATE tickets
+      SET
+        is_active = false
+      WHERE
+        id = $1
+      RETURNING *
+      `,
+      [ticketId],
+    );
+    res.json(result);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "could not delete ticket" });
+  }
+}
+async function getMyTickets(req, res) {
+  const user = req.user;
+  try {
+    const result = await pool.query(
+      `
+        SELECT *
+        FROM tickets
+        WHERE requester_id = $1
+      `,
+      [user.id],
+    );
+    res.json(result.rows);
+  } catch (error) {
+    res.status(500).json({ message: error });
+  }
+}
+
+module.exports = {
+  getAllTickets,
+  getTicketById,
+  createTicket,
+  updateTicket,
+  updateTicketStatus,
+  updateTicketPriority,
+  assignTicket,
+  assignTicketMe,
+  removeAssignee,
+  deleteTicket,
+  getMyTickets,
+};
