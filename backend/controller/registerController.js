@@ -18,12 +18,13 @@ function createToken(user) {
 
 async function registerNewUser(req, res) {
   let { firstName, lastName, email, password, passwordReset } = req.body;
-  email = email.toLowerCase();
+
   if (!firstName || !lastName || !email || !password) {
     return res.status(400).json({
       message: "missing firstname, lastname, email",
     });
   }
+  email = email.toLowerCase();
 
   try {
     const result = await pool.query(`SELECT * FROM users where email = $1`, [
@@ -74,10 +75,11 @@ async function registerNewUser(req, res) {
 
 async function login(req, res) {
   let { email, password } = req.body;
-  email = email.toLowerCase();
-  if (!email) {
-    return res.status(400).json({ message: "missing email" });
+
+  if (!email || !password) {
+    return res.status(400).json({ message: "missing password or email" });
   }
+  email = email.toLowerCase();
   try {
     const result = await pool.query(
       `
@@ -135,13 +137,13 @@ async function getMe(req, res) {
 
 async function resetPassword(req, res) {
   let { email, oldPassword, newPassword } = req.body;
-  email = email.toLowerCase();
+
   if (!email || !oldPassword || !newPassword) {
     return res.status(400).json({
       message: `missing ${!email ? "email" : ""} ${!oldPassword ? "old password" : ""} ${!newPassword ? "newPassword" : ""}`,
     });
   }
-
+  email = email.toLowerCase();
   try {
     const result = await pool.query(
       `

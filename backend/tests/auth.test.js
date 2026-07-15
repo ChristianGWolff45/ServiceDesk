@@ -13,7 +13,6 @@ const expectCookies = require("supertest/lib/cookies");
 //             first_name: "Ada",
 //             last_name: "Lovelace",
 //             email: "ada@example.com",
-//             phone_number: "555-123-4567",
 //             role: "REQUESTER",
 //             hash_password: "hashed-password-from-db",
 //             password_reset: false,
@@ -35,7 +34,6 @@ describe("/api/auth/registerNewUser", () => {
             first_name: "Ada",
             last_name: "Lovelace",
             email: "ada@example.com",
-            phone_number: "555-123-4567",
             role: "REQUESTER",
             hash_password: "hashed-password-from-db",
             password_reset: false,
@@ -46,7 +44,6 @@ describe("/api/auth/registerNewUser", () => {
       firstName: "Ada",
       lastName: "Lovelace",
       email: "ada@example.com",
-      phoneNumber: "555-123-4567",
       password: "Password123!",
     });
 
@@ -58,12 +55,11 @@ describe("/api/auth/registerNewUser", () => {
       email: "ada@example.com",
       firstName: "Ada",
       lastName: "Lovelace",
-      phoneNumber: "555-123-4567",
       role: "REQUESTER",
     });
 
     const insertCallValues = pool.query.mock.calls[1][1];
-    const storedPassword = insertCallValues[5];
+    const storedPassword = insertCallValues[4];
 
     expect(storedPassword).not.toBe("Password123!");
 
@@ -90,7 +86,6 @@ describe("/api/auth/registerNewUser", () => {
       firstName: "Ada",
       lastName: "Lovelace",
       email: "ada@example.com",
-      phoneNumber: "555-123-4567",
       password: "Password123!",
     });
     expect(response.status).toBe(409);
@@ -103,69 +98,43 @@ describe("/api/auth/registerNewUser", () => {
       firstName: "Ada",
       lastName: "Lovelace",
       email: "ada@example.com",
-      phoneNumber: "555-123-4567",
     });
 
     expect(response.status).toBe(400);
-    expect(response.body.message).toBe(
-      "missing firstname, lastname, password, email or phone number",
-    );
-    expect(pool.query).toHaveBeenCalledTimes(0);
-  });
-  test("POST /api/auth/registerNewUser missing phone number", async () => {
-    const response = await request(app).post("/api/auth/registerNewUser").send({
-      firstName: "Ada",
-      lastName: "Lovelace",
-      email: "ada@example.com",
-      password: "Password123!",
-    });
-
-    expect(response.status).toBe(400);
-    expect(response.body.message).toBe(
-      "missing firstname, lastname, password, email or phone number",
-    );
+    expect(response.body.message).toBe("missing firstname, lastname, email");
     expect(pool.query).toHaveBeenCalledTimes(0);
   });
   test("POST /api/auth/registerNewUser missing email", async () => {
     const response = await request(app).post("/api/auth/registerNewUser").send({
       firstName: "Ada",
       lastName: "Lovelace",
-      phoneNumber: "555-123-4567",
       password: "Password123!",
     });
 
     expect(response.status).toBe(400);
-    expect(response.body.message).toBe(
-      "missing firstname, lastname, password, email or phone number",
-    );
+    expect(response.body.message).toBe("missing firstname, lastname, email");
     expect(pool.query).toHaveBeenCalledTimes(0);
   });
   test("POST /api/auth/registerNewUser missing last name", async () => {
     const response = await request(app).post("/api/auth/registerNewUser").send({
       firstName: "Ada",
       email: "ada@example.com",
-      phoneNumber: "555-123-4567",
       password: "Password123!",
     });
 
     expect(response.status).toBe(400);
-    expect(response.body.message).toBe(
-      "missing firstname, lastname, password, email or phone number",
-    );
+    expect(response.body.message).toBe("missing firstname, lastname, email");
     expect(pool.query).toHaveBeenCalledTimes(0);
   });
   test("POST /api/auth/registerNewUser missing first name", async () => {
     const response = await request(app).post("/api/auth/registerNewUser").send({
       lastName: "Lovelace",
       email: "ada@example.com",
-      phoneNumber: "555-123-4567",
       password: "Password123!",
     });
 
     expect(response.status).toBe(400);
-    expect(response.body.message).toBe(
-      "missing firstname, lastname, password, email or phone number",
-    );
+    expect(response.body.message).toBe("missing firstname, lastname, email");
     expect(pool.query).toHaveBeenCalledTimes(0);
   });
 });
@@ -182,7 +151,6 @@ describe("/api/auth/login", () => {
           first_name: "Ada",
           last_name: "Lovelace",
           email: "ada@example.com",
-          phone_number: "555-123-4567",
           role: "REQUESTER",
           hash_password:
             "$2b$10$.hglnFm5R9j/a116RmusYOTth5QMEAYIuxlD/cse/qbGkSW8zTBaa",
@@ -206,7 +174,6 @@ describe("/api/auth/login", () => {
       firstName: "Ada",
       lastName: "Lovelace",
       email: "ada@example.com",
-      phoneNumber: "555-123-4567",
       role: "REQUESTER",
     });
 
@@ -232,7 +199,6 @@ describe("/api/auth/login", () => {
           first_name: "Ada",
           last_name: "Lovelace",
           email: "ada@example.com",
-          phone_number: "555-123-4567",
           role: "REQUESTER",
           hash_password: hashedPassword,
           password_reset: false,
@@ -308,7 +274,6 @@ describe("/api/auth/login", () => {
           first_name: "Ada",
           last_name: "Lovelace",
           email: "ada@example.com",
-          phone_number: "555-123-4567",
           role: "REQUESTER",
           hash_password: hashedPassword,
           password_reset: false,
@@ -341,41 +306,9 @@ describe("/api/auth/login", () => {
           first_name: "Ada",
           last_name: "Lovelace",
           email: "ada@example.com",
-          phone_number: "555-123-4567",
           role: "REQUESTER",
           hash_password: hashedPassword,
           password_reset: true,
-        },
-      ],
-    });
-
-    const result = await request(app).post("/api/auth/login").send({
-      email: "ada@example.com",
-      password: "Password123!",
-    });
-
-    expect(result.status).toBe(403);
-    expect(result.body.message).toBe("user must reset password");
-
-    expect(pool.query).toHaveBeenCalledTimes(1);
-    expect(pool.query.mock.calls[0][1]).toEqual(["ada@example.com"]);
-
-    expect(result.body.token).toBeUndefined();
-    expect(result.body.user).toBeUndefined();
-  });
-
-  test("POST /api/auth/login returns 403 when stored password is [null]", async () => {
-    pool.query.mockResolvedValueOnce({
-      rows: [
-        {
-          id: 1,
-          first_name: "Ada",
-          last_name: "Lovelace",
-          email: "ada@example.com",
-          phone_number: "555-123-4567",
-          role: "REQUESTER",
-          hash_password: "[null]",
-          password_reset: false,
         },
       ],
     });
@@ -460,7 +393,6 @@ describe("/api/auth/resetPassword", () => {
           first_name: "Ada",
           last_name: "Lovelace",
           email: "ada@example.com",
-          phone_number: "555-123-4567",
           role: "REQUESTER",
           hash_password: oldPasswordHash,
           password_reset: true,
@@ -474,7 +406,6 @@ describe("/api/auth/resetPassword", () => {
           first_name: "Ada",
           last_name: "Lovelace",
           email: "ada@example.com",
-          phone_number: "555-123-4567",
           role: "REQUESTER",
           hash_password: oldPasswordHash,
           password_reset: false,
@@ -514,7 +445,6 @@ describe("/api/auth/resetPassword", () => {
           first_name: "Ada",
           last_name: "Lovelace",
           email: "ada@example.com",
-          phone_number: "555-123-4567",
           role: "REQUESTER",
           hash_password: oldPasswordHash,
           password_reset: true,
@@ -604,7 +534,6 @@ describe("/api/auth/adminResetPassword", () => {
           first_name: "Ada",
           last_name: "Lovelace",
           email: "ada@example.com",
-          phone_number: "555-123-4567",
           role: "REQUESTER",
           hash_password: "hashed-password-from-db",
           password_reset: false,
@@ -619,7 +548,6 @@ describe("/api/auth/adminResetPassword", () => {
           first_name: "Ada",
           last_name: "Lovelace",
           email: "ada@example.com",
-          phone_number: "555-123-4567",
           role: "REQUESTER",
           hash_password: "hashed-password-from-db",
           password_reset: true,
@@ -685,7 +613,6 @@ describe("/api/auth/adminResetPassword", () => {
           first_name: "Ada",
           last_name: "Lovelace",
           email: "ada@example.com",
-          phone_number: "555-123-4567",
           role: "REQUESTER",
           hash_password: "hashed-password-from-db",
           password_reset: false,
@@ -700,7 +627,6 @@ describe("/api/auth/adminResetPassword", () => {
           first_name: "Ada",
           last_name: "Lovelace",
           email: "ada@example.com",
-          phone_number: "555-123-4567",
           role: "REQUESTER",
           hash_password: "hashed-password-from-db",
           password_reset: true,

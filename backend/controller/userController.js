@@ -49,7 +49,7 @@ async function getUserById(req, res) {
 
 async function createUser(req, res) {
   let { firstName, lastName, email, role, tempPassword } = req.body;
-  email = email.toLowerCase();
+
   const user = req.user;
   if (user.role !== "ADMIN") {
     return res
@@ -61,6 +61,7 @@ async function createUser(req, res) {
       message: "missing firstName, lastName, email, password or role",
     });
   }
+  email = email.toLowerCase();
   if (role !== "ADMIN" && role !== "AGENT" && role !== "REQUESTER") {
     return res.status(400).json({ message: "role is not valid" });
   }
