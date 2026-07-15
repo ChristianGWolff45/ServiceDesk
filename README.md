@@ -182,7 +182,7 @@ ServiceDesk was built to address these shortcomings by providing a modern, intui
 ## High-Level Architecture
 
 <<<<<<< HEAD
-![ArchitectureDiagram](./images/ArchitectureDiagram.pdf)
+![ArchitecuteDiagram](./images/ArchitectureDiagram.pdf)
 =======
 ![ArchitecuteDiagram](/ArchitectureDiagram.pdf)
 
