@@ -70,30 +70,30 @@ ServiceDesk was built to address these shortcomings by providing a modern, intui
 
 ## Login
 
-## ![Login](image.png)
+## ![Login](./images/image.png)
 
 ## Requester Dashboard
 
-## ![MyTickets](image-1.png)
+## ![MyTickets](./images/image-1.png)
 
 ## Agent Dashboard
 
-![AllTickets](image-2.png)
+![AllTickets](./images/image-2.png)
 
 ---
 
 ## Admin User Dashboard
 
-## ![Users](image-3.png)
+## ![Users](./images/image-3.png)
 
 ## Admin Ticket Option Dashboard
 
-## ![TicketOptions](image-4.png)
+## ![TicketOptions](./images/image-4.png)
 
 ## Ticket Details
 
-![TicketDetails1](image-5.png)
-![TicketDetails2](image-6.png)
+![TicketDetails1](./images/image-5.png)
+![TicketDetails2](./images/image-6.png)
 
 ---
 
@@ -181,7 +181,7 @@ ServiceDesk was built to address these shortcomings by providing a modern, intui
 
 ## High-Level Architecture
 
-![ArchitecuteDiagram](ArchitectureDiagram.pdf)
+![ArchitecuteDiagram](./images/ArchitectureDiagram.pdf)
 
 ---
 
@@ -189,7 +189,7 @@ ServiceDesk was built to address these shortcomings by providing a modern, intui
 
 ## Entity Relationship Diagram
 
-![EntityRelation](ERDiagram.pdf)
+![EntityRelation](./images/ERDiagram.pdf)
 
 ---
 
