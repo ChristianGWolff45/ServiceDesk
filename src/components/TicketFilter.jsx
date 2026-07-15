@@ -72,7 +72,7 @@ export function TicketFilter({
             e.stopPropagation();
             setStatusDropdown(!statusDropdown);
           }}
-          className=" p-2 rounded-md border cursor-pointer flex w-full justify-between"
+          className=" p-2 rounded-md border cursor-pointer flex h-full  items-center w-full justify-between"
         >
           <p>
             Status:{" "}
@@ -83,9 +83,9 @@ export function TicketFilter({
           {!statusDropdown ? <ChevronDown /> : <ChevronUp />}
         </button>
         {statusDropdown && (
-          <div className="flex border border-emerald-900  flex-col items-start absolute mt-16 w-full  rounded-md text-2xl  bg-white p-1">
+          <div className="flex border border-emerald-900   flex-col items-start absolute mt-16 w-full  rounded-md text-2xl  bg-white p-1">
             <button
-              className={`cursor-pointer p-2 w-full text-left rounded-md  ${status === null ? "bg-emerald-100" : "hover:bg-emerald-50"}`}
+              className={`cursor-pointer p-2 w-full  text-left rounded-md  ${status === null ? "bg-emerald-100" : "hover:bg-emerald-50"}`}
               onClick={() => setStatus(null)}
             >
               All Tickets
@@ -130,7 +130,7 @@ export function TicketFilter({
             e.stopPropagation();
             setPriorityDropdown(!priorityDropdown);
           }}
-          className="p-2 cursor-pointer rounded-md border flex w-full justify-between"
+          className="p-2 cursor-pointer h-full  items-center rounded-md border flex w-full justify-between"
         >
           <p>
             Priority:{" "}
@@ -181,7 +181,7 @@ export function TicketFilter({
             e.stopPropagation();
             setAssigneeIdDropdown(!assigneeIdDropdown);
           }}
-          className="p-2 rounded-md border cursor-pointer flex w-full justify-between"
+          className="p-2 h-full  items-center rounded-md border cursor-pointer flex w-full justify-between"
         >
           <p>
             Assignee:{" "}
@@ -232,7 +232,7 @@ export function TicketFilter({
             e.stopPropagation();
             setCategoryDropdown(!categoryDropdown);
           }}
-          className="p-2 rounded-md border flex w-full cursor-pointer justify-between"
+          className="p-2 h-full  items-center rounded-md border flex w-full cursor-pointer justify-between"
         >
           <p>
             Category:{" "}

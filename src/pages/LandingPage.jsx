@@ -2,9 +2,10 @@ import { TicketIcon } from "lucide-react";
 import { Header } from "../components/Header";
 import { Search } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
+import { useAuthContext } from "../context/AuthContext";
 export function LandingPage() {
   const navigate = useNavigate();
+  const { isLoggedIn } = useAuthContext();
   return (
     <div className="min-h-screen bg-gray-100 text-black">
       <div className="bg-green-800 pb-20 text-white font-semibold">
@@ -22,7 +23,14 @@ export function LandingPage() {
       </div>
       <button
         className="flex text-left items-center gap-4 w-120 m-auto p-8 mt-16 bg-white rounded-lg drop-shadow-2xl cursor-pointer hover:bg-gray-50 hover:mt-14"
-        onClick={() => navigate("/Issue")}
+        onClick={() => {
+          if (isLoggedIn) {
+            navigate("/Issue");
+          } else {
+            alert("must log in to create ticket");
+            navigate("/signIn");
+          }
+        }}
       >
         {/* <img src={ticketIcon} alt="ticket" className="w-32" /> */}
         <TicketIcon className="w-16 h-auto" />

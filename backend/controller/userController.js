@@ -9,8 +9,7 @@ async function getAllUsers(req, res) {
     query += `
     AND (first_name ILIKE $1
      OR last_name ILIKE $1
-     OR email ILIKE $1
-     OR phone_number ILIKE $1)`;
+     OR email ILIKE $1)`;
     values.push(`%${search}%`);
   }
   try {

@@ -70,84 +70,90 @@ ServiceDesk was built to address these shortcomings by providing a modern, intui
 
 ## Login
 
-<!-- Image -->
-
----
+## ![Login](image.png)
 
 ## Requester Dashboard
 
-<!-- Image -->
-
----
+## ![MyTickets](image-1.png)
 
 ## Agent Dashboard
 
-<!-- Image -->
+![AllTickets](image-2.png)
 
 ---
 
-## Admin Dashboard
+## Admin User Dashboard
 
-<!-- Image -->
+## ![Users](image-3.png)
 
----
+## Admin Ticket Option Dashboard
+
+## ![TicketOptions](image-4.png)
 
 ## Ticket Details
 
-<!-- Image -->
+![TicketDetails1](image-5.png)
+![TicketDetails2](image-6.png)
 
 ---
 
 # Features
 
-## Authentication
+## Authentication & Security
 
-- [ ] User Registration
-- [ ] Login
-- [ ] JWT Authentication
-- [ ] Protected Routes
-
-## Authorization
-
-- [ ] Requester
-- [ ] Agent
-- [ ] Admin
+- Secure user authentication using JSON Web Tokens (JWT)
+- Protected routes and API endpoints
+- Role-based access control for Requesters, Agents, and Administrators
+- Password hashing with bcrypt
 
 ## Ticket Management
 
-- [ ] Create Ticket
-- [ ] Update Ticket
-- [ ] Assign Ticket
-- [ ] Close Ticket
-- [ ] Reopen Ticket
+- Create, view, update, and close support tickets
+- Assign tickets to support agents
+- Track ticket status through a defined workflow
+- Set ticket priority and location
+- View ticket history and details
 
-## Comments
+## Comments & Collaboration
 
-- [ ] Public Comments
-- [ ] Internal Notes
+- Public comments for communication between requesters and agents
+- Internal comments visible only to agents and administrators
+- Edit existing comments
+- Role-based visibility for sensitive information
 
-## Search
+## User Management
 
-- [ ] Search
-- [ ] Filters
-- [ ] Sorting
+- Create new user accounts
+- Update user roles
+- Activate and deactivate users
+- Reset user passwords
+- Manage user information
 
-## Other
+## Search & Organization
 
-- [ ] Activity Log
-- [ ] Pagination
-- [ ] Responsive Design
+- Search for tickets
+- Filter tickets by status, priority, requester, assignee, and location
+- Organized dashboards based on user role
 
----
+## Testing
+
+- Comprehensive backend API testing using Jest and Supertest
+- Route authorization and permission testing
+- Validation and error handling tests
+
+## Deployment
+
+- React frontend deployed on Vercel
+- Express.js backend deployed on Render
+- PostgreSQL database hosted in the cloud
 
 # Tech Stack
 
 ## Frontend
 
-- React
+- React.js
 - React Router
-- CSS
-- <!-- Other -->
+- Tailwind CSS
 
 ## Backend
 
@@ -155,7 +161,6 @@ ServiceDesk was built to address these shortcomings by providing a modern, intui
 - Express.js
 - JWT
 - bcrypt
-- <!-- Other -->
 
 ## Database
 
@@ -168,35 +173,15 @@ ServiceDesk was built to address these shortcomings by providing a modern, intui
 
 ## Deployment
 
-- Frontend:
-- Backend:
-- Database:
-
----
+- Frontend: Vercel
+- Backend: Render
+- Database: Neon
 
 # Architecture
 
 ## High-Level Architecture
 
-<!-- Insert architecture diagram -->
-
-```
-Browser
-    |
-React Frontend
-    |
- REST API
-    |
-Express Backend
-    |
-PostgreSQL
-```
-
----
-
-## Request Flow
-
-<!-- Optional sequence diagram -->
+![ArchitecuteDiagram](ArchitectureDiagram.pdf)
 
 ---
 
@@ -204,99 +189,23 @@ PostgreSQL
 
 ## Entity Relationship Diagram
 
-<!-- Insert ER Diagram -->
-
----
-
-## Database Schema
-
-### Users
-
-| Column | Type | Description |
-| ------ | ---- | ----------- |
-|        |      |             |
-
-### Tickets
-
-| Column | Type | Description |
-| ------ | ---- | ----------- |
-|        |      |             |
-
-### Comments
-
-| Column | Type | Description |
-| ------ | ---- | ----------- |
-|        |      |             |
-
-### Locations
-
-| Column | Type | Description |
-| ------ | ---- | ----------- |
-|        |      |             |
+![EntityRelation](ERDiagram.pdf)
 
 ---
 
 # Authorization
 
-| Action             | Requester | Agent | Admin |
-| ------------------ | :-------: | :---: | :---: |
-| Create Ticket      |           |       |       |
-| View Own Tickets   |           |       |       |
-| View All Tickets   |           |       |       |
-| Assign Ticket      |           |       |       |
-| Change Status      |           |       |       |
-| Add Public Comment |           |       |       |
-| Add Internal Note  |           |       |       |
-| Manage Users       |           |       |       |
-
----
-
-# API Overview
-
-## Authentication
-
-| Method | Endpoint | Description |
-| ------ | -------- | ----------- |
-| POST   |          |             |
-| POST   |          |             |
-
----
-
-## Tickets
-
-| Method | Endpoint | Description |
-| ------ | -------- | ----------- |
-| GET    |          |             |
-| POST   |          |             |
-| PATCH  |          |             |
-| DELETE |          |             |
-
----
-
-## Comments
-
-| Method | Endpoint | Description |
-| ------ | -------- | ----------- |
-| GET    |          |             |
-| POST   |          |             |
-| PATCH  |          |             |
-
----
-
-## Users
-
-| Method | Endpoint | Description |
-| ------ | -------- | ----------- |
-| GET    |          |             |
-| PATCH  |          |             |
-
----
-
-## Locations
-
-| Method | Endpoint | Description |
-| ------ | -------- | ----------- |
-| GET    |          |             |
+| Action              | Requester | Agent | Admin |
+| ------------------- | :-------: | :---: | :---: |
+| Create Ticket       |    Yes    |  Yes  |  Yes  |
+| View Own Tickets    |    Yes    |  Yes  |  Yes  |
+| View All Tickets    |    No     |  Yes  |  Yes  |
+| Assign Self Ticket  |    No     |  Yes  |  Yes  |
+| Assign Other Ticket |    No     |  No   |  Yes  |
+| Change Status       |    No     |  Yes  |  Yes  |
+| Add Public Comment  |    Yes    |  Yes  |  Yes  |
+| Add Internal Note   |    No     |  Yes  |  Yes  |
+| Manage Users        |    No     |  No   |  Yes  |
 
 ---
 
@@ -305,7 +214,7 @@ PostgreSQL
 ```text
 ServiceDesk/
 │
-├── frontend/
+├───┐
 │   ├── public/
 │   ├── src/
 │   │   ├── assets/
@@ -352,7 +261,6 @@ npm start
 ## Frontend
 
 ```bash
-cd frontend
 npm install
 npm run dev
 ```
@@ -383,25 +291,25 @@ VITE_API_URL=
 
 ### Admin
 
-Email:
+Email: admin@example.com
 
-Password:
+Password: password
 
 ---
 
 ### Agent
 
-Email:
+Email: agent@example.com
 
-Password:
+Password: password
 
 ---
 
 ### Requester
 
-Email:
+Email: requester@example.com
 
-Password:
+Password: requester
 
 ---
 
@@ -412,20 +320,6 @@ Password:
 ```bash
 npm test
 ```
-
-## Coverage
-
-<!-- Add coverage screenshot or percentage -->
-
----
-
-# Deployment
-
-| Service  | Provider |
-| -------- | -------- |
-| Frontend |          |
-| Backend  |          |
-| Database |          |
 
 ---
 
@@ -438,7 +332,6 @@ npm test
 - [ ] Real-time Notifications
 - [ ] AI Ticket Categorization
 - [ ] Knowledge Base
-- [ ] Dark Mode
 
 ---
 
@@ -446,39 +339,41 @@ npm test
 
 ## Biggest Technical Challenges
 
--
+### Authentication & Authorization
 
--
+Implementing secure authentication and role-based authorization was one of the most challenging aspects of the project. Designing JWT authentication, protecting API routes, validating user permissions, and ensuring requesters, agents, and administrators only had access to the appropriate resources required careful planning and extensive testing.
 
--
+### Frontend-to-Backend Integration
+
+Connecting the React frontend with the Express backend taught me how data flows through a full-stack application. Managing asynchronous API requests, handling authentication tokens, updating application state after requests, and debugging communication issues between the frontend and backend helped me develop a much stronger understanding of the request-response lifecycle.
+
+### Backend Testing
+
+Learning Jest and Supertest was another significant challenge. Designing comprehensive tests for authentication, authorization, validation, and edge cases required thinking about the application from the perspective of both expected and unexpected user behavior. Writing these tests greatly increased my confidence in the reliability and security of the API.
 
 ## What I Learned
 
--
-
--
-
--
+- Design a scalable full-stack application using React, Express, and PostgreSQL.
+- Implement secure authentication and role-based authorization using JSON Web Tokens (JWT).
+- Design user roles and ticket workflows that enforce business rules through backend authorization.
+- Build secure REST APIs with proper validation, error handling, and protected endpoints.
+- Connect a React frontend to an Express backend while managing asynchronous data flow and application state.
+- Write automated API tests with Jest and Supertest to verify functionality, authorization, and edge cases.
+- Deploy and maintain a production-ready application using modern cloud hosting platforms.
 
 ## What I'd Improve
 
--
+- Add backend validation to ensure that submitted category and location IDs exist in the database before creating or updating tickets. Currently, these values are validated on the frontend but are not verified against the database on the backend.
 
--
+- Expand automated testing to include integration tests against a real PostgreSQL test database in addition to the current mocked API tests.
 
-- ***
+- Refactor portions of the frontend to improve component reusability and reduce duplicated UI logic as the application continues to grow.
+
+---
 
 # Author
 
-**Name**
-
-GitHub:
-
-LinkedIn:
-
-Portfolio:
-
-Email:
+**Christian Wolff**
 
 ---
 
